@@ -2,6 +2,7 @@ export type VIEW = 'month' | 'year' | 'multiyear';
 
 export const DAYS_PER_WEEK = 7;
 export const YEARS_PER_PAGE = 16; // divisible by 4, or number of years per row in Multiyear
+export const MONTHS_PER_ROW = 4;
 
 // Months and Years
 export const CURRENT_YEAR = +(new Date().getFullYear());
@@ -111,6 +112,20 @@ export const getDaysPerMonth = (month = CURRENT_MONTH, year = CURRENT_YEAR) => {
         : monthsWith30.includes(month) ? 30 : 31);
 }
 
+/**
+      * Gets the month in this year that the given Date falls on.
+      * Returns null if the given Date is in another year.
+      */
+export const getMonthInCurrentYear = (date: Date | null, activeDate: Date | null) => {
+    return activeDate
+        ? (date && getYear(date) === getYear(activeDate))
+            ? getMonth(date)
+            : null
+        : date
+            ? getMonth(date)
+            : null;
+}
+
 // year
 export const getYearName = (date: Date) => {
     return date.getFullYear() + '';
@@ -129,6 +144,9 @@ export const isDateInstance = (date: string | Date) => {
 }
 export const isValid = (date: string | Date) => {
     return isDate(date);
+}
+export const getValidDateOrNull = (obj: any) => {
+    return (isDateInstance(obj) && isValid(obj)) ? obj : null;
 }
 
 // tools
@@ -187,6 +205,20 @@ export const compareDates = (date1: Date, date2: Date) => {
         (date1 > date2 ? 1 : -1) - (date1 < date2 ? 1 : -1) :
         NaN);
 }
+const compareNumbers = (value1: number, value2: number) => {
+    return (value1 > value2 ? 1 : -1) - (value1 < value2 ? 1 : -1);
+}
+export const compareMonthsAndYears = (date1: Date, date2: Date) => {
+    const comparedYears = compareYears(date1, date2);
+    if (comparedYears === 0) {
+        return compareNumbers(getMonth(date1), getMonth(date2));
+    }
+    return comparedYears;
+}
+export const compareYears = (date1: Date, date2: Date) => {
+    return compareNumbers(getYear(date1), getYear(date2));
+}
+
 export const getDayDifference = (date1: Date, date2: Date) => {
     // divided by milliseconds per day
     return (date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24);
@@ -251,4 +283,8 @@ export const getActiveOffset = (
 /** Gets remainder that is non-negative, even if first number is negative */
 const euclideanModulo = (a: number, b: number) => {
     return (a % b + b) % b;
+}
+
+export const formatDateDisplay = (date: Date) => {
+    return getMonth(date) + ' - ' + getDay(date) + ' - ' + getYear(date);
 }

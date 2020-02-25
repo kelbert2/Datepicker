@@ -1,6 +1,6 @@
 import DatepickerContext from './DatepickerContext';
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { YEARS_PER_PAGE, getYear, createDate, addCalendarYears, addCalendarDays, compareDatesGreaterThan, getYearName, getActiveOffset, getStartingYear } from './CalendarUtils';
+import { YEARS_PER_PAGE, getYear, createDate, addCalendarYears, addCalendarDays, compareDatesGreaterThan, getYearName, getActiveOffset, getStartingYear, compareYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 
 export const YEARS_PER_ROW = 4;
@@ -64,10 +64,11 @@ function Multiyear() {
 
         dispatch
     } = useContext(DatepickerContext);
-
+    /** Grid of ICalendarCells representing years. */
     const [_years, _setYear] = useState([] as ICalendarCell[][]);
     // const [_todayYear, _setTodayYear] = useState((todayDate ? todayDate : new Date()).getFullYear());
     // const [_selectedYear, _setSelectedYear] = useState();
+    /** Previous active date. */
     const [_prevActiveDate, _setPrevActiveDate] = useState(activeDate);
 
     useEffect(() => {
@@ -171,15 +172,12 @@ function Multiyear() {
         }
     }
 
-    const _activeDateChange = (date: Date) => {
-        dispatch({ type: 'set-active-date', payload: date });
-    }
     /** Handles keydown events on the calendar body when calendar is in multi-year view. */
     const _handleUserKeyPress = useCallback((event) => {
         const { keyCode } = event;
         // const isRtl = isRtl();
 
-        const oldActiveDate = activeDate;
+        // const oldActiveDate = activeDate;
         switch (keyCode) {
             // case 13: {// Enter
             // }
@@ -236,9 +234,10 @@ function Multiyear() {
                 // Don't prevent default or focus active cell on keys that we don't explicitly handle.
                 return;
         }
-        if (compareDatesGreaterThan(oldActiveDate, activeDate)) {
+        if (compareDatesGreaterThan(_prevActiveDate, activeDate)) {
             // activeDateChange.emit(activeDate);
-            _activeDateChange(activeDate);
+            // dispatch({ type: 'set-active-date', payload: activeDate });
+            _setPrevActiveDate(activeDate);
         }
 
         _focusActiveCell();
@@ -253,7 +252,7 @@ function Multiyear() {
         };
     }, [_handleUserKeyPress]);
 
-
+    /** Returns flat index (not row, column) of active cell. */
     const _getActiveCell = () => {
         return getActiveOffset(activeDate, minDate, maxDate);
     }
@@ -283,7 +282,7 @@ function Multiyear() {
         }
 
         const firstOfYear = createDate(year, 0, 1);
-        // If any date in the year is enabled count the year as enabled.
+        // If any date in the year is enabled, count the year as enabled.
         for (let date = firstOfYear; getYear(date) === year;
             date = addCalendarDays(date, 1)) {
             if (dateFilter(date)) {
@@ -296,11 +295,18 @@ function Multiyear() {
     // /** Determines whether the user has the Right To Left layout direction. */
     // //   private const _isRtl = () => {
     // //     return _dir && _dir.value === 'rtl';
-
     // // }
 
+    /** Returns if all cells are within the beginDate and endDate range. */
+    const _isRangeFull = () => {
+        if (rangeMode && beginDate && endDate) {
+            return getYear(_years[0][0].value) > getYear(beginDate)
+                && getYear(_years[_years.length - 1][YEARS_PER_ROW - 1].value) < getYear(endDate);
+        }
+        return false;
+    }
     // /**  Returns true if two dates will display in the same multiyear view */
-    function _isSameMultiyearView(date1: Date, date2: Date) {
+    const _isSameMultiyearView = (date1: Date, date2: Date) => {
         const year1 = getYear(date1);
         const year2 = getYear(date2);
         const startingYear = getStartingYear(minDate, maxDate);
@@ -309,7 +315,7 @@ function Multiyear() {
     }
 
     return (
-        <table>
+        <table role="presentation">
             <thead>
                 <tr>
                     <th colSpan={4} className="divider"></th>
@@ -318,13 +324,14 @@ function Multiyear() {
 
             <CalendarBody
                 rows={_years}
-                labelText={'LabelText'}
+                labelText={''}
                 labelMinRequiredCells={4}
                 selectedValueChange={_yearSelected}
+                compare={compareYears}
                 beginDateSelected={false}
                 isBeforeSelected={false}
                 isCurrentMonthBeforeSelected={false}
-                isRangeFull={false}
+                isRangeFull={_isRangeFull()}
                 activeCell={_getActiveCell()}
                 numCols={4}
                 cellAspectRatio={4 / 7}

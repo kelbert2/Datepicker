@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import DatepickerContext from './DatepickerContext';
-import { sameDate, dateToNumber, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, getYear, getYearName } from './CalendarUtils';
+import { sameDate, dateToNumber, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, getYear, getYearName, compareDates } from './CalendarUtils';
 
 export interface ICalendarCell {
     cellIndex: number,
@@ -21,6 +21,7 @@ export interface CalendarBodyProps {
          *  @param labelText: Label for the table ("JAN 2020")
          *  @param labelMinRequiredCells: Minimum number of cells the label spans
          *  @param selectedValueChange: Emits cell's value when a new cell is selected, 
+         *  @param compare: Function to use to compare two dates (returns 0 if equal, negative if the first value is less than the second, positive if greater than)
          *  @param beginDateSelected: If the user has already selected the start of the dates interval
          *  @param isBeforeSelected: If the current month is before the date already selected
          *  @param isCurrentMonthBeforeSelected: True when the current month is before the date already selected
@@ -35,6 +36,7 @@ export function CalendarBody(
         labelText = '',
         labelMinRequiredCells = 3,
         selectedValueChange = (cellValue: Date) => { },
+        compare = compareDates,
         beginDateSelected = false,
         isBeforeSelected = false,
         isCurrentMonthBeforeSelected = false,
@@ -47,6 +49,7 @@ export function CalendarBody(
         labelText: string,
         labelMinRequiredCells: number,
         selectedValueChange: (cellValue: Date) => {} | void,
+        compare: (date1: Date, date2: Date) => number,
         beginDateSelected: boolean,
         isBeforeSelected: boolean,
         isCurrentMonthBeforeSelected: boolean,
@@ -142,7 +145,8 @@ export function CalendarBody(
         if (isRangeFull) {
             return true;
         }
-        if (date === beginDate || date === endDate) {
+        // if (date === beginDate || date === endDate) {
+        if (beginDate && endDate && (compare(date, beginDate) === 0 || compare(date, endDate) === 0)) {
             return false;
         }
         // amidst selection process: 
@@ -152,7 +156,7 @@ export function CalendarBody(
         // if (endDate && !beginDate) {
         //     return date < endDate;
         // }
-        return beginDate && endDate && date > beginDate && date < endDate;
+        return beginDate && endDate && compare(date, beginDate) > 0 && compare(date, endDate) < 0;
     }
 
     // TODO: allow to select begin after end, and hover before. Currently can only do range in Month Mode
@@ -167,7 +171,7 @@ export function CalendarBody(
             return cellNumber > _cellHovered;
         }
         if (beginDate && _cellHovered > dateToMonthCellIndex(beginDate)) {
-            return date > beginDate && cellNumber > _cellHovered;
+            return compare(date, beginDate) > 0 && cellNumber > _cellHovered;
         }
         return false;
     }
@@ -204,7 +208,7 @@ export function CalendarBody(
 
     /** Whether to mark the cell as the beginning of the range. */
     const _isBeginningOfRange = (date: Date, cellIndex?: number) => {
-        const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
+        // const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
         // const beginNumber = beginDate ? dateToMonthCellIndex(beginDate) : 0;
 
         // if (rangeMode && beginDateSelected && _cellHovered) {
@@ -218,7 +222,7 @@ export function CalendarBody(
         // return beginDate === date;
 
         if (rangeMode && beginDateSelected && beginDate) {
-            return sameDate(beginDate, date);
+            return compare(beginDate, date) === 0;
         }
         return false;
     }
@@ -228,11 +232,11 @@ export function CalendarBody(
         const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
         const beginNumber = beginDate ? dateToMonthCellIndex(beginDate) : 0;
 
-        if (rangeMode && beginDateSelected && _cellHovered) {
+        if (rangeMode && beginDateSelected && _cellHovered && endDate) {
             if (isBeforeSelected && !beginDate) {
                 return false;
             } else {
-                return (endDate === date && !(_cellHovered > beginNumber)) ||
+                return (compare(date, endDate) === 0 && !(_cellHovered > beginNumber)) ||
                     (_cellHovered === cellNumber && _cellHovered > beginNumber)
             }
         }
@@ -269,11 +273,11 @@ export function CalendarBody(
             classes.push(activeClass);
         }
         // if (_isBeginningOfRange(cell.value, cell.cellIndex)) {
-        if (rangeMode && sameDate(beginDate, cell.value)) {
+        if (rangeMode && beginDate && compare(beginDate, cell.value) === 0) {
             classes.push(beginRangeClass);
         }
         // if (_isEndOfRange(cell.value, cell.cellIndex)) {
-        if (rangeMode && sameDate(endDate, cell.value)) {
+        if (rangeMode && endDate && compare(endDate, cell.value) === 0) {
             classes.push(endRangeClass);
         }
         if (_isWithinRange(cell.value) || _isBetweenHoveredAndBegin(cell.value, cell.cellIndex)) {
@@ -282,10 +286,10 @@ export function CalendarBody(
         if (_previewCellOver(cell.value, cell.cellIndex)) {
             classes.push(hoveredClass);
         }
-        if (sameDate(selectedDate, cell.value) || sameDate(beginDate, cell.value) || sameDate(endDate, cell.value)) {
+        if ((selectedDate && compare(selectedDate, cell.value) === 0) || (beginDate && compare(beginDate, cell.value) === 0) || (endDate && compare(endDate, cell.value) === 0)) {
             classes.push(selectedClass);
         }
-        if (sameDate(todayDate, cell.value)) {
+        if (todayDate ? compare(todayDate, cell.value) === 0 : compare(new Date(), cell.value) === 0) {
             classes.push(todayClass);
         }
 

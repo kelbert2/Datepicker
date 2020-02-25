@@ -4,6 +4,7 @@ import { DatepickerContextProvider } from './DatepickerContext';
 import TestDisplay from './TestDisplay';
 import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
+import Year from './Year';
 
 function App() {
     return (
@@ -13,7 +14,7 @@ function App() {
                 setCurrentView={() => { }}
             ></CalendarHeader>
             <Multiyear></Multiyear>
-
+            <Year></Year>
             <TestDisplay></TestDisplay>
         </DatepickerContextProvider>
 

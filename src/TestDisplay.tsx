@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import DatepickerContext from "./DatepickerContext";
-import { getYear } from "./CalendarUtils";
+import { getYear, formatDateDisplay } from "./CalendarUtils";
 
 function TestDisplay() {
     const {
@@ -63,11 +63,11 @@ function TestDisplay() {
 
     return (
         <div>
-            <p>Active date: {getYear(activeDate)}</p>
+            <p>Active date: {formatDateDisplay(activeDate)}</p>
             <p>Range mode: {'' + rangeMode}</p>
-            <p>Selected date: {selectedDate ? getYear(selectedDate) : 'none selected'}</p>
-            <p>Begin date: {beginDate ? getYear(beginDate) : 'none selected'}</p>
-            <p>End date: {endDate ? getYear(endDate) : 'none selected'}</p>
+            <p>Selected date: {selectedDate ? formatDateDisplay(selectedDate) : 'none selected'}</p>
+            <p>Begin date: {beginDate ? formatDateDisplay(beginDate) : 'none selected'}</p>
+            <p>End date: {endDate ? formatDateDisplay(endDate) : 'none selected'}</p>
         </div>
     )
 }

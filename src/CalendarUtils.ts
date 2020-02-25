@@ -1,7 +1,7 @@
 export type VIEW = 'month' | 'year' | 'multiyear';
 
 export const DAYS_PER_WEEK = 7;
-export const YEARS_PER_PAGE = 12;
+export const YEARS_PER_PAGE = 16; // divisible by 4, or number of years per row in Multiyear
 
 // Months and Years
 export const CURRENT_YEAR = +(new Date().getFullYear());
@@ -219,4 +219,36 @@ export const dateToNumber = (date: Date) => {
 // Cells
 export const dateToMonthCellIndex = (date: Date) => {
     return getDayDifference(date, getFirstDateOfMonthByDate(date));
+}
+
+// Multiyear Calendar
+/**
+    * We pick a "starting" year such that either the maximum year would be at the end
+    * or the minimum year would be at the beginning of a page.
+    */
+export const getStartingYear = (
+    minDate: Date | null, maxDate: Date | null) => {
+    let startingYear = 0;
+    if (maxDate) {
+        const maxYear = getYear(maxDate);
+        startingYear = maxYear - YEARS_PER_PAGE + 1;
+    } else if (minDate) {
+        startingYear = getYear(minDate);
+    }
+    return startingYear;
+}
+/**
+    * When the multi-year view is first opened, the active year will be in view.
+    * So we compute how many years are between the active year and the *slot* where our
+    * "startingYear" will render when paged into view.
+    */
+export const getActiveOffset = (
+    activeDate: Date, minDate: Date | null, maxDate: Date | null) => {
+    const activeYear = getYear(activeDate);
+    return euclideanModulo((activeYear - getStartingYear(minDate, maxDate)),
+        YEARS_PER_PAGE);
+}
+/** Gets remainder that is non-negative, even if first number is negative */
+const euclideanModulo = (a: number, b: number) => {
+    return (a % b + b) % b;
 }

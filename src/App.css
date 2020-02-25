@@ -9,7 +9,8 @@
   --background: white;
 }
 
-table {
+table,
+div.header {
   max-width: 296px;
   max-height: 354px;
   /* display: block; */
@@ -18,7 +19,7 @@ table {
 table,
 td,
 th {
-  border: 1px solid var(--gray);
+  /* border: 1px solid var(--gray); */
 }
 
 table {
@@ -71,10 +72,13 @@ td {
   margin: 0 auto;
 
   box-sizing: border-box;
+  border-radius: 999px;
 
   /* height: 0;
   line-height: 0; */
   outline: 0;
+
+  padding: .25em;
 }
 
 td div {
@@ -91,6 +95,7 @@ td div {
   border-width: 1px;
   border-style: solid;
   border-radius: 999px;
+  border-color: transparent;
 
   /* position: absolute; */
   position: relative;
@@ -98,9 +103,8 @@ td div {
   left: 5%;
 }
 
-td.disabled {
-  background-color: var(--gray);
-  color: var(--on-gray);
+td.active div {
+  background-color: var(--hover);
 }
 
 td.beginRange div,
@@ -116,28 +120,118 @@ td.beginRange {
 
 td.endRange {
   border-top-left-radius: 0;
-  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+td.withinRange {
+  border-radius: 0;
 }
 
 td.beginRange,
 td.endRange,
 td.hovered,
-td:hover {
-  border-radius: 100% 0 0 100%;
-}
+td:hover {}
 
+td.beginRange,
+td.endRange,
 td.withinRange,
 td.beginRange,
 td.endRange {
   background-color: var(--color-light);
 }
 
+td.today div {
+  border: 2px solid var(--color);
+}
+
 td.hovered div,
-td:hover div,
-td.active {
+td:hover div {
   background-color: var(--hover);
 }
 
-td.today div {
-  border: 1px solid var(--color);
+td.hoveredBefore {}
+
+td.hoveredAfter {}
+
+td.disabled {
+  background-color: var(--gray);
+  color: var(--on-gray);
+}
+
+button {
+  height: 2em;
+  cursor: pointer;
+
+  font-size: 1em;
+  background-color: var(--background);
+  border: none;
+  border-radius: 999px;
+}
+
+button:focus,
+button:hover {
+  background-color: var(--hover);
+}
+
+button.left,
+button.right {
+  position: relative;
+  width: 2em;
+}
+
+button.left::after,
+button.right::after {
+  border-right: .25em solid currentColor;
+  border-bottom: .25em solid currentColor;
+
+  transform-origin: center center;
+}
+
+button.left::after,
+button.right::after {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: 30%;
+  left: 35%;
+
+  width: .5em;
+  height: .5em;
+
+}
+
+button.left::after {
+  transform: rotate(135deg);
+}
+
+button.right::after {
+  transform: rotate(-45deg);
+  left: 25%;
+}
+
+/* button.left::before,
+button.right::before {
+  transform: rotate(45deg);
+}
+
+button.left::after,
+button.right::after {
+  transform: rotate(-45deg);
+}
+
+button.left::before,
+button.left::after {
+  transform-origin: left center;
+}
+
+button.right::before,
+button.right::after {
+  transform-origin: right center;
+} */
+
+div.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
 }

@@ -106,12 +106,6 @@ export function SimpleCalendarBody(
             // dispatch({
             //     type: 'set-selected-date', payload: cell.value
             // });
-
-            console.log('rangeMode: ' + rangeMode);
-            console.log(beginDate ? 'prevBeginDate: ' + getYear(beginDate) : '');
-            console.log(endDate ? 'prevEndDate: ' + getYear(endDate) : '');
-            console.log(selectedDate ? 'prevSelectedDate: ' + getYear(selectedDate) : '');
-
         }
         return undefined;
     }
@@ -211,17 +205,22 @@ export function SimpleCalendarBody(
     /** Whether to mark the cell as the beginning of the range. */
     const _isBeginningOfRange = (date: Date, cellIndex?: number) => {
         const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
-        const beginNumber = beginDate ? dateToMonthCellIndex(beginDate) : 0;
+        // const beginNumber = beginDate ? dateToMonthCellIndex(beginDate) : 0;
 
-        if (rangeMode && beginDateSelected && _cellHovered) {
-            if (isBeforeSelected && !beginDate) {
-                return _cellHovered === cellNumber;
-            } else {
-                return (beginDate === date && !(_cellHovered < beginNumber)) ||
-                    (_cellHovered === cellNumber && _cellHovered < beginNumber);
-            }
+        // if (rangeMode && beginDateSelected && _cellHovered) {
+        //     if (isBeforeSelected && !beginDate) {
+        //         return _cellHovered === cellNumber;
+        //     } else {
+        //         return (beginDate === date && !(_cellHovered < beginNumber)) ||
+        //             (_cellHovered === cellNumber && _cellHovered < beginNumber);
+        //     }
+        // }
+        // return beginDate === date;
+
+        if (rangeMode && beginDateSelected && beginDate) {
+            return sameDate(beginDate, date);
         }
-        return beginDate === date;
+        return false;
     }
 
     /** Whether to mark the cell as the end of the range. */
@@ -269,10 +268,12 @@ export function SimpleCalendarBody(
         if (_isActiveCell(rowIndex, colIndex)) {
             classes.push(activeClass);
         }
-        if (_isBeginningOfRange(cell.value, cell.cellIndex)) {
+        // if (_isBeginningOfRange(cell.value, cell.cellIndex)) {
+        if (rangeMode && sameDate(beginDate, cell.value)) {
             classes.push(beginRangeClass);
         }
-        if (_isEndOfRange(cell.value, cell.cellIndex)) {
+        // if (_isEndOfRange(cell.value, cell.cellIndex)) {
+        if (rangeMode && sameDate(endDate, cell.value)) {
             classes.push(endRangeClass);
         }
         if (_isWithinRange(cell.value) || _isBetweenHoveredAndBegin(cell.value, cell.cellIndex)) {
@@ -288,7 +289,7 @@ export function SimpleCalendarBody(
             classes.push(todayClass);
         }
 
-        return classes.join(', ');
+        return classes.join(' ');
     }
     // /** When mouse enters hover zone for a cell */
     // const _onHover = (cell: ICalendarCell) => {

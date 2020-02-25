@@ -1,13 +1,20 @@
 import React from 'react';
 import './App.css';
-import { ICalendarCell } from './CalendarBody';
-import SimpleMultiyear from './SimpleMultiyear';
-import DatepickerContext, { DatepickerContextProvider } from './DatepickerContext';
+import { DatepickerContextProvider } from './DatepickerContext';
+import TestDisplay from './TestDisplay';
+import Multiyear from './Multiyear';
+import CalendarHeader from './CalendarHeader';
 
 function App() {
     return (
         <DatepickerContextProvider>
-            <SimpleMultiyear></SimpleMultiyear>
+            <CalendarHeader
+                currentView={'multiyear'}
+                setCurrentView={() => { }}
+            ></CalendarHeader>
+            <Multiyear></Multiyear>
+
+            <TestDisplay></TestDisplay>
         </DatepickerContextProvider>
 
     );

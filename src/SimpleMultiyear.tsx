@@ -111,8 +111,6 @@ function SimpleMultiyear() {
     const _yearSelected = (cellValue: Date) => {
         let date = createDate(getYear(cellValue), 0, 1);
 
-        console.log("--------Year selected: " + getYear(cellValue));
-
         if (rangeMode) {
             if (!beginDate || date < beginDate) {
                 // reset begin selection
@@ -161,88 +159,87 @@ function SimpleMultiyear() {
         }
     }
 
-    // const _activeDateChange = (date: Date) => {
-    //     dispatch({ type: 'set-active-date', payload: date });
-    // }
-    // /** Handles keydown events on the calendar body when calendar is in multi-year view. */
-    // const _handleUserKeyPress = useCallback((event) => {
-    //     const { keyCode } = event;
-    //     // const isRtl = isRtl();
+    const _activeDateChange = (date: Date) => {
+        dispatch({ type: 'set-active-date', payload: date });
+    }
+    /** Handles keydown events on the calendar body when calendar is in multi-year view. */
+    const _handleUserKeyPress = useCallback((event) => {
+        const { keyCode } = event;
+        // const isRtl = isRtl();
 
-    //     const oldActiveDate = activeDate;
-    //     switch (keyCode) {
-    //         // case 13: {// Enter
-    //         // }
-    //         case 32: { // SPACE
-    //             _yearSelected(getYear(activeDate));
-    //             break;
-    //         }
-    //         case 33: { // PAGE_UP
-    //             dispatch({
-    //                 type: 'set-active-date', payload: addCalendarYears(
-    //                     activeDate, event.altKey ? -YEARS_PER_PAGE * 10 : -YEARS_PER_PAGE)
-    //             });
-    //             break;
-    //         }
-    //         case 34: { // PAGE_DOWN
-    //             dispatch({
-    //                 type: 'set-active-date', payload: addCalendarYears(
-    //                     activeDate, event.altKey ? YEARS_PER_PAGE * 10 : YEARS_PER_PAGE)
-    //             });
-    //             break;
-    //         }
-    //         case 35: { // END
-    //             dispatch({
-    //                 type: 'set-active-date', payload: addCalendarYears(activeDate,
-    //                     YEARS_PER_PAGE - _getActiveOffset(
-    //                         activeDate, minDate, maxDate) - 1)
-    //             })
-    //             break;
-    //         }
-    //         case 36: { // HOME
-    //             dispatch({
-    //                 type: 'set-active-date', payload: addCalendarYears(activeDate,
-    //                     -_getActiveOffset(activeDate, minDate, maxDate))
-    //             });
-    //             break;
-    //         }
-    //         case 37: { // LEFT_ARROW
-    //             dispatch({ type: 'set-active-date', payload: addCalendarYears(activeDate, isRtl ? 1 : -1) });
-    //             break;
-    //         }
-    //         case 38: { // UP_ARROW
-    //             dispatch({ type: 'set-active-date', payload: addCalendarYears(activeDate, -YEARS_PER_ROW) });
-    //             break;
-    //         }
-    //         case 39: { // RIGHT_ARROW
-    //             dispatch({ type: 'set-active-date', payload: addCalendarYears(activeDate, isRtl ? -1 : 1) });
-    //             break;
-    //         }
-    //         case 40: { // DOWN_ARROW
-    //             dispatch({ type: 'set-active-date', payload: addCalendarYears(activeDate, YEARS_PER_ROW) });
-    //             break;
-    //         }
-    //         default:
-    //             // Don't prevent default or focus active cell on keys that we don't explicitly handle.
-    //             return;
-    //     }
-    //     if (compareDatesGreaterThan(oldActiveDate, activeDate)) {
-    //         // activeDateChange.emit(activeDate);
-    //         _activeDateChange(activeDate);
-    //     }
+        const oldActiveDate = activeDate;
+        switch (keyCode) {
+            // case 13: {// Enter
+            // }
+            case 32: { // SPACE
+                _yearSelected(activeDate);
+                break;
+            }
+            case 33: { // PAGE_UP
+                dispatch({
+                    type: 'set-active-date', payload: addCalendarYears(
+                        activeDate, event.altKey ? -YEARS_PER_PAGE * 10 : -YEARS_PER_PAGE)
+                });
+                break;
+            }
+            case 34: { // PAGE_DOWN
+                dispatch({
+                    type: 'set-active-date', payload: addCalendarYears(
+                        activeDate, event.altKey ? YEARS_PER_PAGE * 10 : YEARS_PER_PAGE)
+                });
+                break;
+            }
+            case 35: { // END
+                dispatch({
+                    type: 'set-active-date', payload: addCalendarYears(activeDate,
+                        YEARS_PER_PAGE - _getActiveOffset(
+                            activeDate, minDate, maxDate) - 1)
+                })
+                break;
+            }
+            case 36: { // HOME
+                dispatch({
+                    type: 'set-active-date', payload: addCalendarYears(activeDate,
+                        -_getActiveOffset(activeDate, minDate, maxDate))
+                });
+                break;
+            }
+            case 37: { // LEFT_ARROW
+                dispatch({ type: 'set-active-date', payload: addCalendarYears(activeDate, isRtl ? 1 : -1) });
+                break;
+            }
+            case 38: { // UP_ARROW
+                dispatch({ type: 'set-active-date', payload: addCalendarYears(activeDate, -YEARS_PER_ROW) });
+                break;
+            }
+            case 39: { // RIGHT_ARROW
+                dispatch({ type: 'set-active-date', payload: addCalendarYears(activeDate, isRtl ? -1 : 1) });
+                break;
+            }
+            case 40: { // DOWN_ARROW
+                dispatch({ type: 'set-active-date', payload: addCalendarYears(activeDate, YEARS_PER_ROW) });
+                break;
+            }
+            default:
+                // Don't prevent default or focus active cell on keys that we don't explicitly handle.
+                return;
+        }
+        if (compareDatesGreaterThan(oldActiveDate, activeDate)) {
+            // activeDateChange.emit(activeDate);
+            _activeDateChange(activeDate);
+        }
 
-    //     // focusActiveCell();
-    //     // Prevent unexpected default actions such as form submission.
-    //     event.preventDefault();
-    // }, []);
+        _focusActiveCell();
+        // Prevent unexpected default actions such as form submission.
+        event.preventDefault();
+    }, []);
 
-    // useEffect(() => {
-    //     window.addEventListener('keydown', _handleUserKeyPress);
-
-    //     return () => {
-    //         window.removeEventListener('keydown', _handleUserKeyPress);
-    //     };
-    // }, [_handleUserKeyPress]);
+    useEffect(() => {
+        window.addEventListener('keydown', _handleUserKeyPress);
+        return () => {
+            window.removeEventListener('keydown', _handleUserKeyPress);
+        };
+    }, [_handleUserKeyPress]);
 
 
     const _getActiveCell = () => {
@@ -250,9 +247,9 @@ function SimpleMultiyear() {
     }
 
     // /** Focuses the active cell after the microtask queue is empty. */
-    // const _focusActiveCell = () => {
-    //     // CalendarBody._focusActiveCell();
-    // }
+    const _focusActiveCell = () => {
+        // CalendarBody._focusActiveCell();
+    }
 
     /** Creates an ICalendarCell for the given year. */
     const _createCellForYear = (year: number) => {

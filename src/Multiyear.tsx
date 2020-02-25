@@ -1,9 +1,8 @@
 import DatepickerContext from './DatepickerContext';
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { getYear, getMonth, getDaysPerMonth, createDate, addCalendarYears, addCalendarDays, compareDatesGreaterThan, getYearName, isDateInstance, isValid, getDate } from './CalendarUtils';
+import { YEARS_PER_PAGE, getYear, createDate, addCalendarYears, addCalendarDays, compareDatesGreaterThan, getYearName, getActiveOffset, getStartingYear } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 
-export const YEARS_PER_PAGE = 24;
 export const YEARS_PER_ROW = 4;
 export const isRtl = true; // language locale
 
@@ -69,6 +68,7 @@ function Multiyear() {
     const [_years, _setYear] = useState([] as ICalendarCell[][]);
     // const [_todayYear, _setTodayYear] = useState((todayDate ? todayDate : new Date()).getFullYear());
     // const [_selectedYear, _setSelectedYear] = useState();
+    const [_prevActiveDate, _setPrevActiveDate] = useState(activeDate);
 
     useEffect(() => {
         // constructor
@@ -82,33 +82,93 @@ function Multiyear() {
 
         // The offset from the active year to the "slot" for the starting year is the
         // *actual* first rendered year in the multi-year view.
+        _populateYears();
+
+        /** Handles when a new year is selected. */
+        // dispatch({
+        //     type: 'set-year-selected', payload: (year: number) => {
+        //         let month = getMonth(activeDate);
+        //         let daysInMonth =
+        //             getDaysPerMonth(month);
+        //         return dateChange({ date: createDate(year, month, Math.min(getDate(activeDate), daysInMonth)), beginDate, endDate });
+        //     }
+        // });
+    }, []); // run on mount 
+
+    useEffect(() => {
+        if (!_isSameMultiyearView(activeDate, _prevActiveDate)) {
+            _populateYears();
+        }
+        _setPrevActiveDate(activeDate);
+    }, [activeDate])
+
+    /** Reloads years. */
+    const _populateYears = () => {
         const activeYear = getYear(activeDate);
-        const minYearOfPage = activeYear - _getActiveOffset(
+        const minYearOfPage = activeYear - getActiveOffset(
             activeDate, minDate, maxDate);
 
+        let years = [] as ICalendarCell[][];
         for (let i = 0, row: number[] = []; i < YEARS_PER_PAGE; i++) {
             row.push(minYearOfPage + i);
             if (row.length === YEARS_PER_ROW) {
-                _years.push(row.map(year => _createCellForYear(year)));
+                years.push(row.map(year => _createCellForYear(year)));
                 row = [];
             }
         }
-
-        /** Handles when a new year is selected. */
-        dispatch({
-            type: 'set-year-selected', payload: (year: number) => {
-                let month = getMonth(activeDate);
-                let daysInMonth =
-                    getDaysPerMonth(month);
-                return dateChange({ date: createDate(year, month, Math.min(getDate(activeDate), daysInMonth)), beginDate, endDate });
-            }
-        });
-    }, []); // run on mount 
+        _setYear(years); // needs to register as a change
+    }
 
     /** Handles when a new year is selected. */
-    const _yearSelected = (year: number) => {
-        const date = createDate(year, 0, 1);
-        yearSelected({ date, beginDate, endDate });
+    const _yearSelected = (cellValue: Date) => {
+        let date = createDate(getYear(cellValue), 0, 1);
+
+        if (rangeMode) {
+            if (!beginDate || date < beginDate) {
+                // reset begin selection
+                yearSelected({ date, beginDate: date, endDate: null });
+
+                dispatch({
+                    type: 'set-selected-date', payload: date
+                });
+                dispatch({
+                    type: 'set-begin-date', payload: date
+                });
+                dispatch({
+                    type: 'set-end-date', payload: null
+                });
+
+            } else {
+                yearSelected({ date, beginDate, endDate: date });
+
+                dispatch({
+                    type: 'set-selected-date', payload: date
+                });
+                dispatch({
+                    type: 'set-end-date', payload: date
+                });
+                // } else {
+                //     // reset begin selection
+                //     yearSelected({ date, beginDate: date, endDate: null });
+                //     // yearSelected({date, beginDate: date, endDate:beginDate});
+                //     dispatch({
+                //         type: 'set-selected-date', payload: date
+                //     });
+                //     dispatch({
+                //         type: 'set-begin-date', payload: date
+                //     });
+                //     dispatch({
+                //         type: 'set-end-date', payload: null
+                //     });
+                // }
+            }
+        } else {
+            yearSelected({ date, beginDate: null, endDate: null });
+
+            dispatch({
+                type: 'set-selected-date', payload: date
+            });
+        }
     }
 
     const _activeDateChange = (date: Date) => {
@@ -124,7 +184,7 @@ function Multiyear() {
             // case 13: {// Enter
             // }
             case 32: { // SPACE
-                _yearSelected(getYear(activeDate));
+                _yearSelected(activeDate);
                 break;
             }
             case 33: { // PAGE_UP
@@ -144,7 +204,7 @@ function Multiyear() {
             case 35: { // END
                 dispatch({
                     type: 'set-active-date', payload: addCalendarYears(activeDate,
-                        YEARS_PER_PAGE - _getActiveOffset(
+                        YEARS_PER_PAGE - getActiveOffset(
                             activeDate, minDate, maxDate) - 1)
                 })
                 break;
@@ -152,7 +212,7 @@ function Multiyear() {
             case 36: { // HOME
                 dispatch({
                     type: 'set-active-date', payload: addCalendarYears(activeDate,
-                        -_getActiveOffset(activeDate, minDate, maxDate))
+                        -getActiveOffset(activeDate, minDate, maxDate))
                 });
                 break;
             }
@@ -181,14 +241,13 @@ function Multiyear() {
             _activeDateChange(activeDate);
         }
 
-        // focusActiveCell();
+        _focusActiveCell();
         // Prevent unexpected default actions such as form submission.
         event.preventDefault();
     }, []);
 
     useEffect(() => {
         window.addEventListener('keydown', _handleUserKeyPress);
-
         return () => {
             window.removeEventListener('keydown', _handleUserKeyPress);
         };
@@ -196,10 +255,10 @@ function Multiyear() {
 
 
     const _getActiveCell = () => {
-        return _getActiveOffset(activeDate, minDate, maxDate);
+        return getActiveOffset(activeDate, minDate, maxDate);
     }
 
-    /** Focuses the active cell after the microtask queue is empty. */
+    // /** Focuses the active cell after the microtask queue is empty. */
     const _focusActiveCell = () => {
         // CalendarBody._focusActiveCell();
     }
@@ -207,7 +266,7 @@ function Multiyear() {
     /** Creates an ICalendarCell for the given year. */
     const _createCellForYear = (year: number) => {
         let yearName = getYearName(createDate(year, 0, 1));
-        return { value: createDate(year, 1, 1), displayValue: yearName, ariaLabel: yearName, enabled: _shouldEnableYear(year) } as ICalendarCell;
+        return { value: createDate(year, 0, 1), displayValue: yearName, ariaLabel: yearName, enabled: _shouldEnableYear(year) } as ICalendarCell;
     }
 
     /** Whether the given year is enabled. */
@@ -234,52 +293,19 @@ function Multiyear() {
         return false;
     }
 
-    /** Determines whether the user has the Right To Left layout direction. */
-    //   private const _isRtl = () => {
-    //     return _dir && _dir.value === 'rtl';
+    // /** Determines whether the user has the Right To Left layout direction. */
+    // //   private const _isRtl = () => {
+    // //     return _dir && _dir.value === 'rtl';
 
-    // }
+    // // }
 
-    /**  Returns true if two dates will display in the same multiyear view */
+    // /**  Returns true if two dates will display in the same multiyear view */
     function _isSameMultiyearView(date1: Date, date2: Date) {
         const year1 = getYear(date1);
         const year2 = getYear(date2);
-        const startingYear = _getStartingYear(minDate, maxDate);
+        const startingYear = getStartingYear(minDate, maxDate);
         return Math.floor((year1 - startingYear) / YEARS_PER_PAGE) ===
             Math.floor((year2 - startingYear) / YEARS_PER_PAGE);
-    }
-
-    /**
-     * When the multi-year view is first opened, the active year will be in view.
-     * So we compute how many years are between the active year and the *slot* where our
-     * "startingYear" will render when paged into view.
-     */
-    function _getActiveOffset(
-        activeDate: Date, minDate: Date | null, maxDate: Date | null): number {
-        const activeYear = getYear(activeDate);
-        return _euclideanModulo((activeYear - _getStartingYear(minDate, maxDate)),
-            YEARS_PER_PAGE);
-    }
-
-    /**
-     * We pick a "starting" year such that either the maximum year would be at the end
-     * or the minimum year would be at the beginning of a page.
-     */
-    function _getStartingYear(
-        minDate: Date | null, maxDate: Date | null): number {
-        let startingYear = 0;
-        if (maxDate) {
-            const maxYear = getYear(maxDate);
-            startingYear = maxYear - YEARS_PER_PAGE + 1;
-        } else if (minDate) {
-            startingYear = getYear(minDate);
-        }
-        return startingYear;
-    }
-
-    /** Gets remainder that is non-negative, even if first number is negative */
-    const _euclideanModulo = (a: number, b: number) => {
-        return (a % b + b) % b;
     }
 
     return (
@@ -290,21 +316,21 @@ function Multiyear() {
                 </tr>
             </thead>
 
-            {CalendarBody({
-                rows: _years,
-                labelText: '',
-                labelMinRequiredCells: 4,
-                selectedValueChange: _yearSelected,
-                beginDateSelected: false,
-                isBeforeSelected: false,
-                isCurrentMonthBeforeSelected: false,
-                isRangeFull: false,
-                activeCell: _getActiveCell(),
-                numCols: 4,
-                cellAspectRatio: 4 / 7
-            })}
+            <CalendarBody
+                rows={_years}
+                labelText={'LabelText'}
+                labelMinRequiredCells={4}
+                selectedValueChange={_yearSelected}
+                beginDateSelected={false}
+                isBeforeSelected={false}
+                isCurrentMonthBeforeSelected={false}
+                isRangeFull={false}
+                activeCell={_getActiveCell()}
+                numCols={4}
+                cellAspectRatio={4 / 7}
+            ></CalendarBody>
         </table>
-    )
+    );
 }
 
 export default Multiyear;

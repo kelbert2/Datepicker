@@ -111,16 +111,53 @@ function SimpleMultiyear() {
     const _yearSelected = (cellValue: Date) => {
         let date = createDate(getYear(cellValue), 0, 1);
 
-        console.log("Year selected: " + getYear(cellValue));
+        console.log("--------Year selected: " + getYear(cellValue));
 
         if (rangeMode) {
-            if (!beginDate) {
-                yearSelected({ date, beginDate: date, endDate });
-            } else if (!endDate) {
+            if (!beginDate || date < beginDate) {
+                // reset begin selection
+                yearSelected({ date, beginDate: date, endDate: null });
+
+                dispatch({
+                    type: 'set-selected-date', payload: date
+                });
+                dispatch({
+                    type: 'set-begin-date', payload: date
+                });
+                dispatch({
+                    type: 'set-end-date', payload: null
+                });
+
+            } else {
                 yearSelected({ date, beginDate, endDate: date });
+
+                dispatch({
+                    type: 'set-selected-date', payload: date
+                });
+                dispatch({
+                    type: 'set-end-date', payload: date
+                });
+                // } else {
+                //     // reset begin selection
+                //     yearSelected({ date, beginDate: date, endDate: null });
+                //     // yearSelected({date, beginDate: date, endDate:beginDate});
+                //     dispatch({
+                //         type: 'set-selected-date', payload: date
+                //     });
+                //     dispatch({
+                //         type: 'set-begin-date', payload: date
+                //     });
+                //     dispatch({
+                //         type: 'set-end-date', payload: null
+                //     });
+                // }
             }
         } else {
             yearSelected({ date, beginDate: null, endDate: null });
+
+            dispatch({
+                type: 'set-selected-date', payload: date
+            });
         }
     }
 

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import DatepickerContext from './DatepickerContext';
-import { sameDate, dateToNumber, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate } from './CalendarUtils';
+import { sameDate, dateToNumber, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, getYear, getYearName } from './CalendarUtils';
 
 export interface ICalendarCell {
     cellIndex: number,
@@ -71,7 +71,6 @@ export function SimpleCalendarBody(
     const [_cellWidth, _setCellWidth] = useState(null as string | null);
     const [_cellHovered, _setCellHovered] = useState(null as number | null);
 
-
     /** On numCols or rows change */
     useEffect(() => {
         _setFirstRowOffset((rows && rows.length && rows[0].length) ? numCols - rows[0].length : 0)
@@ -104,9 +103,15 @@ export function SimpleCalendarBody(
                 type: 'set-active-date', payload: cell.value
             });
 
-            dispatch({
-                type: 'set-selected-date', payload: cell.value
-            });
+            // dispatch({
+            //     type: 'set-selected-date', payload: cell.value
+            // });
+
+            console.log('rangeMode: ' + rangeMode);
+            console.log(beginDate ? 'prevBeginDate: ' + getYear(beginDate) : '');
+            console.log(endDate ? 'prevEndDate: ' + getYear(endDate) : '');
+            console.log(selectedDate ? 'prevSelectedDate: ' + getYear(selectedDate) : '');
+
         }
         return undefined;
     }
@@ -147,16 +152,16 @@ export function SimpleCalendarBody(
             return false;
         }
         // amidst selection process: 
-        if (beginDate && !endDate) {
-            return date > beginDate;
-        }
-        if (endDate && !beginDate) {
-            return date < endDate;
-        }
+        // if (beginDate && !endDate) {
+        //     return date > beginDate;
+        // }
+        // if (endDate && !beginDate) {
+        //     return date < endDate;
+        // }
         return beginDate && endDate && date > beginDate && date < endDate;
     }
 
-    // TODO: allow to select begin after end, and hover before
+    // TODO: allow to select begin after end, and hover before. Currently can only do range in Month Mode
     /** Whether to mark a date as within a range before the end has been selected */
     const _isBetweenHoveredAndBegin = (date: Date, cellIndex?: number) => {
         const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
@@ -172,6 +177,36 @@ export function SimpleCalendarBody(
         }
         return false;
     }
+
+    // const _isBetweenHoveredAndEnd = (date: Date, cellIndex?: number) => {
+    //     const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
+
+    //     if (!_cellHovered || !rangeMode || beginDateSelected) {
+    //         return false;
+    //     }
+    //     if (_cellHovered dateToMonthCellIndex(endDate)) {
+    //         return cellNumber > _cellHovered;
+    //     }
+    //     if (beginDate && _cellHovered > dateToMonthCellIndex(beginDate)) {
+    //         return date > beginDate && cellNumber > _cellHovered;
+    //     }
+    //     return false;
+    // }
+
+    // const _isAfterBegin = (date: Date) => {
+
+    //     if (rangeMode && beginDate) {
+    //         return date > beginDate;
+    //     }
+    //     return false;
+    // }
+    // const _isAfterEnd = (date: Date) => {
+
+    //     if (rangeMode && endDate) {
+    //         return date > endDate;
+    //     }
+    //     return false;
+    // }
 
     /** Whether to mark the cell as the beginning of the range. */
     const _isBeginningOfRange = (date: Date, cellIndex?: number) => {
@@ -220,8 +255,10 @@ export function SimpleCalendarBody(
         const activeClass = "active";
         const beginRangeClass = "beginRange";
         const endRangeClass = "endRange";
-        const withinRange = "withinRange";
+        const withinRangeClass = "withinRange";
         const hoveredClass = "hovered";
+        const hoveredBeforeClass = "hoveredBefore";
+        const hoveredAfterClass = "hoveredAfter";
         const selectedClass = "selected";
         const todayClass = "today";
 
@@ -239,7 +276,7 @@ export function SimpleCalendarBody(
             classes.push(endRangeClass);
         }
         if (_isWithinRange(cell.value) || _isBetweenHoveredAndBegin(cell.value, cell.cellIndex)) {
-            classes.push(withinRange);
+            classes.push(withinRangeClass);
         }
         if (_previewCellOver(cell.value, cell.cellIndex)) {
             classes.push(hoveredClass);

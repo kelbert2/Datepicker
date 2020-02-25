@@ -70,7 +70,7 @@ interface IDatepickerContext {
 }
 
 const datepickerContextDefaultValue = {
-    selectedDate: new Date() as Date | null,
+    selectedDate: null as Date | null,
     todayDate: new Date() as Date | null,
     activeDate: new Date() as Date | null,
 
@@ -87,9 +87,9 @@ const datepickerContextDefaultValue = {
     maxDate: null as Date | null,
     dateFilter: (date: Date | null) => true,
 
-    rangeMode: false,
-    beginDate: new Date() as Date | null,
-    endDate: new Date() as Date | null,
+    rangeMode: true,
+    beginDate: null as Date | null,
+    endDate: null as Date | null,
 
     disableMonth: false,
     disableYear: false,

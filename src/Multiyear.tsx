@@ -64,13 +64,13 @@ function Multiyear() {
 
         dispatch
     } = useContext(DatepickerContext);
+
     /** Grid of ICalendarCells representing years. */
     const [_years, _setYear] = useState([] as ICalendarCell[][]);
-    // const [_todayYear, _setTodayYear] = useState((todayDate ? todayDate : new Date()).getFullYear());
-    // const [_selectedYear, _setSelectedYear] = useState();
     /** Previous active date. */
     const [_prevActiveDate, _setPrevActiveDate] = useState(activeDate);
 
+    /** Run on mount */
     useEffect(() => {
         // constructor
         // dispatch({ type: 'set-active-date', payload: new Date() });
@@ -96,6 +96,7 @@ function Multiyear() {
         // });
     }, []); // run on mount 
 
+    /** Repopulate on activeDate change. */
     useEffect(() => {
         if (!_isSameMultiyearView(activeDate, _prevActiveDate)) {
             _populateYears();
@@ -110,10 +111,12 @@ function Multiyear() {
             activeDate, minDate, maxDate);
 
         let years = [] as ICalendarCell[][];
-        for (let i = 0, row: number[] = []; i < YEARS_PER_PAGE; i++) {
-            row.push(minYearOfPage + i);
+        for (let i = 0, row: ICalendarCell[] = []; i < YEARS_PER_PAGE; i++) {
+            // row.push(minYearOfPage + i);
+            row.push(_createCellForYear(minYearOfPage + i));
             if (row.length === YEARS_PER_ROW) {
-                years.push(row.map(year => _createCellForYear(year)));
+                // years.push(row.map(year => _createCellForYear(year)));
+                years.push(row);
                 row = [];
             }
         }
@@ -173,7 +176,7 @@ function Multiyear() {
     }
 
     /** Handles keydown events on the calendar body when calendar is in multi-year view. */
-    const _handleUserKeyPress = useCallback((event) => {
+    const _handleUserKeyPress = useCallback((event: KeyboardEvent) => {
         const { keyCode } = event;
         // const isRtl = isRtl();
 
@@ -235,7 +238,7 @@ function Multiyear() {
                 return;
         }
         if (compareDatesGreaterThan(_prevActiveDate, activeDate)) {
-            // activeDateChange.emit(activeDate);
+            // activeDateChange(activeDate);
             // dispatch({ type: 'set-active-date', payload: activeDate });
             _setPrevActiveDate(activeDate);
         }
@@ -263,15 +266,20 @@ function Multiyear() {
     }
 
     /** Creates an ICalendarCell for the given year. */
-    const _createCellForYear = (year: number) => {
-        let yearName = getYearName(createDate(year, 0, 1));
-        return { value: createDate(year, 0, 1), displayValue: yearName, ariaLabel: yearName, enabled: _shouldEnableYear(year) } as ICalendarCell;
+    const _createCellForYear = (year: number): ICalendarCell => {
+        const yearName = getYearName(createDate(year, 0, 1));
+        return {
+            value: createDate(year, 0, 1),
+            displayValue: yearName,
+            ariaLabel: yearName,
+            enabled: _shouldEnableYear(year)
+        } as ICalendarCell;
     }
 
     /** Whether the given year is enabled. */
     const _shouldEnableYear = (year: number) => {
         // disable if the year is greater than maxDate lower than minDate
-        if (year === undefined || year === null ||
+        if (year == null ||
             (maxDate && year > getYear(maxDate)) ||
             (minDate && year < getYear(minDate))) {
             return false;
@@ -297,7 +305,7 @@ function Multiyear() {
     // //     return _dir && _dir.value === 'rtl';
     // // }
 
-    /** Returns if all cells are within the beginDate and endDate range. */
+    /** Returns true if all cells are within the beginDate and endDate range. */
     const _isRangeFull = () => {
         if (rangeMode && beginDate && endDate) {
             return getYear(_years[0][0].value) > getYear(beginDate)
@@ -305,6 +313,7 @@ function Multiyear() {
         }
         return false;
     }
+
     // /**  Returns true if two dates will display in the same multiyear view */
     const _isSameMultiyearView = (date1: Date, date2: Date) => {
         const year1 = getYear(date1);
@@ -318,7 +327,7 @@ function Multiyear() {
         <table role="presentation">
             <thead>
                 <tr>
-                    <th colSpan={4} className="divider"></th>
+                    <th colSpan={4} aria-hidden="true" className="divider"></th>
                 </tr>
             </thead>
 

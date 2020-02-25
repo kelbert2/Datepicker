@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import DatepickerContext from './DatepickerContext';
-import { sameDate, dateToNumber, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, getYear, getYearName, compareDates } from './CalendarUtils';
+import { sameDate, dateToNumber, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, getYear, getYearName, compareDates, getDay } from './CalendarUtils';
 
 export interface ICalendarCell {
     cellIndex: number,
@@ -101,6 +101,9 @@ export function CalendarBody(
     const _cellClicked = (cell: ICalendarCell) => {
         if (cell.enabled) {
             selectedValueChange(cell.value);
+
+            console.log("cell value seems to be index in week");
+            console.log(cell);
 
             dispatch({
                 type: 'set-active-date', payload: cell.value
@@ -266,6 +269,7 @@ export function CalendarBody(
         const todayClass = "today";
 
         let classes = [] as string[];
+
         if (!cell.enabled) {
             classes.push(disabledClass);
         }
@@ -289,6 +293,7 @@ export function CalendarBody(
         if ((selectedDate && compare(selectedDate, cell.value) === 0) || (beginDate && compare(beginDate, cell.value) === 0) || (endDate && compare(endDate, cell.value) === 0)) {
             classes.push(selectedClass);
         }
+        console.log("today date" + getDay(todayDate ? todayDate : new Date()));
         if (todayDate ? compare(todayDate, cell.value) === 0 : compare(new Date(), cell.value) === 0) {
             classes.push(todayClass);
         }
@@ -366,24 +371,25 @@ export function CalendarBody(
             }
             for (let colIndex = 0; colIndex < numCols; colIndex++) {
                 const item = rows[rowIndex][colIndex];
+                if (item != null) {
+                    renderedCells.push(
+                        <td role="gridcell"
+                            tabIndex={_isActiveCell(rowIndex, colIndex) ? 0 : -1}
+                            className={_setCellClass(item, rowIndex, colIndex)}
+                            onClick={() => { _cellClicked(item) }}
+                            // use arrow function on click else fires on page load
 
-                renderedCells.push(
-                    <td role="gridcell"
-                        tabIndex={_isActiveCell(rowIndex, colIndex) ? 0 : -1}
-                        className={_setCellClass(item, rowIndex, colIndex)}
-                        onClick={() => { _cellClicked(item) }}
-                        // use arrow function on click else fires on page load
-
-                        style={tdStyle}
-                        aria-label={item.ariaLabel}
-                        aria-disabled={!item.enabled || undefined}
-                        aria-selected={sameDate(selectedDate, item.value)}
-                    >
-                        {_renderCell(item)}
-                    </td>
-                );
-                // onMouseEnter={_onHover(item)}
-                // onMouseLeave={_offHover(item)}
+                            style={tdStyle}
+                            aria-label={item.ariaLabel}
+                            aria-disabled={!item.enabled || undefined}
+                            aria-selected={sameDate(selectedDate, item.value)}
+                        >
+                            {_renderCell(item)}
+                        </td>
+                    );
+                    // onMouseEnter={_onHover(item)}
+                    // onMouseLeave={_offHover(item)}
+                }
             }
             renderedRows.push(
                 <tr role="row">

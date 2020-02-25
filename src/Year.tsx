@@ -241,11 +241,12 @@ function Year() {
         // CalendarBody._focusActiveCell();
     }
 
-    /** Creates an ICalendarCell for the given month. */
-    const _createCellForMonth = (month: number, monthName: string) => {
+    /** Creates an ICalendarCell for the given month, zero-based. */
+    const _createCellForMonth = (month: number, monthName: string): ICalendarCell => {
         // let ariaLabel = format(
         //     createDate(getYear(activeDate), month, 1),
         //     _dateFormats.display.monthYearA11yLabel);
+
         return {
             cellIndex: month,
             value: createDate(getYear(activeDate), month, 1),
@@ -257,10 +258,9 @@ function Year() {
 
     /** Whether the given month is enabled. */
     const _shouldEnableMonth = (month: number) => {
-
         const activeYear = getYear(activeDate);
 
-        if (month === undefined || month === null ||
+        if (month == null ||
             _isYearAndMonthAfterMaxDate(activeYear, month) ||
             _isYearAndMonthBeforeMinDate(activeYear, month)) {
             return false;
@@ -277,6 +277,20 @@ function Year() {
             if (dateFilter(date)) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    // /** Determines whether the user has the Right To Left layout direction. */
+    // //   private const _isRtl = () => {
+    // //     return _dir && _dir.value === 'rtl';
+    // // }
+
+    /** Returns true if all cells are within the beginDate and endDate range. */
+    const _isRangeFull = () => {
+        if (rangeMode && beginDate && endDate) {
+            return _months[0][0].value > beginDate
+                && _months[_months.length - 1][MONTHS_PER_ROW - 1].value < endDate;
         }
         return false;
     }
@@ -309,24 +323,10 @@ function Year() {
         return false;
     }
 
-    /** Returns if all cells are within the beginDate and endDate range. */
-    const _isRangeFull = () => {
-        if (rangeMode && beginDate && endDate) {
-            return _months[0][0].value > beginDate
-                && _months[_months.length - 1][MONTHS_PER_ROW - 1].value < endDate;
-        }
-        return false;
-    }
-
-    // /** Determines whether the user has the Right To Left layout direction. */
-    // //   private const _isRtl = () => {
-    // //     return _dir && _dir.value === 'rtl';
-    // // }
-
     return (
         <table role="presentation">
             <thead>
-                <tr><th colSpan={4} className="divider"></th></tr>
+                <tr><th colSpan={4} aria-hidden="true" className="divider"></th></tr>
             </thead>
 
             <CalendarBody

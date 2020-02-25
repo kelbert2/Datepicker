@@ -24,6 +24,7 @@ interface IDatepickerContext {
 
     startAt: Date | null,
     startView: VIEW,
+    firstDayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6,
 
     minDate: Date | null,
     maxDate: Date | null,
@@ -82,6 +83,7 @@ const datepickerContextDefaultValue = {
 
     startAt: new Date() as Date | null,
     startView: 'month' as VIEW,
+    firstDayOfWeek: 0,
 
     minDate: null as Date | null,
     maxDate: null as Date | null,
@@ -157,6 +159,8 @@ const reducer = (state: IDatepickerContext, action: Action) => {
             return { ...state, startAt: action.payload };
         case "set-start-view":
             return { ...state, startView: action.payload };
+        case "set-first-day-of-week":
+            return { ...state, firstDayOfWeek: action.payload };
 
         case "set-min-date":
             return { ...state, minDate: action.payload };

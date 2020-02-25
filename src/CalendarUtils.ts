@@ -48,7 +48,7 @@ export const getMonth = (date: Date) => {
     return date.getMonth();
 }
 export const getDay = (date: Date) => {
-    return date.getDay();
+    return date.getDate();
 }
 export const getDateISO = (date = new Date()) => {
     if (!isDate(date)) return null;
@@ -208,6 +208,13 @@ export const compareDates = (date1: Date, date2: Date) => {
 const compareNumbers = (value1: number, value2: number) => {
     return (value1 > value2 ? 1 : -1) - (value1 < value2 ? 1 : -1);
 }
+export const compareDaysMonthsAndYears = (date1: Date, date2: Date) => {
+    const comparedMonthsAndYears = compareMonthsAndYears(date1, date2);
+    if (comparedMonthsAndYears === 0) {
+        return compareNumbers(getDay(date1), getDay(date2));
+    }
+    return comparedMonthsAndYears;
+}
 export const compareMonthsAndYears = (date1: Date, date2: Date) => {
     const comparedYears = compareYears(date1, date2);
     if (comparedYears === 0) {
@@ -286,5 +293,5 @@ const euclideanModulo = (a: number, b: number) => {
 }
 
 export const formatDateDisplay = (date: Date) => {
-    return getMonth(date) + ' - ' + getDay(date) + ' - ' + getYear(date);
+    return (getMonth(date) + 1) + ' - ' + getDay(date) + ' - ' + getYear(date);
 }

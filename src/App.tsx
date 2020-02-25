@@ -5,6 +5,7 @@ import TestDisplay from './TestDisplay';
 import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
 import Year from './Year';
+import Month from './Month';
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
             ></CalendarHeader>
             <Multiyear></Multiyear>
             <Year></Year>
+            <Month></Month>
             <TestDisplay></TestDisplay>
         </DatepickerContextProvider>
 

@@ -72,7 +72,6 @@ td {
   margin: 0 auto;
 
   box-sizing: border-box;
-  border-radius: 999px;
 
   /* height: 0;
   line-height: 0; */
@@ -114,13 +113,13 @@ td.selected div {
 }
 
 td.beginRange {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
 }
 
 td.endRange {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
 }
 
 td.withinRange {

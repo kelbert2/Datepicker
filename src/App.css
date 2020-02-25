@@ -1,38 +1,143 @@
-.App {
+:root {
+  --color: salmon;
+  --color-light: lightsalmon;
+  --gray: gray;
+  --on-gray: white;
+  --hover: lightgray;
+  --divider: rgba(0, 0, 0, 0.12);
+  --header: rgba(0, 0, 0, 0.38);
+  --background: white;
+}
+
+table {
+  max-width: 296px;
+  max-height: 354px;
+  /* display: block; */
+}
+
+table,
+td,
+th {
+  border: 1px solid var(--gray);
+}
+
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  width: 100%;
+}
+
+thead {
+  color: var(--header);
+}
+
+th {
   text-align: center;
+  padding: 0 0 8px 0;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--gray);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.divider {
+  position: relative;
+  height: 1px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* left: -8px;
+  right: -8px; 
+  trying to go past margins*/
+  height: 1px;
+  background: var(--divider);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+
+tbody {
+  font-size: 13px;
+  min-width: 224px;
+}
+
+td {
+  /* text-align: center; */
+  cursor: pointer;
+  position: relative;
+  margin: 0 auto;
+
+  box-sizing: border-box;
+
+  /* height: 0;
+  line-height: 0; */
+  outline: 0;
+}
+
+td div {
+  width: 90%;
+  height: 90%;
+
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+
+  line-height: 1;
+
+  box-sizing: border-box;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 999px;
+
+  /* position: absolute; */
+  position: relative;
+  top: 5%;
+  left: 5%;
 }
 
-.App-link {
-  color: #61dafb;
+td.disabled {
+  background-color: var(--gray);
+  color: var(--on-gray);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+td.beginRange div,
+td.endRange div,
+td.selected div {
+  background-color: var(--color);
+}
+
+td.beginRange {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+td.endRange {
+  border-top-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+td.beginRange,
+td.endRange,
+td.hovered,
+td:hover {
+  border-radius: 100% 0 0 100%;
+}
+
+td.withinRange,
+td.beginRange,
+td.endRange {
+  background-color: var(--color-light);
+}
+
+td.hovered div,
+td:hover div,
+td.active {
+  background-color: var(--hover);
+}
+
+td.today div {
+  border: 1px solid var(--color);
 }

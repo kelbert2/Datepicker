@@ -1,26 +1,14 @@
 import DatepickerContext from './DatepickerContext';
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
-import { getYear, createDate, getDate, addCalendarMonths, getMonth, addCalendarYears, compareDates, getYearName, getMonthNames, MONTH_NAMES, addCalendarDays, isDateInstance, isValid, getMonthInCurrentYear, MONTHS_PER_ROW, compareMonthsAndYears } from './CalendarUtils';
-import { getDaysPerMonth } from './CalendarUtils';
+import { getYear, createDate, addCalendarMonths, getMonth, addCalendarYears, compareDates, getYearName, MONTH_NAMES, addCalendarDays, MONTHS_PER_ROW, compareMonthsAndYears } from './CalendarUtils';
 
 
 function Year() {
-    // selectedChange: (date: Date) => {} | void
-
     const {
-        selectedDate,
-        todayDate,
         activeDate,
 
-        onDateChange: dateChange,
-        onDateInput: dateInput,
-        onYearSelected: yearSelected,
-        onMonthSelected: monthSelected,
-        onDaySelected: daySelected,
-
-        startAt,
-        startView,
+        onMonthSelected,
 
         minDate,
         maxDate,
@@ -30,38 +18,7 @@ function Year() {
         beginDate,
         endDate,
 
-        disableMonth,
-        disableYear,
-        disableMultiyear,
-
-        disable,
-        disablePopup,
-        disableInput,
-        popupLarge,
-
-        formatMonthLabel,
-        formatMonthText,
-
         formatYearLabel,
-        formatYearText,
-
-        formatMultiyearLabel,
-        formatMultiyearText,
-
-        calendarLabel,
-        openCalendarLabel,
-
-        nextMonthLabel,
-        nextYearLabel,
-        nextMultiyearLabel,
-
-        prevMonthLabel,
-        prevYearLabel,
-        prevMultiyearLabel,
-
-        switchToMonthViewLabel,
-        switchToYearViewLabel,
-        switchToMultiyearViewLabel,
 
         dispatch
     } = useContext(DatepickerContext);
@@ -82,6 +39,75 @@ function Year() {
            */
     //  const [_selectedMonth, _setSelectedMonth] = useState(getMonthInCurrentYear(selectedDate) as number | null);
 
+
+    /**
+* Tests whether the combination month/ year is after maxDate, considering
+* just the month and year of maxDate
+*/
+    const _isYearAndMonthAfterMaxDate = useCallback((year: number, month: number) => {
+        if (maxDate) {
+            const maxYear = getYear(maxDate);
+            const maxMonth = getMonth(maxDate);
+
+            return year > maxYear || (year === maxYear && month > maxMonth);
+        }
+        return false;
+    }, [maxDate]);
+
+    /**
+     * Tests whether the combination month/ year is before minDate, considering
+     * just the month and year of minDate
+     */
+    const _isYearAndMonthBeforeMinDate = useCallback((year: number, month: number) => {
+        if (minDate) {
+            const minYear = getYear(minDate);
+            const minMonth = getMonth(minDate);
+
+            return year < minYear || (year === minYear && month < minMonth);
+        }
+        return false;
+    }, [minDate]);
+
+    /** Whether the given month is enabled. */
+    const _shouldEnableMonth = useCallback((month: number) => {
+        const activeYear = getYear(activeDate);
+
+        if (month == null ||
+            _isYearAndMonthAfterMaxDate(activeYear, month) ||
+            _isYearAndMonthBeforeMinDate(activeYear, month)) {
+            return false;
+        }
+
+        if (!dateFilter) {
+            return true;
+        }
+
+        const firstOfMonth = createDate(activeYear, month, 1);
+        // If any date in the month is enabled, count the month as enabled.
+        for (let date = firstOfMonth; getMonth(date) === month;
+            date = addCalendarDays(date, 1)) {
+            if (dateFilter(date)) {
+                return true;
+            }
+        }
+        return false;
+    }, [_isYearAndMonthAfterMaxDate, _isYearAndMonthBeforeMinDate, activeDate, dateFilter]);
+
+    /** Creates an ICalendarCell for the given month, zero-based. */
+    const _createCellForMonth = useCallback((month: number, monthName: string): ICalendarCell => {
+        // let ariaLabel = format(
+        //     createDate(getYear(activeDate), month, 1),
+        //     _dateFormats.display.monthYearA11yLabel);
+
+        return {
+            cellIndex: month,
+            value: createDate(getYear(activeDate), month, 1),
+            displayValue: monthName.toLocaleUpperCase(),
+            ariaLabel: MONTH_NAMES[month].long,
+            enabled: _shouldEnableMonth(month)
+        } as ICalendarCell;
+    }, [_shouldEnableMonth, activeDate]);
+
     /** Repopulate on activeDate change. */
     useEffect(() => {
         _setYearText(formatYearLabel(activeDate));
@@ -89,7 +115,7 @@ function Year() {
         _setMonths([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]].map(row => row.map(
             month => _createCellForMonth(month, MONTH_NAMES[month].short))) as ICalendarCell[][]);
         // implies 4 months per row
-    }, [activeDate]);
+    }, [_createCellForMonth, activeDate, formatYearLabel]);
 
     /** Handles when a new month is selected. */
     // const _monthSelected = (month: number) => {
@@ -160,7 +186,7 @@ function Year() {
             case 32: { // SPACE
 
                 // monthSelected(getMonth());
-                monthSelected({ date: activeDate, beginDate, endDate });
+                onMonthSelected({ date: activeDate, beginDate, endDate });
                 // event.preventDefault();
                 break;
             }
@@ -222,7 +248,7 @@ function Year() {
         _focusActiveCell();
         // Prevent unexpected default actions such as form submission.
         event.preventDefault();
-    }, []);
+    }, [_prevActiveDate, activeDate, beginDate, dispatch, endDate, onMonthSelected]);
 
     useEffect(() => {
         window.addEventListener('keydown', _handleUserKeyPress);
@@ -241,46 +267,6 @@ function Year() {
         // CalendarBody._focusActiveCell();
     }
 
-    /** Creates an ICalendarCell for the given month, zero-based. */
-    const _createCellForMonth = (month: number, monthName: string): ICalendarCell => {
-        // let ariaLabel = format(
-        //     createDate(getYear(activeDate), month, 1),
-        //     _dateFormats.display.monthYearA11yLabel);
-
-        return {
-            cellIndex: month,
-            value: createDate(getYear(activeDate), month, 1),
-            displayValue: monthName.toLocaleUpperCase(),
-            ariaLabel: MONTH_NAMES[month].long,
-            enabled: _shouldEnableMonth(month)
-        } as ICalendarCell;
-    }
-
-    /** Whether the given month is enabled. */
-    const _shouldEnableMonth = (month: number) => {
-        const activeYear = getYear(activeDate);
-
-        if (month == null ||
-            _isYearAndMonthAfterMaxDate(activeYear, month) ||
-            _isYearAndMonthBeforeMinDate(activeYear, month)) {
-            return false;
-        }
-
-        if (!dateFilter) {
-            return true;
-        }
-
-        const firstOfMonth = createDate(activeYear, month, 1);
-        // If any date in the month is enabled, count the month as enabled.
-        for (let date = firstOfMonth; getMonth(date) === month;
-            date = addCalendarDays(date, 1)) {
-            if (dateFilter(date)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     // /** Determines whether the user has the Right To Left layout direction. */
     // //   private const _isRtl = () => {
     // //     return _dir && _dir.value === 'rtl';
@@ -291,34 +277,6 @@ function Year() {
         if (rangeMode && beginDate && endDate) {
             return _months[0][0].value > beginDate
                 && _months[_months.length - 1][MONTHS_PER_ROW - 1].value < endDate;
-        }
-        return false;
-    }
-
-    /**
-     * Tests whether the combination month/ year is after maxDate, considering
-     * just the month and year of maxDate
-     */
-    const _isYearAndMonthAfterMaxDate = (year: number, month: number) => {
-        if (maxDate) {
-            const maxYear = getYear(maxDate);
-            const maxMonth = getMonth(maxDate);
-
-            return year > maxYear || (year === maxYear && month > maxMonth);
-        }
-        return false;
-    }
-
-    /**
-     * Tests whether the combination month/ year is before minDate, considering
-     * just the month and year of minDate
-     */
-    const _isYearAndMonthBeforeMinDate = (year: number, month: number) => {
-        if (minDate) {
-            const minYear = getYear(minDate);
-            const minMonth = getMonth(minDate);
-
-            return year < minYear || (year === minYear && month < minMonth);
         }
         return false;
     }
@@ -335,7 +293,7 @@ function Year() {
                 labelMinRequiredCells={3}
                 selectedValueChange={_monthSelected}
                 compare={compareMonthsAndYears}
-                dateSelected={monthSelected}
+                dateSelected={onMonthSelected}
                 createDateFromSelectedCell={(date: Date) => { return createDate(getYear(date), getMonth(date), 1) }}
                 beginDateSelected={false}
                 isBeforeSelected={false}

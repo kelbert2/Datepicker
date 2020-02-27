@@ -8,18 +8,9 @@ export const isRtl = true; // language locale
 
 function Multiyear() {
     const {
-        selectedDate,
-        todayDate,
         activeDate,
 
-        onDateChange: dateChange,
-        onDateInput: dateInput,
-        onYearSelected: yearSelected,
-        onMonthSelected: monthSelected,
-        onDaySelected: daySelected,
-
-        startAt,
-        startView,
+        onYearSelected,
 
         minDate,
         maxDate,
@@ -29,38 +20,7 @@ function Multiyear() {
         beginDate,
         endDate,
 
-        disableMonth,
-        disableYear,
-        disableMultiyear,
-
-        disable,
-        disablePopup,
-        disableInput,
-        popupLarge,
-
-        formatMonthLabel,
-        formatMonthText,
-
-        formatYearLabel,
-        formatYearText,
-
-        formatMultiyearLabel,
         formatMultiyearText,
-
-        calendarLabel,
-        openCalendarLabel,
-
-        nextMonthLabel,
-        nextYearLabel,
-        nextMultiyearLabel,
-
-        prevMonthLabel,
-        prevYearLabel,
-        prevMultiyearLabel,
-
-        switchToMonthViewLabel,
-        switchToYearViewLabel,
-        switchToMultiyearViewLabel,
 
         dispatch
     } = useContext(DatepickerContext);
@@ -70,6 +30,60 @@ function Multiyear() {
     /** Previous active date. */
     const [_prevActiveDate, _setPrevActiveDate] = useState(activeDate);
     const [_multiyearText, _setMultiyearText] = useState('');
+
+    /** Whether the given year is enabled. */
+    const _shouldEnableYear = useCallback((year: number) => {
+        // disable if the year is greater than maxDate lower than minDate
+        if (year == null ||
+            (maxDate && year > getYear(maxDate)) ||
+            (minDate && year < getYear(minDate))) {
+            return false;
+        }
+        // enable if it reaches here and there's no filter defined
+        if (!dateFilter) {
+            return true;
+        }
+
+        const firstOfYear = createDate(year, 0, 1);
+        // If any date in the year is enabled, count the year as enabled.
+        for (let date = firstOfYear; getYear(date) === year;
+            date = addCalendarDays(date, 1)) {
+            if (dateFilter(date)) {
+                return true;
+            }
+        }
+        return false;
+    }, [dateFilter, maxDate, minDate]);
+
+    /** Creates an ICalendarCell for the given year. */
+    const _createCellForYear = useCallback((year: number): ICalendarCell => {
+        const yearName = getYearName(createDate(year, 0, 1));
+        return {
+            value: createDate(year, 0, 1),
+            displayValue: yearName,
+            ariaLabel: yearName,
+            enabled: _shouldEnableYear(year)
+        } as ICalendarCell;
+    }, [_shouldEnableYear]);
+
+    /** Reloads years. */
+    const _populateYears = useCallback(() => {
+        const activeYear = getYear(activeDate);
+        const minYearOfPage = activeYear - getActiveOffset(
+            activeDate, minDate, maxDate);
+
+        let years = [] as ICalendarCell[][];
+        for (let i = 0, row: ICalendarCell[] = []; i < YEARS_PER_PAGE; i++) {
+            // row.push(minYearOfPage + i);
+            row.push(_createCellForYear(minYearOfPage + i));
+            if (row.length === YEARS_PER_ROW) {
+                // years.push(row.map(year => _createCellForYear(year)));
+                years.push(row);
+                row = [];
+            }
+        }
+        _setYear(years); // needs to register as a change
+    }, [_createCellForYear, activeDate, maxDate, minDate])
 
     /** Run on mount */
     useEffect(() => {
@@ -95,7 +109,16 @@ function Multiyear() {
         //         return dateChange({ date: createDate(year, month, Math.min(getDate(activeDate), daysInMonth)), beginDate, endDate });
         //     }
         // });
-    }, []); // run on mount 
+    }, [_populateYears]); // run on mount 
+
+    // /**  Returns true if two dates will display in the same multiyear view */
+    const _isSameMultiyearView = useCallback((date1: Date, date2: Date) => {
+        const year1 = getYear(date1);
+        const year2 = getYear(date2);
+        const startingYear = getStartingYear(minDate, maxDate);
+        return Math.floor((year1 - startingYear) / YEARS_PER_PAGE) ===
+            Math.floor((year2 - startingYear) / YEARS_PER_PAGE);
+    }, [maxDate, minDate]);
 
     /** Repopulate on activeDate change. */
     useEffect(() => {
@@ -105,26 +128,7 @@ function Multiyear() {
             _populateYears();
         }
         _setPrevActiveDate(activeDate);
-    }, [activeDate])
-
-    /** Reloads years. */
-    const _populateYears = () => {
-        const activeYear = getYear(activeDate);
-        const minYearOfPage = activeYear - getActiveOffset(
-            activeDate, minDate, maxDate);
-
-        let years = [] as ICalendarCell[][];
-        for (let i = 0, row: ICalendarCell[] = []; i < YEARS_PER_PAGE; i++) {
-            // row.push(minYearOfPage + i);
-            row.push(_createCellForYear(minYearOfPage + i));
-            if (row.length === YEARS_PER_ROW) {
-                // years.push(row.map(year => _createCellForYear(year)));
-                years.push(row);
-                row = [];
-            }
-        }
-        _setYear(years); // needs to register as a change
-    }
+    }, [_isSameMultiyearView, _populateYears, _prevActiveDate, activeDate, formatMultiyearText])
 
     /** Handles when a new year is selected. */
     const _yearSelected = (cellValue: Date) => {
@@ -249,7 +253,7 @@ function Multiyear() {
         _focusActiveCell();
         // Prevent unexpected default actions such as form submission.
         event.preventDefault();
-    }, []);
+    }, [_prevActiveDate, activeDate, dispatch, maxDate, minDate]);
 
     useEffect(() => {
         window.addEventListener('keydown', _handleUserKeyPress);
@@ -268,41 +272,6 @@ function Multiyear() {
         // CalendarBody._focusActiveCell();
     }
 
-    /** Creates an ICalendarCell for the given year. */
-    const _createCellForYear = (year: number): ICalendarCell => {
-        const yearName = getYearName(createDate(year, 0, 1));
-        return {
-            value: createDate(year, 0, 1),
-            displayValue: yearName,
-            ariaLabel: yearName,
-            enabled: _shouldEnableYear(year)
-        } as ICalendarCell;
-    }
-
-    /** Whether the given year is enabled. */
-    const _shouldEnableYear = (year: number) => {
-        // disable if the year is greater than maxDate lower than minDate
-        if (year == null ||
-            (maxDate && year > getYear(maxDate)) ||
-            (minDate && year < getYear(minDate))) {
-            return false;
-        }
-        // enable if it reaches here and there's no filter defined
-        if (!dateFilter) {
-            return true;
-        }
-
-        const firstOfYear = createDate(year, 0, 1);
-        // If any date in the year is enabled, count the year as enabled.
-        for (let date = firstOfYear; getYear(date) === year;
-            date = addCalendarDays(date, 1)) {
-            if (dateFilter(date)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     // /** Determines whether the user has the Right To Left layout direction. */
     // //   private const _isRtl = () => {
     // //     return _dir && _dir.value === 'rtl';
@@ -315,15 +284,6 @@ function Multiyear() {
                 && getYear(_years[_years.length - 1][YEARS_PER_ROW - 1].value) < getYear(endDate);
         }
         return false;
-    }
-
-    // /**  Returns true if two dates will display in the same multiyear view */
-    const _isSameMultiyearView = (date1: Date, date2: Date) => {
-        const year1 = getYear(date1);
-        const year2 = getYear(date2);
-        const startingYear = getStartingYear(minDate, maxDate);
-        return Math.floor((year1 - startingYear) / YEARS_PER_PAGE) ===
-            Math.floor((year2 - startingYear) / YEARS_PER_PAGE);
     }
 
     return (
@@ -340,7 +300,7 @@ function Multiyear() {
                 labelMinRequiredCells={4}
                 selectedValueChange={_yearSelected}
                 compare={compareYears}
-                dateSelected={yearSelected}
+                dateSelected={onYearSelected}
                 createDateFromSelectedCell={(date: Date) => { return createDate(getYear(date), 0, 1) }}
                 beginDateSelected={false}
                 isBeforeSelected={false}

@@ -1,22 +1,15 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import DatepickerContext from './DatepickerContext';
-import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, compareDatesGreaterThan, getDayOfWeek, getFirstDayOfWeek, getMonthNames, compareDates, hasSameMonthAndYear, getFirstDateOfMonthByDate, MONTH_NAMES, getDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
+import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, compareDatesGreaterThan, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 
 function Month() {
     const {
         selectedDate,
-        todayDate,
         activeDate,
 
-        onDateChange: dateChange,
-        onDateInput: dateInput,
-        onYearSelected: yearSelected,
-        onMonthSelected: monthSelected,
-        onDaySelected: daySelected,
+        onDaySelected,
 
-        startAt,
-        startView,
         firstDayOfWeek,
 
         minDate,
@@ -27,38 +20,7 @@ function Month() {
         beginDate,
         endDate,
 
-        disableMonth,
-        disableYear,
-        disableMultiyear,
-
-        disable,
-        disablePopup,
-        disableInput,
-        popupLarge,
-
-        formatMonthLabel,
         formatMonthText,
-
-        formatYearLabel,
-        formatYearText,
-
-        formatMultiyearLabel,
-        formatMultiyearText,
-
-        calendarLabel,
-        openCalendarLabel,
-
-        nextMonthLabel,
-        nextYearLabel,
-        nextMultiyearLabel,
-
-        prevMonthLabel,
-        prevYearLabel,
-        prevMultiyearLabel,
-
-        switchToMonthViewLabel,
-        switchToYearViewLabel,
-        switchToMultiyearViewLabel,
 
         dispatch
     } = useContext(DatepickerContext);
@@ -74,33 +36,35 @@ function Month() {
     /** Weekday labels. */
     const [_weekdays, _setWeekdays] = useState(WEEKDAY_NAMES);
 
+    /** Date filter for the month */
+    const _shouldEnableDay = useCallback((date: Date) => {
+        return !!date &&
+            (!dateFilter || dateFilter(date)) &&
+            (!minDate || compareDates(date, minDate) >= 0) &&
+            (!maxDate || compareDates(date, maxDate) <= 0);
+    }, [dateFilter, maxDate, minDate]);
 
-    /** Run on mount */
-    useEffect(() => {
-        // constructor
-        // dispatch({ type: 'set-active-date', payload: new Date() });
+    /** Creates an ICalendarCell for a given day (one-based, not zero-based) */
+    const _createCellForDay = useCallback((day: number) => {
+        const date = createDate(getYear(activeDate), getMonth(activeDate), day);
+        // const ariaLabel = this._dateAdapter.format(
+        //      createDate(getYear(activeDate), getMonth(activeDate), day), 
+        //      _dateFormats.display.dateA11yLabel);
+        // const dateNames = getDateNames();
+        // displayValue = dateNames[i];
 
-        // init
-        //updateRangeSpecificValues();
-        // dispatch({ type: 'set-selected-date', payload: getDateInCurrentMonth(selectedDate) });
-        // dispatch({ type: 'set-today-date', payload: getDateInCurrentMonth(new Date()) });
+        return {
+            cellIndex: day - 1,
+            value: date,
+            displayValue: '' + day,
+            ariaLabel: '' + day,
+            enabled: _shouldEnableDay(date)
+        } as ICalendarCell;
+    }, [_shouldEnableDay, activeDate]);
 
-        // Rotate the labels for days of the week based on the configured first day of the week.
-        _setWeekdays(WEEKDAY_NAMES.slice(firstDayOfWeek).concat(WEEKDAY_NAMES.slice(0, firstDayOfWeek)));
-
-        _populateDays();
-        // this._changeDetectorRef.markForCheck();
-    }, [firstDayOfWeek]);
-
-    /** Repopulate on activeDate change. */
-    useEffect(() => {
-        _setMonthText(formatMonthText(activeDate));
-
-        _populateDays();
-    }, [activeDate, _firstWeekOffset]);
 
     /** Reloads days. */
-    const _populateDays = () => {
+    const _populateDays = useCallback(() => {
         const daysInMonth = getDaysPerMonth(getMonth(activeDate));
         let firstOfMonth = createDate(getYear(activeDate), getMonth(activeDate), 1);
         _setFirstWeekOffset((DAYS_PER_WEEK + getDayOfWeek(firstOfMonth) - getFirstDayOfWeek()) % DAYS_PER_WEEK);
@@ -118,7 +82,32 @@ function Month() {
             days[days.length - 1].push(_createCellForDay(i + 1));
         }
         _setDays(days);
-    }
+    }, [_createCellForDay, _firstWeekOffset, activeDate]);
+
+    /** Run on mount */
+    useEffect(() => {
+        // constructor
+        // dispatch({ type: 'set-active-date', payload: new Date() });
+
+        // init
+        //updateRangeSpecificValues();
+        // dispatch({ type: 'set-selected-date', payload: getDateInCurrentMonth(selectedDate) });
+        // dispatch({ type: 'set-today-date', payload: getDateInCurrentMonth(new Date()) });
+
+        // Rotate the labels for days of the week based on the configured first day of the week.
+        _setWeekdays(WEEKDAY_NAMES.slice(firstDayOfWeek).concat(WEEKDAY_NAMES.slice(0, firstDayOfWeek)));
+
+        _populateDays();
+        // this._changeDetectorRef.markForCheck();
+    }, [_populateDays, firstDayOfWeek]);
+
+    /** Repopulate on activeDate change. */
+    useEffect(() => {
+        _setMonthText(formatMonthText(activeDate));
+
+        _populateDays();
+    }, [activeDate, _firstWeekOffset, formatMonthText, _populateDays]);
+
 
     /** Handles when a new day is selected. */
     const _dateSelected = (date: Date) => {
@@ -275,7 +264,7 @@ function Month() {
         _focusActiveCell();
         // Prevent unexpected default actions such as form submission.
         event.preventDefault();
-    }, []);
+    }, [_prevActiveDate, activeDate, dateFilter, dispatch]);
 
     useEffect(() => {
         window.addEventListener('keydown', _handleUserKeyPress);
@@ -294,41 +283,15 @@ function Month() {
         // CalendarBody._focusActiveCell();
     }
 
-    /** Creates an ICalendarCell for a given day (one-based, not zero-based) */
-    const _createCellForDay = (day: number): ICalendarCell => {
-        const date = createDate(getYear(activeDate), getMonth(activeDate), day);
-        // const ariaLabel = this._dateAdapter.format(
-        //      createDate(getYear(activeDate), getMonth(activeDate), day), 
-        //      _dateFormats.display.dateA11yLabel);
-        // const dateNames = getDateNames();
-        // displayValue = dateNames[i];
-
-        return {
-            cellIndex: day - 1,
-            value: date,
-            displayValue: '' + day,
-            ariaLabel: '' + day,
-            enabled: _shouldEnableDay(date)
-        } as ICalendarCell;
-    }
-
-    /** Date filter for the month */
-    const _shouldEnableDay = (date: Date) => {
-        return !!date &&
-            (!dateFilter || dateFilter(date)) &&
-            (!minDate || compareDates(date, minDate) >= 0) &&
-            (!maxDate || compareDates(date, maxDate) <= 0);
-    }
-
     /**
      * Gets the date in this month that the given Date falls on.
      * Returns null if the given Date is in another month.
      */
-    const _getDateInCurrentMonth = (date: Date | null) => {
-        return date && hasSameMonthAndYear(date, activeDate) ?
-            getDate(date) : null;
-        //  this._dateAdapter.getDate(date) : null;
-    }
+    // const _getDateInCurrentMonth = (date: Date | null) => {
+    //     return date && hasSameMonthAndYear(date, activeDate) ?
+    //         getDate(date) : null;
+    //     //  this._dateAdapter.getDate(date) : null;
+    // }
 
     /** Determines whether the user has the RTL layout direction. */
     // const isRtl = () => {
@@ -446,7 +409,7 @@ function Month() {
                 labelMinRequiredCells={3}
                 selectedValueChange={_dateSelected}
                 compare={compareDaysMonthsAndYears}
-                dateSelected={daySelected}
+                dateSelected={onDaySelected}
                 createDateFromSelectedCell={(date: Date) => { return date }}
                 beginDateSelected={false}
                 isBeforeSelected={false}

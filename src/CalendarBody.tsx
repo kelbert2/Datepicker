@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import DatepickerContext, { DateData } from './DatepickerContext';
-import { sameDate, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, getYear, getYearName, compareDates, getDay } from './CalendarUtils';
+import { sameDate, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, compareDates } from './CalendarUtils';
 
 export interface ICalendarCell {
     cellIndex: number,
@@ -386,13 +386,8 @@ export function CalendarBody(
 
     /** Renders an individual cell */
     const _renderCell = (cell: ICalendarCell) => {
-        const divStyle = {
-            padding: `${cellAspectRatio}em 1em`
-        }
-
         return (
             <div aria-label={cell.ariaLabel}>{cell.displayValue}</div>
-            // style={divStyle}
         );
     }
 

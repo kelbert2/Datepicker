@@ -5,17 +5,7 @@ import { getYear, formatDateDisplay } from "./CalendarUtils";
 function TestDisplay() {
     const {
         selectedDate,
-        todayDate,
         activeDate,
-
-        onDateChange: dateChange,
-        onDateInput: dateInput,
-        onYearSelected: yearSelected,
-        onMonthSelected: monthSelected,
-        onDaySelected: daySelected,
-
-        startAt,
-        startView,
 
         minDate,
         maxDate,
@@ -33,30 +23,6 @@ function TestDisplay() {
         disablePopup,
         disableInput,
         popupLarge,
-
-        formatMonthLabel,
-        formatMonthText,
-
-        formatYearLabel,
-        formatYearText,
-
-        formatMultiyearLabel,
-        formatMultiyearText,
-
-        calendarLabel,
-        openCalendarLabel,
-
-        nextMonthLabel,
-        nextYearLabel,
-        nextMultiyearLabel,
-
-        prevMonthLabel,
-        prevYearLabel,
-        prevMultiyearLabel,
-
-        switchToMonthViewLabel,
-        switchToYearViewLabel,
-        switchToMultiyearViewLabel,
 
         dispatch
     } = useContext(DatepickerContext);

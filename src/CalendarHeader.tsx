@@ -1,6 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import DatepickerContext from './DatepickerContext';
-import { getYear, getMonth, VIEW, addCalendarMonths, addCalendarYears, getActiveOffset, YEARS_PER_PAGE, getStartingYear, compareMonthsAndYears, compareYears } from './CalendarUtils';
+import { getYear, VIEW, addCalendarMonths, addCalendarYears, getActiveOffset, YEARS_PER_PAGE, getStartingYear, compareMonthsAndYears, compareYears } from './CalendarUtils';
 
 interface CalenderHeaderProps {
     currentView: VIEW,
@@ -8,47 +8,20 @@ interface CalenderHeaderProps {
 }
 function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
     let {
-        selectedDate,
-        todayDate,
         activeDate,
-
-        onDateChange: dateChange,
-        onDateInput: dateInput,
-        onYearSelected: yearSelected,
-        onMonthSelected: monthSelected,
-        onDaySelected: daySelected,
-
-        startAt,
-        startView,
 
         minDate,
         maxDate,
-        dateFilter,
-
-        rangeMode,
-        beginDate,
-        endDate,
 
         disableMonth,
         disableYear,
         disableMultiyear,
 
-        disable,
-        disablePopup,
-        disableInput,
-        popupLarge,
-
         formatMonthLabel,
-        formatMonthText,
 
         formatYearLabel,
-        formatYearText,
 
         formatMultiyearLabel,
-        formatMultiyearText,
-
-        calendarLabel,
-        openCalendarLabel,
 
         nextMonthLabel,
         nextYearLabel,

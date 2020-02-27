@@ -12,15 +12,14 @@ function Calendar() {
         todayDate,
         activeDate,
 
-        onDateChange: dateChange,
-        onDateInput: dateInput,
-        onYearSelected: yearSelected,
-        onMonthSelected: monthSelected,
-        onDaySelected: daySelected,
+        onDateChange,
+        onDateInput,
+        onYearSelected,
+        onMonthSelected,
+        onDaySelected,
 
         startAt,
         startView,
-        firstDayOfWeek,
 
         minDate,
         maxDate,
@@ -33,35 +32,6 @@ function Calendar() {
         disableMonth,
         disableYear,
         disableMultiyear,
-
-        disable,
-        disablePopup,
-        disableInput,
-        popupLarge,
-
-        formatMonthLabel,
-        formatMonthText,
-
-        formatYearLabel,
-        formatYearText,
-
-        formatMultiyearLabel,
-        formatMultiyearText,
-
-        calendarLabel,
-        openCalendarLabel,
-
-        nextMonthLabel,
-        nextYearLabel,
-        nextMultiyearLabel,
-
-        prevMonthLabel,
-        prevYearLabel,
-        prevMultiyearLabel,
-
-        switchToMonthViewLabel,
-        switchToYearViewLabel,
-        switchToMultiyearViewLabel,
 
         dispatch
     } = useContext(DatepickerContext);
@@ -89,7 +59,7 @@ function Calendar() {
         // if (!disableYear) {
         //     _setCurrentView('year');
         // }
-    }, []);
+    }, [dispatch, startAt]);
 
     /** On activeDate change, make sure today's date is up-to-date. */
     useEffect(() => {
@@ -100,7 +70,7 @@ function Calendar() {
                 payload: newDate
             });
         }
-    }, [activeDate]);
+    }, [activeDate, dispatch, todayDate]);
 
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
@@ -125,7 +95,7 @@ function Calendar() {
                 payload: null
             });
         }
-    }, [rangeMode]);
+    }, [beginDate, dispatch, rangeMode, selectedDate]);
 
 
     // const dateSelected = (date: Date) => {

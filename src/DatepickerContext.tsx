@@ -1,5 +1,5 @@
 import React from 'react';
-import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getActiveOffset, getYear } from './CalendarUtils';
+import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear } from './CalendarUtils';
 
 // Based on: https://github.com/SaturnTeam/saturn-datepicker/tree/master/saturn-datepicker/src/datepicker
 // All IDatepickerContext values will be public and updateable outside except for dispatch

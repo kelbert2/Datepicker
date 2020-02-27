@@ -12,11 +12,11 @@ function Multiyear() {
         todayDate,
         activeDate,
 
-        dateChange,
-        dateInput,
-        yearSelected,
-        monthSelected,
-        daySelected,
+        onDateChange: dateChange,
+        onDateInput: dateInput,
+        onYearSelected: yearSelected,
+        onMonthSelected: monthSelected,
+        onDaySelected: daySelected,
 
         startAt,
         startView,
@@ -69,6 +69,7 @@ function Multiyear() {
     const [_years, _setYear] = useState([] as ICalendarCell[][]);
     /** Previous active date. */
     const [_prevActiveDate, _setPrevActiveDate] = useState(activeDate);
+    const [_multiyearText, _setMultiyearText] = useState('');
 
     /** Run on mount */
     useEffect(() => {
@@ -99,6 +100,8 @@ function Multiyear() {
     /** Repopulate on activeDate change. */
     useEffect(() => {
         if (!_isSameMultiyearView(activeDate, _prevActiveDate)) {
+            _setMultiyearText(formatMultiyearText(activeDate));
+
             _populateYears();
         }
         _setPrevActiveDate(activeDate);
@@ -125,54 +128,54 @@ function Multiyear() {
 
     /** Handles when a new year is selected. */
     const _yearSelected = (cellValue: Date) => {
-        let date = createDate(getYear(cellValue), 0, 1);
+        // let date = createDate(getYear(cellValue), 0, 1);
 
-        if (rangeMode) {
-            if (!beginDate || date < beginDate) {
-                // reset begin selection
-                yearSelected({ date, beginDate: date, endDate: null });
+        // if (rangeMode) {
+        //     if (!beginDate || date < beginDate) {
+        //         // reset begin selection
+        //         yearSelected({ date, beginDate: date, endDate: null });
 
-                dispatch({
-                    type: 'set-selected-date', payload: date
-                });
-                dispatch({
-                    type: 'set-begin-date', payload: date
-                });
-                dispatch({
-                    type: 'set-end-date', payload: null
-                });
+        //         dispatch({
+        //             type: 'set-selected-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-begin-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-end-date', payload: null
+        //         });
 
-            } else {
-                yearSelected({ date, beginDate, endDate: date });
+        //     } else {
+        //         yearSelected({ date, beginDate, endDate: date });
 
-                dispatch({
-                    type: 'set-selected-date', payload: date
-                });
-                dispatch({
-                    type: 'set-end-date', payload: date
-                });
-                // } else {
-                //     // reset begin selection
-                //     yearSelected({ date, beginDate: date, endDate: null });
-                //     // yearSelected({date, beginDate: date, endDate:beginDate});
-                //     dispatch({
-                //         type: 'set-selected-date', payload: date
-                //     });
-                //     dispatch({
-                //         type: 'set-begin-date', payload: date
-                //     });
-                //     dispatch({
-                //         type: 'set-end-date', payload: null
-                //     });
-                // }
-            }
-        } else {
-            yearSelected({ date, beginDate: null, endDate: null });
+        //         dispatch({
+        //             type: 'set-selected-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-end-date', payload: date
+        //         });
+        //         // } else {
+        //         //     // reset begin selection
+        //         //     yearSelected({ date, beginDate: date, endDate: null });
+        //         //     // yearSelected({date, beginDate: date, endDate:beginDate});
+        //         //     dispatch({
+        //         //         type: 'set-selected-date', payload: date
+        //         //     });
+        //         //     dispatch({
+        //         //         type: 'set-begin-date', payload: date
+        //         //     });
+        //         //     dispatch({
+        //         //         type: 'set-end-date', payload: null
+        //         //     });
+        //         // }
+        //     }
+        // } else {
+        //     yearSelected({ date, beginDate: null, endDate: null });
 
-            dispatch({
-                type: 'set-selected-date', payload: date
-            });
-        }
+        //     dispatch({
+        //         type: 'set-selected-date', payload: date
+        //     });
+        // }
     }
 
     /** Handles keydown events on the calendar body when calendar is in multi-year view. */
@@ -333,10 +336,12 @@ function Multiyear() {
 
             <CalendarBody
                 rows={_years}
-                labelText={''}
+                labelText={_multiyearText}
                 labelMinRequiredCells={4}
                 selectedValueChange={_yearSelected}
                 compare={compareYears}
+                dateSelected={yearSelected}
+                createDateFromSelectedCell={(date: Date) => { return createDate(getYear(date), 0, 1) }}
                 beginDateSelected={false}
                 isBeforeSelected={false}
                 isCurrentMonthBeforeSelected={false}

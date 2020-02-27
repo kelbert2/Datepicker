@@ -13,11 +13,11 @@ function Year() {
         todayDate,
         activeDate,
 
-        dateChange,
-        dateInput,
-        yearSelected,
-        monthSelected,
-        daySelected,
+        onDateChange: dateChange,
+        onDateInput: dateInput,
+        onYearSelected: yearSelected,
+        onMonthSelected: monthSelected,
+        onDaySelected: daySelected,
 
         startAt,
         startView,
@@ -72,8 +72,8 @@ function Year() {
     //     month => _createCellForMonth(month, MONTH_NAMES[month].short))) as ICalendarCell[][]);
     /** Previous active date. */
     const [_prevActiveDate, _setPrevActiveDate] = useState(activeDate);
-    /** The label for this year (e.g. "2017"). */
-    const [_yearLabel, _setYearLabel] = useState(getYearName(activeDate));
+    /** The text label for this year (e.g. "2017"). */
+    const [_yearText, _setYearText] = useState(getYearName(activeDate));
     /** The month in this year that today falls on. Null if today is in a different year. */
     // const [_todayMonth, _setTodayMonth] = useState(getMonthInCurrentYear(todayDate) as number | null);
     /**
@@ -84,8 +84,7 @@ function Year() {
 
     /** Repopulate on activeDate change. */
     useEffect(() => {
-        const activeYear = getYear(activeDate);
-        _setYearLabel('' + activeYear);
+        _setYearText(formatYearLabel(activeDate));
 
         _setMonths([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]].map(row => row.map(
             month => _createCellForMonth(month, MONTH_NAMES[month].short))) as ICalendarCell[][]);
@@ -108,40 +107,41 @@ function Year() {
         //     getYear(activeDate), month,
         //     Math.min(getDate(activeDate), daysInMonth)));
 
-        let date = createDate(getYear(cellValue), getMonth(cellValue), 1);
+        // let date = createDate(getYear(cellValue), getMonth(cellValue), 1);
 
-        if (rangeMode) {
-            if (!beginDate || date < beginDate) {
-                // reset begin selection
-                monthSelected({ date, beginDate: date, endDate: null });
+        // if (rangeMode) {
+        //     if (!beginDate || date < beginDate) {
+        //         // reset begin selection
+        //         monthSelected({ date, beginDate: date, endDate: null });
 
-                dispatch({
-                    type: 'set-selected-date', payload: date
-                });
-                dispatch({
-                    type: 'set-begin-date', payload: date
-                });
-                dispatch({
-                    type: 'set-end-date', payload: null
-                });
+        //         dispatch({
+        //             type: 'set-selected-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-begin-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-end-date', payload: null
+        //         });
 
-            } else {
-                monthSelected({ date, beginDate, endDate: date });
+        //     } else {
+        //         monthSelected({ date, beginDate, endDate: date });
 
-                dispatch({
-                    type: 'set-selected-date', payload: date
-                });
-                dispatch({
-                    type: 'set-end-date', payload: date
-                });
-            }
-        } else {
-            monthSelected({ date, beginDate: null, endDate: null });
+        //         dispatch({
+        //             type: 'set-selected-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-end-date', payload: date
+        //         });
+        //     }
+        // } else {
+        //     monthSelected({ date, beginDate: null, endDate: null });
 
-            dispatch({
-                type: 'set-selected-date', payload: date
-            });
-        }
+        //     dispatch({
+        //         type: 'set-selected-date', payload: date
+        //     });
+        // }
+
     }
 
     /** Handles keydown events on the calendar body when calendar is in year view. */
@@ -331,10 +331,12 @@ function Year() {
 
             <CalendarBody
                 rows={_months}
-                labelText={_yearLabel}
+                labelText={_yearText}
                 labelMinRequiredCells={3}
                 selectedValueChange={_monthSelected}
                 compare={compareMonthsAndYears}
+                dateSelected={monthSelected}
+                createDateFromSelectedCell={(date: Date) => { return createDate(getYear(date), getMonth(date), 1) }}
                 beginDateSelected={false}
                 isBeforeSelected={false}
                 isCurrentMonthBeforeSelected={false}

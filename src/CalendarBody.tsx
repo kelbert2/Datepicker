@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
-import DatepickerContext from './DatepickerContext';
-import { sameDate, dateToNumber, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, getYear, getYearName, compareDates, getDay } from './CalendarUtils';
+import DatepickerContext, { DateData } from './DatepickerContext';
+import { sameDate, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, getYear, getYearName, compareDates, getDay } from './CalendarUtils';
 
 export interface ICalendarCell {
     cellIndex: number,
@@ -10,18 +10,14 @@ export interface ICalendarCell {
     enabled: boolean,
 }
 
-export interface CalendarBodyProps {
-    rows: ICalendarCell[][],
-    isCurrentMonthBeforeSelectedDate: boolean,
-    isRangeFull: boolean,
-}
-
 /** Displays Calendar data in a table
          *  @param rows: Cells to display
          *  @param labelText: Label for the table ("JAN 2020")
          *  @param labelMinRequiredCells: Minimum number of cells the label spans
          *  @param selectedValueChange: Emits cell's value when a new cell is selected, 
          *  @param compare: Function to use to compare two dates (returns 0 if equal, negative if the first value is less than the second, positive if greater than)
+         *  @param dateSelected: emits updated date, beginDate, and endDate depending on which cell has been selected
+         *  @param createDateFromSelectedCell: Function to create a date for emission when a cell is selected
          *  @param beginDateSelected: If the user has already selected the start of the dates interval
          *  @param isBeforeSelected: If the current month is before the date already selected
          *  @param isCurrentMonthBeforeSelected: True when the current month is before the date already selected
@@ -37,6 +33,8 @@ export function CalendarBody(
         labelMinRequiredCells = 3,
         selectedValueChange = (cellValue: Date) => { },
         compare = compareDates,
+        dateSelected = (d: DateData) => { },
+        createDateFromSelectedCell = (date: Date) => { return date },
         beginDateSelected = false,
         isBeforeSelected = false,
         isCurrentMonthBeforeSelected = false,
@@ -50,6 +48,8 @@ export function CalendarBody(
         labelMinRequiredCells: number,
         selectedValueChange: (cellValue: Date) => {} | void,
         compare: (date1: Date, date2: Date) => number,
+        dateSelected: (d: DateData) => {} | void,
+        createDateFromSelectedCell: (date: Date) => Date,
         beginDateSelected: boolean,
         isBeforeSelected: boolean,
         isCurrentMonthBeforeSelected: boolean,
@@ -58,7 +58,6 @@ export function CalendarBody(
         numCols: number,
         cellAspectRatio: number
     }) {
-
 
     const {
         selectedDate,
@@ -102,16 +101,77 @@ export function CalendarBody(
         if (cell.enabled) {
             selectedValueChange(cell.value);
 
-            console.log("cell value seems to be index in week");
-            console.log(cell);
+            const date = createDateFromSelectedCell(cell.value);
 
             dispatch({
-                type: 'set-active-date', payload: cell.value
+                type: 'set-active-date', payload: date
             });
 
-            // dispatch({
-            //     type: 'set-selected-date', payload: cell.value
-            // });
+            if (rangeMode) {
+                if (!beginDate || (beginDate && compare(beginDate, date) === 0) || (endDate && compare(endDate, date)) === 0) {
+                    // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
+                    dateSelected({ date: date, beginDate: date, endDate: date });
+
+                    dispatch({
+                        type: 'set-selected-date', payload: date
+                    });
+                    dispatch({
+                        type: 'set-begin-date', payload: date
+                    });
+                    dispatch({
+                        type: 'set-end-date', payload: date
+                    });
+
+                } else if (beginDate && compare(date, beginDate) < 0) {
+                    // if the new selection is before the beginDate
+
+                    if (endDate) {
+                        // if there is an endDate selected, make the earlier beginDate the new beginDate
+                        dateSelected({ date: date, beginDate: date, endDate: endDate });
+
+                        dispatch({
+                            type: 'set-selected-date', payload: date
+                        });
+                        dispatch({
+                            type: 'set-begin-date', payload: date
+                        });
+                        dispatch({
+                            type: 'set-end-date', payload: endDate
+                        });
+                    } else {
+                        // if there is no endDate selected, make the earlier date the beginDate and the later one the endDate
+                        const prevBeginDate = beginDate;
+                        dateSelected({ date: date, beginDate: date, endDate: prevBeginDate });
+
+                        dispatch({
+                            type: 'set-selected-date', payload: date
+                        });
+                        dispatch({
+                            type: 'set-begin-date', payload: date
+                        });
+                        dispatch({
+                            type: 'set-end-date', payload: prevBeginDate
+                        });
+                    }
+                } else {
+                    // if the new selection is after the endDate
+                    dateSelected({ date: date, beginDate, endDate: date });
+
+                    dispatch({
+                        type: 'set-selected-date', payload: date
+                    });
+                    dispatch({
+                        type: 'set-end-date', payload: date
+                    });
+                }
+            } else {
+                // not in range mode
+                dateSelected({ date: date, beginDate: null, endDate: null });
+
+                dispatch({
+                    type: 'set-selected-date', payload: date
+                });
+            }
         }
         return undefined;
     }
@@ -130,7 +190,7 @@ export function CalendarBody(
         // });
     }
 
-    /** Determines if given row and column is the location of the current activeCell */
+    /** Determines if given row and column is the location of the current activeCell. */
     const _isActiveCell = (rowIndex: number, colIndex: number) => {
         let cellNumber = rowIndex * numCols + colIndex;
         if (rowIndex) {
@@ -140,7 +200,7 @@ export function CalendarBody(
         return cellNumber === activeCell;
     }
 
-    /** Whether to mark as semi-selected - between begin and end dates in the selected range */
+    /** Whether to mark as between begin and end dates in the selected range. */
     const _isWithinRange = (date: Date) => {
         if (!rangeMode) {
             return false;
@@ -148,22 +208,14 @@ export function CalendarBody(
         if (isRangeFull) {
             return true;
         }
-        // if (date === beginDate || date === endDate) {
         if (beginDate && endDate && (compare(date, beginDate) === 0 || compare(date, endDate) === 0)) {
             return false;
         }
-        // amidst selection process: 
-        // if (beginDate && !endDate) {
-        //     return date > beginDate;
-        // }
-        // if (endDate && !beginDate) {
-        //     return date < endDate;
-        // }
         return beginDate && endDate && compare(date, beginDate) > 0 && compare(date, endDate) < 0;
     }
 
     // TODO: allow to select begin after end, and hover before. Currently can only do range in Month Mode
-    /** Whether to mark a date as within a range before the end has been selected */
+    /** Whether to mark a date as within a range before the end has been selected. */
     const _isBetweenHoveredAndBegin = (date: Date, cellIndex?: number) => {
         const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
 
@@ -293,7 +345,6 @@ export function CalendarBody(
         if ((selectedDate && compare(selectedDate, cell.value) === 0) || (beginDate && compare(beginDate, cell.value) === 0) || (endDate && compare(endDate, cell.value) === 0)) {
             classes.push(selectedClass);
         }
-        console.log("today date" + getDay(todayDate ? todayDate : new Date()));
         if (todayDate ? compare(todayDate, cell.value) === 0 : compare(new Date(), cell.value) === 0) {
             classes.push(todayClass);
         }
@@ -324,7 +375,8 @@ export function CalendarBody(
             return (
                 <tr aria-hidden="true">
                     <td colSpan={numCols}
-                        style={paddingStyle}>
+                        style={paddingStyle}
+                        className="labelText">
                         {labelText}
                     </td>
                 </tr>
@@ -339,7 +391,8 @@ export function CalendarBody(
         }
 
         return (
-            <div aria-label={cell.ariaLabel} style={divStyle}>{cell.displayValue}</div>
+            <div aria-label={cell.ariaLabel}>{cell.displayValue}</div>
+            // style={divStyle}
         );
     }
 
@@ -364,6 +417,7 @@ export function CalendarBody(
                         aria-hidden="true"
                         colSpan={_firstRowOffset}
                         style={paddingStyle}
+                        className="labelText"
                     >
                         {_firstRowOffset >= labelMinRequiredCells ? labelText : ''}
                     </td>

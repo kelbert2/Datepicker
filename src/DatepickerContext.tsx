@@ -1,12 +1,13 @@
 import React from 'react';
-import { VIEW } from './CalendarUtils';
+import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getActiveOffset, getYear } from './CalendarUtils';
 
-// https://github.com/SaturnTeam/saturn-datepicker/tree/master/saturn-datepicker/src/datepicker
+// Based on: https://github.com/SaturnTeam/saturn-datepicker/tree/master/saturn-datepicker/src/datepicker
+// All IDatepickerContext values will be public and updateable outside except for dispatch
 interface DateCell {
     date: Date | null,
     cell: number | null
 }
-interface DateData {
+export interface DateData {
     date: Date | null,
     beginDate: Date | null,
     endDate: Date | null
@@ -16,11 +17,11 @@ interface IDatepickerContext {
     todayDate: Date | null,
     activeDate: Date,
 
-    dateChange: (d: DateData) => {},
-    dateInput: (d: DateData) => {},
-    yearSelected: (d: DateData) => {},
-    monthSelected: (d: DateData) => {},
-    daySelected: (d: DateData) => {},
+    onDateChange: (d: DateData) => {},
+    onDateInput: (d: DateData) => {},
+    onYearSelected: (d: DateData) => {},
+    onMonthSelected: (d: DateData) => {},
+    onDaySelected: (d: DateData) => {},
 
     startAt: Date | null,
     startView: VIEW,
@@ -49,7 +50,7 @@ interface IDatepickerContext {
     formatYearLabel: (date: Date) => string,
     formatYearText: (date: Date) => string,
 
-    formatMultiyearLabel: (date: Date) => string,
+    formatMultiyearLabel: (date: Date, minYearOfPage?: number) => string,
     formatMultiyearText: (date: Date) => string,
 
     calendarLabel: string,
@@ -75,11 +76,11 @@ const datepickerContextDefaultValue = {
     todayDate: new Date() as Date | null,
     activeDate: new Date() as Date | null,
 
-    dateChange: (d: DateData) => { },
-    dateInput: (d: DateData) => { },
-    yearSelected: (d: DateData) => { },
-    monthSelected: (d: DateData) => { },
-    daySelected: (d: DateData) => { },
+    onDateChange: (d: DateData) => { },
+    onDateInput: (d: DateData) => { },
+    onYearSelected: (d: DateData) => { },
+    onMonthSelected: (d: DateData) => { },
+    onDaySelected: (d: DateData) => { },
 
     startAt: new Date() as Date | null,
     startView: 'month' as VIEW,
@@ -89,7 +90,7 @@ const datepickerContextDefaultValue = {
     maxDate: null as Date | null,
     dateFilter: (date: Date | null) => true,
 
-    rangeMode: true,
+    rangeMode: false,
     beginDate: null as Date | null,
     endDate: null as Date | null,
 
@@ -102,13 +103,20 @@ const datepickerContextDefaultValue = {
     disableInput: false,
     popupLarge: false,
 
-    formatMonthLabel: (date: Date) => date.getMonth().toString(),
-    formatMonthText: (date: Date) => date.getMonth().toString(),
+    formatMonthLabel: (date: Date) =>
+        getMonthNames('short')[getMonth(date)].toLocaleUpperCase() + ' ' + getYear(date),
+    formatMonthText: (date: Date) => getMonthNames('short')[getMonth(date)].toLocaleUpperCase(),
 
     formatYearLabel: (date: Date) => date.getFullYear().toString(),
     formatYearText: (date: Date) => date.getFullYear().toString(),
 
-    formatMultiyearLabel: (date: Date) => 'Years',
+    formatMultiyearLabel: (date: Date, minYearOfPage?: number) => {
+        if (minYearOfPage) {
+            const maxYearOfPage = minYearOfPage + YEARS_PER_PAGE - 1;
+            return `${minYearOfPage} \u2013 ${maxYearOfPage}`;
+        }
+        return 'Years'
+    },
     formatMultiyearText: (date: Date) => '',
 
     calendarLabel: 'Calendar',

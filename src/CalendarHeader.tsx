@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import DatepickerContext from './DatepickerContext';
-import { getYear, getMonth, VIEW, addCalendarMonths, addCalendarYears, getActiveOffset, YEARS_PER_PAGE, getStartingYear } from './CalendarUtils';
+import { getYear, getMonth, VIEW, addCalendarMonths, addCalendarYears, getActiveOffset, YEARS_PER_PAGE, getStartingYear, compareMonthsAndYears, compareYears } from './CalendarUtils';
 
 interface CalenderHeaderProps {
     currentView: VIEW,
@@ -12,11 +12,11 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
         todayDate,
         activeDate,
 
-        dateChange,
-        dateInput,
-        yearSelected,
-        monthSelected,
-        daySelected,
+        onDateChange: dateChange,
+        onDateInput: dateInput,
+        onYearSelected: yearSelected,
+        onMonthSelected: monthSelected,
+        onDaySelected: daySelected,
 
         startAt,
         startView,
@@ -65,20 +65,16 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
         dispatch
     } = useContext(DatepickerContext);
 
-    /** Whether the two dates represent the same view in the current view mode (month or year). */
+    /** Whether the two dates represent the same view in the current view mode. */
     const _isSameView = (date1: Date, date2: Date) => {
         if (currentView === 'month') {
-            return getYear(date1) === getYear(date2) &&
-                getMonth(date1) === getMonth(date2);
+            return compareMonthsAndYears(date1, date2);
         }
         if (currentView === 'year') {
-            return getYear(date1) === getYear(date2);
+            return compareYears(date1, date2);
         }
-        _isSameMultiyearView(date1, date2);
-    }
+        // currentView === 'multiyear'
 
-    // /**  Returns true if two dates will display in the same multiyear view */
-    function _isSameMultiyearView(date1: Date, date2: Date) {
         const year1 = getYear(date1);
         const year2 = getYear(date2);
         const startingYear = getStartingYear(minDate, maxDate);
@@ -86,16 +82,8 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
             Math.floor((year2 - startingYear) / YEARS_PER_PAGE);
     }
 
-    /** Handles user clicks on the period label.
-     * Option`calendar.orderPeriodLabel` sort the label period views.
-     * - Default [multiyear]: multiyear then back to month
-     * - Month [month]: month > year > multi-year
-     */
+    /** Handles clicks on the period label. */
     const _currentPeriodClicked = () => {
-        // const monthFirstOrder: VIEW[] = ['month', 'year', 'multiyear']
-        // const defaultOrder: VIEW[] = ['month', 'multiyear', 'month'];
-        // const orderPeriod = orderPeriodLabel === 'month' ? monthFirstOrder : defaultOrder;
-
         switch (currentView) {
             case 'month':
                 if (!disableMultiyear) {
@@ -103,7 +91,6 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
                 } else if (!disableYear) {
                     setCurrentView('year');
                 }
-                // currentView = orderPeriod[1];
                 break;
             case 'year':
                 if (!disableMonth) {
@@ -111,7 +98,6 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
                 } else if (!disableMultiyear) {
                     setCurrentView('multiyear');
                 }
-                // currentView = orderPeriod[2]
                 break;
             default:
                 if (!disableYear) {
@@ -119,14 +105,12 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
                 } else if (!disableMonth) {
                     setCurrentView('month');
                 }
-                // currentView = orderPeriod[0]
                 break;
         }
     }
 
     /** Handles user clicks on the previous button. */
     const _previousClicked = () => {
-        // _currentPeriodClicked();
         dispatch(
             {
                 type: 'set-active-date',
@@ -142,7 +126,6 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
 
     /** Handles user clicks on the next button. */
     const _nextClicked = () => {
-        //  _currentPeriodClicked();
         dispatch(
             {
                 type: 'set-active-date',
@@ -159,27 +142,20 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
     /** Gets header label for current view */
     const _getHeaderLabel = () => {
         if (currentView === 'month') {
-            // return this._dateAdapter
-            //     .format(this.calendar.activeDate, this._dateFormats.display.monthYearLabel)
-            //     .toLocaleUpperCase();
             return formatMonthLabel(activeDate ? activeDate : new Date());
         }
         if (currentView === 'year') {
-            return getYear(activeDate ? activeDate : new Date());
+            return formatYearLabel(activeDate ? activeDate : new Date());
         }
         // currentView is 'multiyear'
 
-        // The offset from the active year to the "slot" for the starting year is the
-        // *actual* first rendered year in the multi-year view, and the last year is
-        // just YEARS_PER_PAGE - 1 away.
-
-        const activeYear = getYear(activeDate ? activeDate : new Date());
-        const minYearOfPage = activeYear - getActiveOffset(
+        const minYearOfPage = getYear(activeDate) - getActiveOffset(
             activeDate, minDate, maxDate);
-        const maxYearOfPage = minYearOfPage + YEARS_PER_PAGE - 1;
-        return `${minYearOfPage} \u2013 ${maxYearOfPage}`;
-        // TODO: get active offset from multi-year view
+
+        return formatMultiyearLabel(activeDate ? activeDate : new Date(), minYearOfPage);
     }
+
+    /** Gets aria-label for period button */
     const _getPeriodButtonLabel = () => {
         switch (currentView) {
             case 'month':
@@ -258,7 +234,6 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
         return !maxDate ||
             !_isSameView(activeDate, maxDate);
     }
-
 
     return (
         <div

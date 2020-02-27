@@ -277,7 +277,7 @@ export const getStartingYear = (
     return startingYear;
 }
 /**
-    * When the multi-year view is first opened, the active year will be in view.
+    * When the multiyear view is first opened, the active year will be in view.
     * So we compute how many years are between the active year and the *slot* where our
     * "startingYear" will render when paged into view.
     */

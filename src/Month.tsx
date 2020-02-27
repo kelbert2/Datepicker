@@ -9,11 +9,11 @@ function Month() {
         todayDate,
         activeDate,
 
-        dateChange,
-        dateInput,
-        yearSelected,
-        monthSelected,
-        daySelected,
+        onDateChange: dateChange,
+        onDateInput: dateInput,
+        onYearSelected: yearSelected,
+        onMonthSelected: monthSelected,
+        onDaySelected: daySelected,
 
         startAt,
         startView,
@@ -65,20 +65,10 @@ function Month() {
 
     /** Grid of ICalendarCells representing days. */
     const [_days, _setDays] = useState([] as ICalendarCell[][]);
-    /** First day of interval. */
-    // const [beginDateNumber, setBeginDateNumber] = useState(null as number | null);
-    /* Last day of interval. */
-    // const [endDateNumber, setEndDateNumber] = useState(null as number | null);
-    /** Whenever user already selected start of dates interval. An inner property that avoid asynchronous problems */
-    // const [_beginDateSelectedAsync, _setBeginDateSelectedAsync] = useState(null as Date | null);
-    /** Whenever full month is inside dates interval. */
-    // const [rangeFull, setRangeFull] = useState(false);
-    // const  = useState(null as Date | null);
     /** Previous active date. */
     const [_prevActiveDate, _setPrevActiveDate] = useState(activeDate);
-    /** The label for this year (e.g. "FEB"). */
-    const [_monthLabel, _setMonthLabel] = useState('');
-    //  const [calendarCells, setCalendarCells] = useState([] as ICalendarCell[][]);
+    /** The text label for this year (e.g. "FEB"). */
+    const [_monthText, _setMonthText] = useState('');
     /** Number of blank cells before month starts. */
     const [_firstWeekOffset, _setFirstWeekOffset] = useState(0);
     /** Weekday labels. */
@@ -104,7 +94,7 @@ function Month() {
 
     /** Repopulate on activeDate change. */
     useEffect(() => {
-        _setMonthLabel(getMonthNames('short')[getMonth(activeDate)].toLocaleUpperCase());
+        _setMonthText(formatMonthText(activeDate));
 
         _populateDays();
     }, [activeDate, _firstWeekOffset]);
@@ -127,45 +117,60 @@ function Month() {
             }
             days[days.length - 1].push(_createCellForDay(i + 1));
         }
-        console.log("days:");
-        console.log(days);
         _setDays(days);
     }
 
     /** Handles when a new day is selected. */
     const _dateSelected = (date: Date) => {
-        if (rangeMode) {
-            if (!beginDate || date < beginDate) {
-                // reset begin selection
-                daySelected({ date, beginDate: date, endDate: null });
+        // if (rangeMode) {
+        //     if (!beginDate || (beginDate && compareDaysMonthsAndYears(beginDate, date) === 0) || (endDate && compareDaysMonthsAndYears(endDate, date)) === 0) {
+        //         // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
+        //         daySelected({ date, beginDate: date, endDate: null });
 
-                dispatch({
-                    type: 'set-selected-date', payload: date
-                });
-                dispatch({
-                    type: 'set-begin-date', payload: date
-                });
-                dispatch({
-                    type: 'set-end-date', payload: null
-                });
+        //         dispatch({
+        //             type: 'set-selected-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-begin-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-end-date', payload: null
+        //         });
 
-            } else {
-                daySelected({ date, beginDate, endDate: date });
+        //     } else if (beginDate && compareDaysMonthsAndYears(date, beginDate) < 0) {
+        //         // if the new selection is before the beginDate
+        //         const prevBeginDate = beginDate;
+        //         daySelected({ date, beginDate: date, endDate: prevBeginDate });
 
-                dispatch({
-                    type: 'set-selected-date', payload: date
-                });
-                dispatch({
-                    type: 'set-end-date', payload: date
-                });
-            }
-        } else {
-            daySelected({ date, beginDate: null, endDate: null });
+        //         dispatch({
+        //             type: 'set-selected-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-begin-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-end-date', payload: prevBeginDate
+        //         });
+        //     } else {
+        //         // if the new selection is after the endDate
+        //         daySelected({ date, beginDate, endDate: date });
 
-            dispatch({
-                type: 'set-selected-date', payload: date
-            });
-        }
+        //         dispatch({
+        //             type: 'set-selected-date', payload: date
+        //         });
+        //         dispatch({
+        //             type: 'set-end-date', payload: date
+        //         });
+        //     }
+        // } else {
+        //     // not in range mode
+        //     daySelected({ date, beginDate: null, endDate: null });
+
+        //     dispatch({
+        //         type: 'set-selected-date', payload: date
+        //     });
+        // }
+
         // if (rangeMode) {
         //     if (_beginDateSelectedAsync) {
         //         _setBeginDateSelectedAsync(selectedDate);
@@ -184,7 +189,8 @@ function Month() {
         //     userSelection();
         //     //  createWeekCells();
         // }
-        _populateDays();
+
+        // _populateDays();
     }
 
     /** Handles keydown events on the calendar body when calendar is in month view. */
@@ -436,10 +442,12 @@ function Month() {
             {/* {renderDays()} */}
             <CalendarBody
                 rows={_days}
-                labelText={_monthLabel}
+                labelText={_monthText}
                 labelMinRequiredCells={3}
                 selectedValueChange={_dateSelected}
                 compare={compareDaysMonthsAndYears}
+                dateSelected={daySelected}
+                createDateFromSelectedCell={(date: Date) => { return date }}
                 beginDateSelected={false}
                 isBeforeSelected={false}
                 isCurrentMonthBeforeSelected={selectedDate ? getMonth(activeDate) > getMonth(selectedDate) : false}

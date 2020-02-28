@@ -1,5 +1,5 @@
 import React from 'react';
-import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear } from './CalendarUtils';
+import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear, formatDateDisplay, parseStringAsDate } from './CalendarUtils';
 
 // Based on: https://github.com/SaturnTeam/saturn-datepicker/tree/master/saturn-datepicker/src/datepicker
 // All IDatepickerContext values will be public and updateable outside except for dispatch
@@ -69,7 +69,14 @@ interface IDatepickerContext {
     switchToYearViewLabel: string,
     switchToMultiyearViewLabel: string,
 
-    dispatch: React.Dispatch<Action>
+    singleInputLabel: string,
+    beginInputLabel: string,
+    endInputLabel: string,
+
+    parseStringToDate: (input: string) => Date,
+    displayDateAsString: (date: Date) => string,
+
+    dispatch: React.Dispatch<Action>,
 }
 
 const datepickerContextDefaultValue = {
@@ -134,6 +141,13 @@ const datepickerContextDefaultValue = {
     switchToMonthViewLabel: 'Switch to month view',
     switchToYearViewLabel: 'Switch to year view',
     switchToMultiyearViewLabel: 'Switch to multi-year view',
+
+    singleInputLabel: "Choose a date",
+    beginInputLabel: "Select a starting date",
+    endInputLabel: "end Date",
+
+    parseStringToDate: (input: string) => parseStringAsDate(input),
+    displayDateAsString: (date: Date) => formatDateDisplay(date),
 } as IDatepickerContext;
 const DatepickerContext = React.createContext(datepickerContextDefaultValue);
 // export default React.createContext(datepickerContextDefaultValue);

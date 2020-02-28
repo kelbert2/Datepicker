@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import DatepickerContext from "./DatepickerContext";
-import { getYear, formatDateDisplay } from "./CalendarUtils";
+import { formatDateDisplay } from "./CalendarUtils";
 
 function TestDisplay() {
     const {

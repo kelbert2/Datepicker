@@ -295,3 +295,38 @@ const euclideanModulo = (a: number, b: number) => {
 export const formatDateDisplay = (date: Date) => {
     return (getMonth(date) + 1) + ' - ' + getDay(date) + ' - ' + getYear(date);
 }
+/** Parse Date from string, assuming Month-Day-Year format, then Day-Month-Year, then Year-Month-Day */
+export const parseStringAsDate = (input: string) => {
+    var parts = input.split(/[-. \/]/);
+    let month = null as number | null;
+    let day = null as number | null;
+    let year = null as number | null;
+    if (parts[0] && parseInt(parts[0]) > 0) {
+        const first = parseInt(parts[0]);
+        if (first < 13) {
+            month = first - 1;
+        } else if (first < 32) {
+            day = first;
+        } else {
+            year = first;
+        }
+    }
+    if (parts[1] && parseInt(parts[1]) > 0) {
+        const second = parseInt(parts[1]);
+        if (month == null && second < 13) {
+            month = second - 1;
+        } else if (day == null && second < 32) {
+            day = second;
+        }
+    }
+    if (parts[2]) {
+        const third = parseInt(parts[2]);
+        if (year == null) {
+            year = third;
+        } else if (day == null && third < 32) {
+            day = third;
+        }
+    }
+    const date = new Date();
+    return new Date(year ? year : getYear(date), month ? month : getMonth(date), day ? day : getDay(date));
+}

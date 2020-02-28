@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback, useRef } from 'react';
 import DatepickerContext from './DatepickerContext';
 import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
@@ -37,7 +37,7 @@ function Calendar() {
     } = useContext(DatepickerContext);
 
     const [_currentView, _setCurrentView] = useState(startView);
-    // const [activeDate, setActiveDate] = useState();
+    const _prevRangeMode = useRef(rangeMode);
     // const [beginDateSelected, setBeginDateSelected] = useState(false);
 
     /** Run on mount: set active date and view changes. */
@@ -50,19 +50,17 @@ function Calendar() {
         /** On yearSelected change, check if view should be updated. */
 
         // if (!disableMonth) {
-        //     console.log("month selected!");
         //     _setCurrentView('month');
         // }
 
         /** On multiyearSelected change, check if view should be updated. */
-        // console.log("year selected!");
         // if (!disableYear) {
         //     _setCurrentView('year');
         // }
     }, [dispatch, startAt]);
 
-    /** On activeDate change, make sure today's date is up-to-date. */
-    useEffect(() => {
+    /** Update today's date. */
+    const _updateTodayDate = useCallback(() => {
         const newDate = new Date();
         if (!todayDate || compareDaysMonthsAndYears(todayDate, newDate) !== 0) {
             dispatch({
@@ -70,33 +68,40 @@ function Calendar() {
                 payload: newDate
             });
         }
-    }, [activeDate, dispatch, todayDate]);
+    }, [dispatch, todayDate]);
+
+    /** On activeDate change, make sure today's date is up-to-date. */
+    useEffect(() => {
+        _updateTodayDate();
+    }, [activeDate, _updateTodayDate]);
 
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
-        if (rangeMode) {
-            dispatch({
-                type: 'set-begin-date',
-                payload: selectedDate
-            });
-        } else {
-            if (beginDate) {
+        if (rangeMode !== _prevRangeMode.current) {
+            if (rangeMode) {
                 dispatch({
-                    type: 'set-selected-date',
-                    payload: beginDate
+                    type: 'set-begin-date',
+                    payload: selectedDate
+                });
+            } else {
+                if (beginDate) {
+                    dispatch({
+                        type: 'set-selected-date',
+                        payload: beginDate
+                    });
+                }
+                dispatch({
+                    type: 'set-begin-date',
+                    payload: null
+                });
+                dispatch({
+                    type: 'set-end-date',
+                    payload: null
                 });
             }
-            dispatch({
-                type: 'set-begin-date',
-                payload: null
-            });
-            dispatch({
-                type: 'set-end-date',
-                payload: null
-            });
+            _prevRangeMode.current = rangeMode;
         }
     }, [beginDate, dispatch, rangeMode, selectedDate]);
-
 
     // const dateSelected = (date: Date) => {
     //     if (rangeMode) {
@@ -119,24 +124,24 @@ function Calendar() {
     //         // this.selectedChange.emit(date);
     //     }
 
-    /** Handles year selection in the multiyear view. */
-    const yearSelectedInMultiYearView = (normalizedYear: Date) => {
-        // this.yearSelected.emit(normalizedYear);
-    }
+    // /** Handles year selection in the multiyear view. */
+    // const yearSelectedInMultiYearView = (normalizedYear: Date) => {
+    //     // this.yearSelected.emit(normalizedYear);
+    // }
 
-    /** Handles month selection in the year view. */
-    const monthSelectedInYearView = (normalizedMonth: Date) => {
-        // this.monthSelected.emit(normalizedMonth);
-    }
+    // /** Handles month selection in the year view. */
+    // const monthSelectedInYearView = (normalizedMonth: Date) => {
+    //     // this.monthSelected.emit(normalizedMonth);
+    // }
 
-    /** Handles year/ month selection in the multi-year/year views. */
-    const _goToDateInView = (date: Date, view: VIEW) => {
-        dispatch({
-            type: 'set-active-date',
-            payload: date
-        });
-        _setCurrentView(view);
-    }
+    // /** Handles year/ month selection in the multi-year/year views. */
+    // const _goToDateInView = (date: Date, view: VIEW) => {
+    //     dispatch({
+    //         type: 'set-active-date',
+    //         payload: date
+    //     });
+    //     _setCurrentView(view);
+    // }
 
     const renderView = () => {
         switch (_currentView) {

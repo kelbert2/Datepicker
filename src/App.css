@@ -111,9 +111,9 @@ td div {
   padding: 1em;
 }
 
-td.active div {
+/* td.active div {
   background-color: var(--neutral);
-}
+} */
 
 td.beginRange div,
 td.endRange div,

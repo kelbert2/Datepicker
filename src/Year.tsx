@@ -1,5 +1,5 @@
 import DatepickerContext from './DatepickerContext';
-import React, { useContext, useState, useCallback, useEffect } from 'react';
+import React, { useContext, useState, useCallback, useEffect, useRef } from 'react';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 import { getYear, createDate, addCalendarMonths, getMonth, addCalendarYears, compareDates, getYearName, MONTH_NAMES, addCalendarDays, MONTHS_PER_ROW, compareMonthsAndYears } from './CalendarUtils';
 
@@ -25,25 +25,12 @@ function Year() {
 
     /** Grid of ICalendarCells representing the months of the year. */
     const [_months, _setMonths] = useState([] as ICalendarCell[][]);
-    // [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]].map(row => row.map(
-    //     month => _createCellForMonth(month, MONTH_NAMES[month].short))) as ICalendarCell[][]);
-    /** Previous active date. */
-    const [_prevActiveDate, _setPrevActiveDate] = useState(activeDate);
     /** The text label for this year (e.g. "2017"). */
     const [_yearText, _setYearText] = useState(getYearName(activeDate));
-    /** The month in this year that today falls on. Null if today is in a different year. */
-    // const [_todayMonth, _setTodayMonth] = useState(getMonthInCurrentYear(todayDate) as number | null);
-    /**
-           * The month in this year that the selected Date falls on.
-           * Null if the selected Date is in a different year.
-           */
-    //  const [_selectedMonth, _setSelectedMonth] = useState(getMonthInCurrentYear(selectedDate) as number | null);
+    /** Previous active date. */
+    const _prevActiveDate = useRef(activeDate);
 
-
-    /**
-* Tests whether the combination month/ year is after maxDate, considering
-* just the month and year of maxDate
-*/
+    /** Tests whether the combination month/ year is after maxDate, considering just the month and year of maxDate. */
     const _isYearAndMonthAfterMaxDate = useCallback((year: number, month: number) => {
         if (maxDate) {
             const maxYear = getYear(maxDate);
@@ -54,10 +41,7 @@ function Year() {
         return false;
     }, [maxDate]);
 
-    /**
-     * Tests whether the combination month/ year is before minDate, considering
-     * just the month and year of minDate
-     */
+    /** Tests whether the combination month/ year is before minDate, considering just the month and year of minDate. */
     const _isYearAndMonthBeforeMinDate = useCallback((year: number, month: number) => {
         if (minDate) {
             const minYear = getYear(minDate);
@@ -81,7 +65,6 @@ function Year() {
         if (!dateFilter) {
             return true;
         }
-
         const firstOfMonth = createDate(activeYear, month, 1);
         // If any date in the month is enabled, count the month as enabled.
         for (let date = firstOfMonth; getMonth(date) === month;
@@ -118,56 +101,7 @@ function Year() {
     }, [_createCellForMonth, activeDate, formatYearLabel]);
 
     /** Handles when a new month is selected. */
-    // const _monthSelected = (month: number) => {
     const _monthSelected = (cellValue: Date) => {
-        // const month = getMonth(date);
-
-        // const normalizedDate =
-        //     createDate(getYear(activeDate), month, 1);
-
-        // monthSelected({ date: normalizedDate, beginDate, endDate });
-
-        // const daysInMonth = getDaysPerMonth(month);
-
-        // _selectedChange(createDate(
-        //     getYear(activeDate), month,
-        //     Math.min(getDate(activeDate), daysInMonth)));
-
-        // let date = createDate(getYear(cellValue), getMonth(cellValue), 1);
-
-        // if (rangeMode) {
-        //     if (!beginDate || date < beginDate) {
-        //         // reset begin selection
-        //         monthSelected({ date, beginDate: date, endDate: null });
-
-        //         dispatch({
-        //             type: 'set-selected-date', payload: date
-        //         });
-        //         dispatch({
-        //             type: 'set-begin-date', payload: date
-        //         });
-        //         dispatch({
-        //             type: 'set-end-date', payload: null
-        //         });
-
-        //     } else {
-        //         monthSelected({ date, beginDate, endDate: date });
-
-        //         dispatch({
-        //             type: 'set-selected-date', payload: date
-        //         });
-        //         dispatch({
-        //             type: 'set-end-date', payload: date
-        //         });
-        //     }
-        // } else {
-        //     monthSelected({ date, beginDate: null, endDate: null });
-
-        //     dispatch({
-        //         type: 'set-selected-date', payload: date
-        //     });
-        // }
-
     }
 
     /** Handles keydown events on the calendar body when calendar is in year view. */
@@ -176,9 +110,7 @@ function Year() {
         // const isRtl = isRtl();
         const isRtl = false;
 
-        // TODO(mmalerba): We currently allow keyboard navigation to disabled dates, but just prevent
-        // disabled ones from being selected. This may not be ideal, we should look into whether
-        // navigation should skip over disabled dates, and if so, how to implement that efficiently.
+        // TODO: Prevent navigation to unselectable disabled dates
 
         switch (keyCode) {
             // case 13: {// Enter
@@ -238,13 +170,9 @@ function Year() {
                 // Don't prevent default or focus active cell on keys that we don't explicitly handle.
                 return;
         }
-        if (compareDates(_prevActiveDate, activeDate)) {
-            //  activeDateChange.emit(activeDate);
-            // activeDateChange(activeDate);
-            // dateChange({ date: activeDate, beginDate, endDate });
-            _setPrevActiveDate(activeDate);
+        if (compareDates(_prevActiveDate.current, activeDate)) {
+            _prevActiveDate.current = activeDate;
         }
-
         _focusActiveCell();
         // Prevent unexpected default actions such as form submission.
         event.preventDefault();
@@ -304,8 +232,7 @@ function Year() {
                 cellAspectRatio={4 / 7}
             ></CalendarBody>
         </table>
-    )
-
+    );
 }
 
 export default Year;

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import DatepickerContext from './DatepickerContext';
 import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, compareDatesGreaterThan, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
@@ -27,10 +27,10 @@ function Month() {
 
     /** Grid of ICalendarCells representing days. */
     const [_days, _setDays] = useState([] as ICalendarCell[][]);
-    /** Previous active date. */
-    const [_prevActiveDate, _setPrevActiveDate] = useState(activeDate);
     /** The text label for this year (e.g. "FEB"). */
     const [_monthText, _setMonthText] = useState('');
+    /** Previous active date. */
+    const _prevActiveDate = useRef(activeDate);
     /** Number of blank cells before month starts. */
     const [_firstWeekOffset, _setFirstWeekOffset] = useState(0);
     /** Weekday labels. */
@@ -71,10 +71,6 @@ function Month() {
 
         let days = [[]] as ICalendarCell[][];
         for (let i = 0, cell = _firstWeekOffset; i < daysInMonth; i++ , cell++) {
-            // const cellClasses = this.dateClass ? this.dateClass(date) : undefined;
-            //         this._weeks[this._weeks.length - 1]
-            //         .push(new SatCalendarCell(i + 1, dateNames[i], ariaLabel, enabled, cellClasses));
-            //   }
             if (cell === DAYS_PER_WEEK) {
                 days.push([] as ICalendarCell[]);
                 cell = 0;
@@ -111,74 +107,6 @@ function Month() {
 
     /** Handles when a new day is selected. */
     const _dateSelected = (date: Date) => {
-        // if (rangeMode) {
-        //     if (!beginDate || (beginDate && compareDaysMonthsAndYears(beginDate, date) === 0) || (endDate && compareDaysMonthsAndYears(endDate, date)) === 0) {
-        //         // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
-        //         daySelected({ date, beginDate: date, endDate: null });
-
-        //         dispatch({
-        //             type: 'set-selected-date', payload: date
-        //         });
-        //         dispatch({
-        //             type: 'set-begin-date', payload: date
-        //         });
-        //         dispatch({
-        //             type: 'set-end-date', payload: null
-        //         });
-
-        //     } else if (beginDate && compareDaysMonthsAndYears(date, beginDate) < 0) {
-        //         // if the new selection is before the beginDate
-        //         const prevBeginDate = beginDate;
-        //         daySelected({ date, beginDate: date, endDate: prevBeginDate });
-
-        //         dispatch({
-        //             type: 'set-selected-date', payload: date
-        //         });
-        //         dispatch({
-        //             type: 'set-begin-date', payload: date
-        //         });
-        //         dispatch({
-        //             type: 'set-end-date', payload: prevBeginDate
-        //         });
-        //     } else {
-        //         // if the new selection is after the endDate
-        //         daySelected({ date, beginDate, endDate: date });
-
-        //         dispatch({
-        //             type: 'set-selected-date', payload: date
-        //         });
-        //         dispatch({
-        //             type: 'set-end-date', payload: date
-        //         });
-        //     }
-        // } else {
-        //     // not in range mode
-        //     daySelected({ date, beginDate: null, endDate: null });
-
-        //     dispatch({
-        //         type: 'set-selected-date', payload: date
-        //     });
-        // }
-
-        // if (rangeMode) {
-        //     if (_beginDateSelectedAsync) {
-        //         _setBeginDateSelectedAsync(selectedDate);
-        //         // selectedChange(newSelectedDate);
-        //     } else {
-        //         _setBeginDateSelectedAsync(null);
-        //         //  selectedChange(newSelectedDate); // TODO: check if the order matters
-        //         userSelection();
-        //     }
-        //     selectedChange(date);
-        //     // createWeekCells();
-        //     dispatch({ type: 'set-active-date', payload: date });
-        //     // focusActiveCell();
-        // } else if (selectedDate !== date && selectedDate) {
-        //     selectedChange(selectedDate);
-        //     userSelection();
-        //     //  createWeekCells();
-        // }
-
         // _populateDays();
     }
 
@@ -256,9 +184,9 @@ function Month() {
                 return;
         }
         // TODO: check if should be Greater Than or just any nonzero when compared
-        if (compareDatesGreaterThan(_prevActiveDate, activeDate)) {
+        if (compareDatesGreaterThan(_prevActiveDate.current, activeDate)) {
             // activeDateChange(activeDate);
-            _setPrevActiveDate(activeDate);
+            _prevActiveDate.current = activeDate;
         }
 
         _focusActiveCell();
@@ -326,67 +254,8 @@ function Month() {
     //     }
     // }
 
-    // const createDays = () => {
-    //     const daysInMonth = getDaysPerMonth(month, year);
-    //     // const dateNames = this._dateAdapter.getDateNames();
-    //     let weeks = [[]] as [JSX.Element[]];
-    //     const firstDayOfMonth = getFirstDateOfMonth(month, year);
-    //     const firstWeekOffset = getFirstWeekOffset(firstDayOfMonth);
-    //     for (let i = 0, cell = firstWeekOffset; i < daysInMonth; i++ , cell++) {
-    //         if (cell === DAYS_PER_WEEK) {
-    //             // created a week, move to the next row
-    //             weeks.push([]);
-    //             cell = 0;
-    //         }
-    //         // const date = createDate(getYear(firstDayOfMonth), getMonth(firstDayOfMonth), i + 1);
-    //         // const enabled = this._shouldEnableDate(date);
-    //         // const ariaLabel = this._dateAdapter.format(date, this._dateFormats.display.dateA11yLabel);
-    //         // const cellClasses = this.dateClass ? this.dateClass(date) : undefined;
-
-    //         //     weeks[weeks.length - 1]
-    //         //         .push(new Cell(i + 1, dateNames[i], ariaLabel, enabled, cellClasses));
-    //         weeks[weeks.length - 1].push(
-    //             createDay(cell, i)
-    //         );
-    //     }
-    //     setDays(weeks);
-    // }
-
-    // const createWeek = (days: JSX.Element[], index: number) => {
-    //     return (
-    //         <tr>
-    //             {days.map((day, dayIndex) => { return day; })}
-    //         </tr>
-    //     )
-    // }
-    // const createDay = (weekdayIndex: number, dayOfMonth: number) => {
-    //     return (
-    //         <td><Day
-    //             dayLabel={WEEKDAY_NAMES[weekdayIndex].short}
-    //             date={createDate(year, month, dayOfMonth)}
-    //         ></Day></td>
-    //         // key={getDateISO(createDate(year, month, dayOfMonth))}
-    //     );
-    // }
-
-    // const renderDays = () => {
-    //     createDays();
-    //     return (
-    //         <tr
-    //             className="days">
-    //             {days.map((week, weekIndex) => {
-    //                 return createWeek(week, weekIndex);
-    //             })}
-    //             <td></td>
-    //         </tr>
-    //     );
-    // };
-
     return (
         <table role="presentation">
-            {/* <tr>
-            <td>{formatMonthText(createDate(year, month))}</td>
-        </tr> */}
             <thead>
                 <tr
                     className="week-labels">
@@ -402,7 +271,6 @@ function Month() {
                 </tr>
 
             </thead>
-            {/* {renderDays()} */}
             <CalendarBody
                 rows={_days}
                 labelText={_monthText}

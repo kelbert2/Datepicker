@@ -68,84 +68,77 @@ export function CalendarBody(
         dispatch
     } = useContext(DatepickerContext);
 
+    /** Blank cell offset for weekdays before the first day of the month. */
     const [_firstRowOffset, _setFirstRowOffset] = useState(0);
+    /** Padding  for tds. */
     const [_cellPadding, _setCellPadding] = useState('0');
+    /** Table cell widths. */
     const [_cellWidth, _setCellWidth] = useState(null as string | null);
+    /** Flat index of the current hovered cell. */
     const [_cellHovered, _setCellHovered] = useState(null as number | null);
 
-    /** On numCols or rows change */
+    /** On numCols or rows change, recalculate the first row offset. */
     useEffect(() => {
         _setFirstRowOffset((rows && rows.length && rows[0].length) ? numCols - rows[0].length : 0)
     }, [numCols, rows]);
 
-    /** On activeCell change */
+    /** On activeCell change, update which cell is hovered. */
     useEffect(() => {
         _setCellHovered(activeCell + 1);
     }, [activeCell]);
 
-    /** On cellAspectRatio or numCols change */
+    /** On cellAspectRatio or numCols change, update the cell padding. */
     useEffect(() => {
-        // if (changes['cellAspectRatio'] || columnChanges || !this._cellPadding) {
         _setCellPadding(`${50 * cellAspectRatio / numCols}%`);
     }, [cellAspectRatio, numCols]);
 
-    /** On numCols or cellWidth change */
+    /** On numCols change, update the cell width. */
     useEffect(() => {
-        if (!_cellWidth) {
-            _setCellWidth(`${100 / numCols}%`);
-        }
-    }, [numCols, _cellWidth]);
+        _setCellWidth(`${100 / numCols}%`);
+    }, [numCols]);
 
-    /** Emit event on cell selection */
+    /** Emits event on cell selection. */
     const _cellClicked = (cell: ICalendarCell) => {
         if (cell.enabled) {
-            selectedValueChange(cell.value);
-
             const date = createDateFromSelectedCell(cell.value);
 
+            selectedValueChange(cell.value);
             dispatch({
                 type: 'set-active-date', payload: date
             });
+            dispatch({
+                type: 'set-selected-date', payload: date
+            });
 
             if (rangeMode) {
-                if (!beginDate || (beginDate && compare(beginDate, date) === 0) || (endDate && compare(endDate, date)) === 0) {
+                if (!beginDate
+                    || (beginDate && compare(beginDate, date) === 0)
+                    || (endDate && compare(endDate, date)) === 0) {
                     // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
-                    dateSelected({ date: date, beginDate: date, endDate: date });
+                    dateSelected({ date: date, beginDate: date, endDate: null });
 
-                    dispatch({
-                        type: 'set-selected-date', payload: date
-                    });
                     dispatch({
                         type: 'set-begin-date', payload: date
                     });
                     dispatch({
-                        type: 'set-end-date', payload: date
+                        type: 'set-end-date', payload: null
                     });
 
                 } else if (beginDate && compare(date, beginDate) < 0) {
-                    // if the new selection is before the beginDate
+                    // if the new selection is before the beginDate, make it the new beginDate
+                    const prevBeginDate = beginDate;
 
                     if (endDate) {
                         // if there is an endDate selected, make the earlier beginDate the new beginDate
-                        dateSelected({ date: date, beginDate: date, endDate: endDate });
+                        dateSelected({ date: date, beginDate: date, endDate });
 
-                        dispatch({
-                            type: 'set-selected-date', payload: date
-                        });
                         dispatch({
                             type: 'set-begin-date', payload: date
                         });
-                        dispatch({
-                            type: 'set-end-date', payload: endDate
-                        });
                     } else {
                         // if there is no endDate selected, make the earlier date the beginDate and the later one the endDate
-                        const prevBeginDate = beginDate;
                         dateSelected({ date: date, beginDate: date, endDate: prevBeginDate });
 
-                        dispatch({
-                            type: 'set-selected-date', payload: date
-                        });
                         dispatch({
                             type: 'set-begin-date', payload: date
                         });
@@ -154,41 +147,34 @@ export function CalendarBody(
                         });
                     }
                 } else {
-                    // if the new selection is after the endDate
+                    // if the new selection is after the endDate, make it the new endDate
                     dateSelected({ date: date, beginDate, endDate: date });
 
-                    dispatch({
-                        type: 'set-selected-date', payload: date
-                    });
                     dispatch({
                         type: 'set-end-date', payload: date
                     });
                 }
             } else {
-                // not in range mode
+                // if not in range mode, simply update the selected date
                 dateSelected({ date: date, beginDate: null, endDate: null });
-
-                dispatch({
-                    type: 'set-selected-date', payload: date
-                });
             }
         }
         return undefined;
     }
 
     /** Focuses the active cell after the microtask queue is empty. */
-    const _focusActiveCell = () => {
-        // this._ngZone.runOutsideAngular(() => {
-        //     this._ngZone.onStable.asObservable().pipe(take(1)).subscribe(() => {
-        // const activeCell: HTMLElement | null =
-        //     this._elementRef.nativeElement.querySelector('.active');
+    // const _focusActiveCell = () => {
+    //     // this._ngZone.runOutsideAngular(() => {
+    //     //     this._ngZone.onStable.asObservable().pipe(take(1)).subscribe(() => {
+    //     // const activeCell: HTMLElement | null =
+    //     //     this._elementRef.nativeElement.querySelector('.active');
 
-        // if (activeCell) {
-        //     activeCell.focus();
-        // }
-        // });
-        // });
-    }
+    //     // if (activeCell) {
+    //     //     activeCell.focus();
+    //     // }
+    //     // });
+    //     // });
+    // }
 
     /** Determines if given row and column is the location of the current activeCell. */
     const _isActiveCell = (rowIndex: number, colIndex: number) => {
@@ -214,7 +200,6 @@ export function CalendarBody(
         return beginDate && endDate && compare(date, beginDate) > 0 && compare(date, endDate) < 0;
     }
 
-    // TODO: allow to select begin after end, and hover before. Currently can only do range in Month Mode
     /** Whether to mark a date as within a range before the end has been selected. */
     const _isBetweenHoveredAndBegin = (date: Date, cellIndex?: number) => {
         const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
@@ -261,42 +246,42 @@ export function CalendarBody(
     //     return false;
     // }
 
-    /** Whether to mark the cell as the beginning of the range. */
-    const _isBeginningOfRange = (date: Date, cellIndex?: number) => {
-        // const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
-        // const beginNumber = beginDate ? dateToMonthCellIndex(beginDate) : 0;
+    // /** Whether to mark the cell as the beginning of the range. */
+    // const _isBeginningOfRange = (date: Date, cellIndex?: number) => {
+    //     // const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
+    //     // const beginNumber = beginDate ? dateToMonthCellIndex(beginDate) : 0;
 
-        // if (rangeMode && beginDateSelected && _cellHovered) {
-        //     if (isBeforeSelected && !beginDate) {
-        //         return _cellHovered === cellNumber;
-        //     } else {
-        //         return (beginDate === date && !(_cellHovered < beginNumber)) ||
-        //             (_cellHovered === cellNumber && _cellHovered < beginNumber);
-        //     }
-        // }
-        // return beginDate === date;
+    //     // if (rangeMode && beginDateSelected && _cellHovered) {
+    //     //     if (isBeforeSelected && !beginDate) {
+    //     //         return _cellHovered === cellNumber;
+    //     //     } else {
+    //     //         return (beginDate === date && !(_cellHovered < beginNumber)) ||
+    //     //             (_cellHovered === cellNumber && _cellHovered < beginNumber);
+    //     //     }
+    //     // }
+    //     // return beginDate === date;
 
-        if (rangeMode && beginDateSelected && beginDate) {
-            return compare(beginDate, date) === 0;
-        }
-        return false;
-    }
+    //     if (rangeMode && beginDateSelected && beginDate) {
+    //         return compare(beginDate, date) === 0;
+    //     }
+    //     return false;
+    // }
 
-    /** Whether to mark the cell as the end of the range. */
-    const _isEndOfRange = (date: Date, cellIndex?: number) => {
-        const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
-        const beginNumber = beginDate ? dateToMonthCellIndex(beginDate) : 0;
+    // /** Whether to mark the cell as the end of the range. */
+    // const _isEndOfRange = (date: Date, cellIndex?: number) => {
+    //     const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
+    //     const beginNumber = beginDate ? dateToMonthCellIndex(beginDate) : 0;
 
-        if (rangeMode && beginDateSelected && _cellHovered && endDate) {
-            if (isBeforeSelected && !beginDate) {
-                return false;
-            } else {
-                return (compare(date, endDate) === 0 && !(_cellHovered > beginNumber)) ||
-                    (_cellHovered === cellNumber && _cellHovered > beginNumber)
-            }
-        }
-        return endDate === date;
-    }
+    //     if (rangeMode && beginDateSelected && _cellHovered && endDate) {
+    //         if (isBeforeSelected && !beginDate) {
+    //             return false;
+    //         } else {
+    //             return (compare(date, endDate) === 0 && !(_cellHovered > beginNumber)) ||
+    //                 (_cellHovered === cellNumber && _cellHovered > beginNumber)
+    //         }
+    //     }
+    //     return endDate === date;
+    // }
 
     /** Whether to highlight the target cell when selecting the second date while in range mode */
     const _previewCellOver = (date: Date, cellIndex?: number) => {
@@ -306,7 +291,6 @@ export function CalendarBody(
 
     /* DISPLAY ----------------------------------------------------------------------------------------- */
 
-    // TODO: refactor this
     /** Sets styling classes for each cell */
     const _setCellClass = (cell: ICalendarCell, rowIndex: number, colIndex: number) => {
         const disabledClass = "disabled";
@@ -315,8 +299,8 @@ export function CalendarBody(
         const endRangeClass = "endRange";
         const withinRangeClass = "withinRange";
         const hoveredClass = "hovered";
-        const hoveredBeforeClass = "hoveredBefore";
-        const hoveredAfterClass = "hoveredAfter";
+        // const hoveredBeforeClass = "hoveredBefore";
+        // const hoveredAfterClass = "hoveredAfter";
         const selectedClass = "selected";
         const todayClass = "today";
 
@@ -351,6 +335,7 @@ export function CalendarBody(
 
         return classes.join(' ');
     }
+
     // /** When mouse enters hover zone for a cell */
     // const _onHover = (cell: ICalendarCell) => {
     //     _setCellHovered(cell.cellIndex);
@@ -364,10 +349,10 @@ export function CalendarBody(
     //     return undefined;
     // }
 
-    /** Renders first row of Calendar Body with special spacer cell */
+    /** Renders first row of Calendar Body with special spacer cell. */
     const _renderTextRow = () => {
-        /* If there's not enough space in the first row, create a separate label row. We mark this row as 
-   aria-hidden because we don't want it to be read out as one of the weeks in the month.*/
+        /* If there's not enough space in the first row, create a separate label row. Row is marked as 
+   aria-hidden so it won't be read out as one of the weeks in the month. */
         if (_firstRowOffset < labelMinRequiredCells) {
             const paddingStyle = {
                 padding: `0 ${_cellPadding}`
@@ -384,14 +369,7 @@ export function CalendarBody(
         }
     }
 
-    /** Renders an individual cell */
-    const _renderCell = (cell: ICalendarCell) => {
-        return (
-            <div aria-label={cell.ariaLabel}>{cell.displayValue}</div>
-        );
-    }
-
-    /** Renders all rows of the table */
+    /** Renders all rows of the table. */
     const _renderRows = () => {
         let renderedRows = [] as JSX.Element[];
 
@@ -433,7 +411,7 @@ export function CalendarBody(
                             aria-disabled={!item.enabled || undefined}
                             aria-selected={sameDate(selectedDate, item.value)}
                         >
-                            {_renderCell(item)}
+                            <div aria-label={item.ariaLabel}>{item.displayValue}</div>
                         </td>
                     );
                     // onMouseEnter={_onHover(item)}

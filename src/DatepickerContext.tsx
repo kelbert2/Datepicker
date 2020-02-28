@@ -3,6 +3,7 @@ import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear } from './Calend
 
 // Based on: https://github.com/SaturnTeam/saturn-datepicker/tree/master/saturn-datepicker/src/datepicker
 // All IDatepickerContext values will be public and updateable outside except for dispatch
+
 interface DateCell {
     date: Date | null,
     cell: number | null

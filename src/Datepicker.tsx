@@ -48,36 +48,42 @@ function Datepicker() {
 
     const [_open, _setOpen] = useState(false);
 
-    const [_beginInputFilled, _setBeginInputFilled] = useState(false);
-    const [_endInputFilled, _setEndInputFilled] = useState(false);
+    const [_beginInput, _setBeginInput] = useState(undefined as string | undefined);
+    const [_endInput, _setEndInput] = useState(undefined as string | undefined);
 
     const _handleBeginInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const inputValue = parseStringToDate(event.target.value);
-        if (event.target.value.length > 0) {
-            _setBeginInputFilled(true);
-        } else {
-            _setBeginInputFilled(false);
-        }
-        console.log(formatDateDisplay(inputValue));
+        _setBeginInput((event.target.value.length > 0) ? event.target.value : undefined);
     }
     const _handleEndInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const inputValue = parseStringToDate(event.target.value);
-        console.log(formatDateDisplay(inputValue));
+        _setEndInput((event.target.value.length > 0) ? event.target.value : undefined);
     }
 
-    const _formatDate = (date: Date) => {
-        return formatDateDisplay(date);
+    const _formatBeginInput = () => {
+        _setBeginInput(_beginInput ? displayDateAsString(parseStringToDate(_beginInput)) : undefined);
+    }
+    const _formatEndInput = () => {
+        _setEndInput(_endInput ? displayDateAsString(parseStringToDate(_endInput)) : undefined);
     }
 
     const _setInputClass = (filled: boolean) => {
         return filled ? 'filled' : '';
     }
+
     const _renderEndInput = () => {
         return (
-            <label>
-                {endInputLabel}
-                <input />
-            </label>
+            <div className="field">
+                <span> - </span>
+                <input type="text"
+                    disabled={disable || disableInput}
+                    onChange={(e) => _handleEndInputChange(e)}
+                    onBlur={() => _formatEndInput()}
+                    value={_endInput}
+                    className={_setInputClass(_endInput != null)}
+                />
+                <label>
+                    {endInputLabel}
+                </label>
+            </div>
         );
     }
 
@@ -85,19 +91,20 @@ function Datepicker() {
         <div>
             <div
                 onClick={() => { if (!(disable || disablePopup)) { _setOpen(c => !c) } }}
-                className="field"
+                className="fields"
             >
-                <input type="text"
-                    disabled={disable || disableInput}
-                    onChange={(e) => _handleBeginInputChange(e)}
-
-                    value={(rangeMode && beginDate) ? displayDateAsString(beginDate) : selectedDate ? displayDateAsString(selectedDate) : undefined}
-                    className={_setInputClass(_beginInputFilled)}
-                />
-                <label>
-                    {rangeMode ? beginInputLabel : singleInputLabel}
-                </label>
-                {rangeMode ? ' - ' : ''}
+                <div className="field">
+                    <input type="text"
+                        disabled={disable || disableInput}
+                        onChange={(e) => _handleBeginInputChange(e)}
+                        onBlur={() => _formatBeginInput()}
+                        value={_beginInput}
+                        className={_setInputClass(_beginInput != null)}
+                    />
+                    <label>
+                        {rangeMode ? beginInputLabel : singleInputLabel}
+                    </label>
+                </div>
                 {!rangeMode ? '' : _renderEndInput()}
                 <button>Open</button>
             </div>

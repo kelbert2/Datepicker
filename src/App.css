@@ -279,10 +279,8 @@ div.header {
   margin: inherit;
 }
 
-.field {
+.fields {
   display: inline-block;
-  width: 65%;
-  position: relative;
   padding: 1.25em .5em .5em;
 
   line-height: 1.5em;
@@ -291,6 +289,12 @@ div.header {
 
   background: var(--neutral-light);
   box-shadow: 0px 4px 20px 0px transparent;
+}
+
+.field {
+  display: inline-block;
+  width: 65%;
+  position: relative;
 }
 
 .field input {
@@ -307,8 +311,8 @@ div.header {
 
 .field label {
   position: absolute;
-  left: 1em;
-  bottom: .75em;
+  left: 0;
+  bottom: .25em;
   z-index: -1;
 
   transition: all .3s;
@@ -318,13 +322,13 @@ div.header {
 .field:active label,
 .field:focus-within label,
 .field input.filled+label {
-  bottom: 2.75em;
+  bottom: 2.5em;
   font-size: .75em;
   font-weight: bold;
 }
 
 .field button {
   position: absolute;
-  right: .5em;
+  right: 0;
   bottom: .5em;
 }

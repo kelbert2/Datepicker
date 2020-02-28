@@ -44,6 +44,7 @@ interface IDatepickerContext {
     disablePopup: boolean,
     disableInput: boolean,
     popupLarge: boolean,
+    closeAfterSelection: boolean,
 
     formatMonthLabel: (date: Date) => string,
     formatMonthText: (date: Date) => string,
@@ -110,6 +111,7 @@ const datepickerContextDefaultValue = {
     disablePopup: false,
     disableInput: false,
     popupLarge: false,
+    closeAfterSelection: true,
 
     formatMonthLabel: (date: Date) =>
         getMonthNames('short')[getMonth(date)].toLocaleUpperCase() + ' ' + getYear(date),
@@ -143,8 +145,8 @@ const datepickerContextDefaultValue = {
     switchToMultiyearViewLabel: 'Switch to multi-year view',
 
     singleInputLabel: "Choose a date",
-    beginInputLabel: "Select a starting date",
-    endInputLabel: "end Date",
+    beginInputLabel: "Choose a start date",
+    endInputLabel: "end date",
 
     parseStringToDate: (input: string) => parseStringAsDate(input),
     displayDateAsString: (date: Date) => formatDateDisplay(date),

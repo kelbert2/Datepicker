@@ -62,9 +62,11 @@ export function CalendarBody(
     const {
         selectedDate,
         todayDate,
+
         rangeMode,
         beginDate,
         endDate,
+
         dispatch
     } = useContext(DatepickerContext);
 
@@ -115,14 +117,13 @@ export function CalendarBody(
                     || (beginDate && compare(beginDate, date) === 0)
                     || (endDate && compare(endDate, date)) === 0) {
                     // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
-                    dateSelected({ date: date, beginDate: date, endDate: null });
-
                     dispatch({
                         type: 'set-begin-date', payload: date
                     });
                     dispatch({
                         type: 'set-end-date', payload: null
                     });
+                    dateSelected({ date: date, beginDate: date, endDate: null });
 
                 } else if (beginDate && compare(date, beginDate) < 0) {
                     // if the new selection is before the beginDate, make it the new beginDate
@@ -130,29 +131,27 @@ export function CalendarBody(
 
                     if (endDate) {
                         // if there is an endDate selected, make the earlier beginDate the new beginDate
-                        dateSelected({ date: date, beginDate: date, endDate });
-
                         dispatch({
                             type: 'set-begin-date', payload: date
                         });
+                        dateSelected({ date: date, beginDate: date, endDate });
                     } else {
                         // if there is no endDate selected, make the earlier date the beginDate and the later one the endDate
-                        dateSelected({ date: date, beginDate: date, endDate: prevBeginDate });
-
                         dispatch({
                             type: 'set-begin-date', payload: date
                         });
                         dispatch({
                             type: 'set-end-date', payload: prevBeginDate
                         });
+                        dateSelected({ date: date, beginDate: date, endDate: prevBeginDate });
+
                     }
                 } else {
                     // if the new selection is after the endDate, make it the new endDate
-                    dateSelected({ date: date, beginDate, endDate: date });
-
                     dispatch({
                         type: 'set-end-date', payload: date
                     });
+                    dateSelected({ date: date, beginDate, endDate: date });
                 }
             } else {
                 // if not in range mode, simply update the selected date

@@ -280,27 +280,30 @@ div.header {
 }
 
 .fields {
-  display: inline-block;
-  padding: 1.25em .5em .5em;
+  width: calc(100% - 1.5em);
+  padding: 1em .5em .5em;
 
-  line-height: 1.5em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  /* line-height: 1.5em; */
   border-radius: .25em;
   margin: .25em;
 
   background: var(--neutral-light);
-  box-shadow: 0px 4px 20px 0px transparent;
+  box-shadow: .02em .02em .125em var(--neutral-dark);
 }
 
 .field {
   display: inline-block;
-  width: 65%;
   position: relative;
+  padding: .5em .25em;
 }
 
 .field input {
   width: calc(100% - .5em);
   text-align: left;
-  padding: .5em .25em;
 
   font-size: 1em;
   line-height: 1em;
@@ -311,8 +314,8 @@ div.header {
 
 .field label {
   position: absolute;
-  left: 0;
-  bottom: .25em;
+  left: .5em;
+  bottom: .5em;
   z-index: -1;
 
   transition: all .3s;
@@ -338,13 +341,12 @@ div.header {
 
 }
 
-.toggle input {
-  /* opacity: 0; */
+.toggle input,
+.checkbox input {
+  opacity: 0;
   width: 0%;
-  height: 0%;
-  z-index: -1;
-
-  position: relative;
+  margin: 0;
+  position: absolute;
 }
 
 .toggle label {
@@ -357,12 +359,6 @@ div.header {
   content: '';
 
   margin: 0 .25em -.25em;
-  /* position: absolute; */
-  /* top: 0; */
-  /* left: -.5em; */
-  /* right: 0;
-  bottom: 0; */
-
   border-radius: 1em;
 
   cursor: pointer;
@@ -385,9 +381,55 @@ div.header {
   bottom: .375em;
   width: 1em;
   height: 1em;
+
   background: white;
+  box-shadow: .02em .02em .125em var(--neutral-dark);
 }
 
 .toggle input:checked+label::after {
   left: .875em;
+}
+
+.checkbox {
+  position: relative;
+}
+
+.checkbox label::before,
+.checkbox label::after {
+  display: inline-block;
+  content: '';
+
+  margin: 0 .25em -.25em;
+
+  cursor: pointer;
+  transition: .4s;
+}
+
+.checkbox label::before {
+  height: .75em;
+  width: .75em;
+  margin-bottom: -.125em;
+
+  border: var(--border-width) solid var(--color);
+  border-radius: .125em;
+  background: var(--background);
+}
+
+.checkbox input:checked+label::before {
+  background: var(--color);
+}
+
+.checkbox input:checked+label::after {
+  position: absolute;
+  left: .3125em;
+  bottom: .5625em;
+
+  height: .5em;
+  width: .25em;
+
+  border-bottom: var(--border-width) solid var(--background);
+  border-right: var(--border-width) solid var(--background);
+
+  transform-origin: center center;
+  transform: rotate(45deg);
 }

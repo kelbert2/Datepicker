@@ -293,7 +293,7 @@ const euclideanModulo = (a: number, b: number) => {
 }
 
 export const formatDateDisplay = (date: Date) => {
-    return (getMonth(date) + 1) + ' - ' + getDay(date) + ' - ' + getYear(date);
+    return (getMonth(date) + 1) + ' / ' + getDay(date) + ' / ' + getYear(date);
 }
 /** Parse Date from string, assuming Month-Day-Year format, then Day-Month-Year, then Year-Month-Day */
 export const parseStringAsDate = (input: string) => {

@@ -1,8 +1,8 @@
-import React, { useContext, useState, ChangeEvent } from 'react';
-import DatepickerContext from './DatepickerContext';
+import React, { useContext, useState, ChangeEvent, useEffect } from 'react';
+import DatepickerContext, { DateData } from './DatepickerContext';
 import Calendar from './Calendar';
-import { formatDateDisplay } from './CalendarUtils';
 
+type OPEN_STATES = 'popup' | 'large' | 'inline' | 'close';
 
 function Datepicker() {
     const {
@@ -35,6 +35,7 @@ function Datepicker() {
         disablePopup,
         disableInput,
         popupLarge,
+        closeAfterSelection,
 
         singleInputLabel,
         beginInputLabel,
@@ -46,11 +47,32 @@ function Datepicker() {
         dispatch
     } = useContext(DatepickerContext);
 
-    const [_open, _setOpen] = useState(false);
+    const [_open, _setOpen] = useState('close' as OPEN_STATES);
 
     const [_beginInput, _setBeginInput] = useState(undefined as string | undefined);
     const [_endInput, _setEndInput] = useState(undefined as string | undefined);
 
+    /** Update Calendar open status if allowances change. */
+    useEffect(() => {
+        if (disable) {
+            _setOpen('close');
+        } else if (disablePopup) {
+            _setOpen('inline');
+        }
+        if (_open !== 'close' && !disablePopup) {
+            _setOpen(popupLarge ? 'large' : 'popup');
+        }
+    }, [disable, disablePopup, popupLarge, _open]);
+
+    const _handleClick = () => {
+        if (_open === 'close') {
+            if (!disable) {
+                _setOpen(disablePopup ? 'inline' : popupLarge ? 'large' : 'popup');
+            }
+        } else {
+            _setOpen('close');
+        }
+    }
     const _handleBeginInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         _setBeginInput((event.target.value.length > 0) ? event.target.value : undefined);
     }
@@ -65,6 +87,12 @@ function Datepicker() {
         _setEndInput(_endInput ? displayDateAsString(parseStringToDate(_endInput)) : undefined);
     }
 
+    const _handleDateSelectionFromCalendar = (data: DateData) => {
+        if (closeAfterSelection) {
+            _setOpen('close');
+        }
+    }
+
     const _setInputClass = (filled: boolean) => {
         return filled ? 'filled' : '';
     }
@@ -72,7 +100,6 @@ function Datepicker() {
     const _renderEndInput = () => {
         return (
             <div className="field">
-                <span> - </span>
                 <input type="text"
                     disabled={disable || disableInput}
                     onChange={(e) => _handleEndInputChange(e)}
@@ -90,7 +117,7 @@ function Datepicker() {
     return (
         <div>
             <div
-                onClick={() => { if (!(disable || disablePopup)) { _setOpen(c => !c) } }}
+                onClick={() => _handleClick()}
                 className="fields"
             >
                 <div className="field">
@@ -105,10 +132,15 @@ function Datepicker() {
                         {rangeMode ? beginInputLabel : singleInputLabel}
                     </label>
                 </div>
+                {rangeMode ? <span> - </span> : ''}
                 {!rangeMode ? '' : _renderEndInput()}
                 <button>Open</button>
             </div>
-            <Calendar></Calendar>
+            {_open !== 'close' ?
+                <Calendar
+                    onFinalDateSelection={_handleDateSelectionFromCalendar}
+                ></Calendar>
+                : ''}
         </div>
     );
 }

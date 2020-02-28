@@ -60,7 +60,7 @@ function TestDisplay() {
                     <input type="checkbox"
                         id="range-mode-checkbox"
                         onClick={() => { toggleRangeMode() }}
-                        checked={rangeMode}></input>
+                        checked={rangeMode} />
                     <label htmlFor="range-mode-checkbox">RangeMode</label>
                 </p>
                 <p>Selected date: {selectedDate ? formatDateDisplay(selectedDate) : 'none selected'}</p>
@@ -69,21 +69,29 @@ function TestDisplay() {
             </div>
             <div>
                 <p>Enable views:</p>
-                <input type="checkbox"
-                    id="month-view-checkbox"
-                    onClick={() => { toggleDisableMonth() }}
-                    checked={!disableMonth} />
-                <label htmlFor="month-view-checkbox">Month</label>
-                <input type="checkbox"
-                    id="year-view-checkbox"
-                    onClick={() => { toggleDisableYear() }}
-                    checked={!disableYear} />
-                <label htmlFor="year-view-checkbox">Year</label>
-                <input type="checkbox"
-                    id="multiyear-view-checkbox"
-                    onClick={() => { toggleDisableMultiyear() }}
-                    checked={!disableMultiyear} />
-                <label htmlFor="multiyear-view-checkbox">Multiyear</label>
+                <p className="checkbox">
+                    <input type="checkbox"
+                        id="month-view-checkbox"
+                        onClick={() => { toggleDisableMonth() }}
+                        checked={!disableMonth} />
+                    <label htmlFor="month-view-checkbox">Month</label>
+                </p>
+                <p className="checkbox">
+                    <input type="checkbox"
+                        id="year-view-checkbox"
+                        onClick={() => { toggleDisableYear() }}
+                        checked={!disableYear}
+                        className="checkbox" />
+                    <label htmlFor="year-view-checkbox">Year</label>
+                </p>
+                <p className="checkbox">
+                    <input type="checkbox"
+                        id="multiyear-view-checkbox"
+                        onClick={() => { toggleDisableMultiyear() }}
+                        checked={!disableMultiyear}
+                        className="checkbox" />
+                    <label htmlFor="multiyear-view-checkbox">Multiyear</label>
+                </p>
             </div>
         </div>
     )

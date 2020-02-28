@@ -184,7 +184,7 @@ function Month() {
                 return;
         }
         // TODO: check if should be Greater Than or just any nonzero when compared
-        if (compareDatesGreaterThan(_prevActiveDate.current, activeDate)) {
+        if (compareDates(_prevActiveDate.current, activeDate) > 0) {
             // activeDateChange(activeDate);
             _prevActiveDate.current = activeDate;
         }
@@ -218,12 +218,13 @@ function Month() {
     // const _getDateInCurrentMonth = (date: Date | null) => {
     //     return date && hasSameMonthAndYear(date, activeDate) ?
     //         getDate(date) : null;
-    //     //  this._dateAdapter.getDate(date) : null;
+    //     //  _dateAdapter.getDate(date) : null;
     // }
 
-    /** Determines whether the user has the RTL layout direction. */
+    // /** Determines whether the user has the RTL layout direction. */
     // const isRtl = () => {
-    //     return this._dir && this._dir.value === 'rtl';
+    //     // return _dir && _dir.value === 'rtl';
+    //     return false;
     // }
 
     /** Returns true if all cells are within the beginDate and endDate range. */
@@ -234,25 +235,6 @@ function Month() {
         }
         return false;
     }
-
-    /** Updates range full parameter on each begin or end of interval update.
-     * Necessary to display calendar-body correctly
-     */
-    // const updateRangeSpecificValues = () => {
-    //     if (rangeMode) {
-    //         setBeginDateNumber(_getDateInCurrentMonth(beginDate));
-    //         setEndDateNumber(_getDateInCurrentMonth(endDate));
-    //         setRangeFull((beginDate && endDate
-    //             && !beginDateNumber
-    //             && !endDateNumber
-    //             && compareDates(beginDate, activeDate) <= 0
-    //             && compareDates(activeDate, endDate) <= 0) ? true : false);
-    //     } else {
-    //         setBeginDateNumber(null);
-    //         setEndDateNumber(null);
-    //         setRangeFull(false);
-    //     }
-    // }
 
     return (
         <table role="presentation">
@@ -287,10 +269,6 @@ function Month() {
                 numCols={7}
                 cellAspectRatio={1}
             ></CalendarBody>
-            {/* 
-            beginDateSelected: _beginDateSelectedAsync ? true : false, 
-            isBeforeSelected: (_beginDateSelectedAsync && compareDates(activeDate, _beginDateSelectedAsync) < 0) ? true : false,
-            */}
         </table>
     );
 }

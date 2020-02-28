@@ -4,7 +4,7 @@ import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
 import Year from './Year';
 import Month from './Month';
-import { VIEW, compareDaysMonthsAndYears } from './CalendarUtils';
+import { compareDaysMonthsAndYears } from './CalendarUtils';
 
 function Calendar() {
     const {
@@ -46,18 +46,7 @@ function Calendar() {
             type: 'set-active-date',
             payload: startAt ? startAt : new Date()
         });
-
-        /** On yearSelected change, check if view should be updated. */
-
-        // if (!disableMonth) {
-        //     _setCurrentView('month');
-        // }
-
-        /** On multiyearSelected change, check if view should be updated. */
-        // if (!disableYear) {
-        //     _setCurrentView('year');
-        // }
-    }, [dispatch, startAt]);
+    }, [startAt, dispatch]);
 
     /** Update today's date. */
     const _updateTodayDate = useCallback(() => {
@@ -68,7 +57,7 @@ function Calendar() {
                 payload: newDate
             });
         }
-    }, [dispatch, todayDate]);
+    }, [todayDate, dispatch]);
 
     /** On activeDate change, make sure today's date is up-to-date. */
     useEffect(() => {
@@ -143,14 +132,47 @@ function Calendar() {
     //     _setCurrentView(view);
     // }
 
+    /** On selectedDate change, check if view should be updated. */
+    useEffect(() => {
+        _setCurrentView(current =>
+            (current === 'year' && !disableMonth)
+                ? 'month'
+                : (current === 'multiyear' && !disableYear)
+                    ? 'year'
+                    : current);
+    }, [selectedDate, disableMonth, disableYear]);
+
     const renderView = () => {
         switch (_currentView) {
-            case 'year':
-                return <Year></Year>;
             case 'multiyear':
-                return <Multiyear></Multiyear>;
+                if (!disableMultiyear) {
+                    return <Multiyear></Multiyear>;
+                }
+                if (!disableYear) {
+                    _setCurrentView('year');
+                } else if (!disableMonth) {
+                    _setCurrentView('month');
+                }
+                break;
+            case 'year':
+                if (!disableYear) {
+                    return <Year></Year>;
+                }
+                if (!disableMonth) {
+                    _setCurrentView('month');
+                } else if (!disableMultiyear) {
+                    _setCurrentView('multiyear');
+                }
+                break;
             default:
-                return <Month></Month>;
+                if (!disableMonth) {
+                    return <Month></Month>;
+                }
+                if (!disableMultiyear) {
+                    _setCurrentView('multiyear');
+                } else if (!disableYear) {
+                    _setCurrentView('year');
+                }
         }
     }
 

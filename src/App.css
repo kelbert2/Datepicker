@@ -199,7 +199,7 @@ button.period {
   border-radius: .125em;
 }
 
-button.period::after {
+button.period:not(:disabled)::after {
   display: inline-block;
   content: '';
   margin: .125em;

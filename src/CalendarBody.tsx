@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useLayoutEffect } from 'react';
 import DatepickerContext, { DateData } from './DatepickerContext';
 import { sameDate, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, compareDates } from './CalendarUtils';
 
@@ -78,22 +78,22 @@ export function CalendarBody(
     const [_cellHovered, _setCellHovered] = useState(null as number | null);
 
     /** On numCols or rows change, recalculate the first row offset. */
-    useEffect(() => {
+    useLayoutEffect(() => {
         _setFirstRowOffset((rows && rows.length && rows[0].length) ? numCols - rows[0].length : 0)
     }, [numCols, rows]);
 
     /** On activeCell change, update which cell is hovered. */
-    useEffect(() => {
+    useLayoutEffect(() => {
         _setCellHovered(activeCell + 1);
     }, [activeCell]);
 
     /** On cellAspectRatio or numCols change, update the cell padding. */
-    useEffect(() => {
+    useLayoutEffect(() => {
         _setCellPadding(`${50 * cellAspectRatio / numCols}%`);
     }, [cellAspectRatio, numCols]);
 
     /** On numCols change, update the cell width. */
-    useEffect(() => {
+    useLayoutEffect(() => {
         _setCellWidth(`${100 / numCols}%`);
     }, [numCols]);
 

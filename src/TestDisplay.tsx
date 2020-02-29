@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import DatepickerContext, { CalendarDisplay } from "./DatepickerContext";
 import { formatDateDisplay } from "./CalendarUtils";
+import Datepicker from "./Datepicker";
 
 function TestDisplay() {
     const {
@@ -53,6 +54,12 @@ function TestDisplay() {
             payload: !disableMultiyear
         });
     }
+    const toggleCanClose = () => {
+        dispatch({
+            type: 'set-can-close-calendar',
+            payload: !canCloseCalendar
+        });
+    }
 
     const setCalendarDisplay = (display: CalendarDisplay) => {
         dispatch({
@@ -62,7 +69,7 @@ function TestDisplay() {
     }
 
     return (
-        <div>
+        <div className="test">
             <div>
                 <p>Active date: {formatDateDisplay(activeDate)} </p>
                 <p className="toggle">
@@ -132,7 +139,22 @@ function TestDisplay() {
                         <label htmlFor="radio-calendar-inline">Inline</label>
                     </div>
                 </p>
+                <p className="toggle">
+                    <input type="checkbox"
+                        id="can-close-calendar-toggle"
+                        onClick={() => { toggleCanClose() }}
+                        checked={canCloseCalendar} />
+                    <label htmlFor="can-close-calendar-toggle">Can close calendar</label>
+                </p>
             </div>
+            {/* <div>
+                <p>
+                    Minimum date: <Datepicker></Datepicker>
+                </p>
+                <p>
+                    Maximum date: <Datepicker></Datepicker>
+                </p>
+            </div> */}
         </div>
     )
 }

@@ -4,12 +4,21 @@ import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
 import Year from './Year';
 import Month from './Month';
-import { compareDaysMonthsAndYears, VIEW, compareYears, compareMonthsAndYears } from './CalendarUtils';
+import { compareDaysMonthsAndYears, VIEW, compareYears, compareMonthsAndYears, formatDateDisplay } from './CalendarUtils';
 
 /** Returns a calendar.
  *  @param onFinalDateSelection: Calls with selectedDate, beginDate, and endDate when selected in the most precise enabled view.
+ *  @param classNames: A string of class(es) to apply to the overarching div.
  */
-function Calendar({ onFinalDateSelection = (date: DateData) => { } }: { onFinalDateSelection: (data: DateData) => {} | void }) {
+export function Calendar(
+    {
+        onFinalDateSelection = (date: DateData) => { },
+        classNames = ''
+    }: {
+        onFinalDateSelection: (data: DateData) => {} | void,
+        classNames: string
+    }) {
+
     const {
         selectedDate,
         todayDate,
@@ -36,24 +45,24 @@ function Calendar({ onFinalDateSelection = (date: DateData) => { } }: { onFinalD
         disableYear,
         disableMultiyear,
 
-        closeAfterSelection,
-
         dispatch
     } = useContext(DatepickerContext);
 
     const [_currentView, _setCurrentView] = useState(startView);
-    const _prevRangeMode = useRef(rangeMode);
+
     const _prevSelectedDate = useRef(selectedDate as Date);
     const _prevEndDate = useRef(endDate as Date);
     // const [beginDateSelected, setBeginDateSelected] = useState(false);
 
     /** Run on mount: set active date and view changes. */
     useEffect(() => {
-        dispatch({
-            type: 'set-active-date',
-            payload: startAt ? startAt : new Date()
-        });
-    }, [startAt, dispatch]);
+        if (!activeDate) {
+            dispatch({
+                type: 'set-active-date',
+                payload: startAt ? startAt : selectedDate ? selectedDate : new Date()
+            });
+        }
+    }, [activeDate, startAt, selectedDate, dispatch]);
 
     /** Update today's date. */
     const _updateTodayDate = useCallback(() => {
@@ -70,34 +79,6 @@ function Calendar({ onFinalDateSelection = (date: DateData) => { } }: { onFinalD
     useEffect(() => {
         _updateTodayDate();
     }, [activeDate, _updateTodayDate]);
-
-    /** On rangeMode change, reset selected, begin, and end dates. */
-    useEffect(() => {
-        if (rangeMode !== _prevRangeMode.current) {
-            if (rangeMode) {
-                dispatch({
-                    type: 'set-begin-date',
-                    payload: selectedDate
-                });
-            } else {
-                if (beginDate) {
-                    dispatch({
-                        type: 'set-selected-date',
-                        payload: beginDate
-                    });
-                }
-                dispatch({
-                    type: 'set-begin-date',
-                    payload: null
-                });
-                dispatch({
-                    type: 'set-end-date',
-                    payload: null
-                });
-            }
-            _prevRangeMode.current = rangeMode;
-        }
-    }, [beginDate, dispatch, rangeMode, selectedDate]);
 
     // const dateSelected = (date: Date) => {
     //     if (rangeMode) {
@@ -174,41 +155,6 @@ function Calendar({ onFinalDateSelection = (date: DateData) => { } }: { onFinalD
         }
     }, [disableMonth, disableYear, disableMultiyear]);
 
-    /** Run on selection or endDate change to determine if the Calendar should be closed. */
-    useEffect(() => {
-        console.log(selectedDate ? selectedDate : "selected date is null");
-        console.log(endDate ? endDate : "end date is null");
-        console.log(_currentView);
-        // if (
-        //     (disableMonth && disableYear && _currentView === 'multiyear')
-        //     || (disableMonth && _currentView === 'year')
-        //     || (_currentView === 'month')
-        // ) {
-        if (_isMostPreciseView(_currentView)) {
-            if (rangeMode) {
-                if (endDate != null
-                    && (
-                        _prevEndDate.current == null
-                        || _getCompareFromView(_currentView, endDate, _prevEndDate.current)
-                    )
-                    && beginDate != null
-                ) {
-                    onFinalDateSelection({ date: selectedDate, beginDate, endDate });
-                    _prevEndDate.current = endDate;
-                }
-            } else {
-                if (selectedDate != null
-                    && (
-                        _prevSelectedDate.current == null
-                        || _getCompareFromView(_currentView, selectedDate, _prevSelectedDate.current)
-                    )) {
-                    onFinalDateSelection({ date: selectedDate, beginDate, endDate });
-                    _prevSelectedDate.current = selectedDate;
-                }
-            }
-        }
-    }, [_currentView, _isMostPreciseView, beginDate, endDate, onFinalDateSelection, rangeMode, selectedDate]);
-
     const _getCompareFromView = (view: VIEW, date1: Date, date2: Date) => {
         switch (view) {
             case 'multiyear':
@@ -219,12 +165,165 @@ function Calendar({ onFinalDateSelection = (date: DateData) => { } }: { onFinalD
                 return compareDaysMonthsAndYears(date1, date2);
         }
     }
+
+    const _getSelectedFromView = (view: VIEW, data: DateData) => {
+        switch (view) {
+            case 'multiyear':
+                return onYearSelected(data);
+            case 'year':
+                return onMonthSelected(data);
+            default:
+                return onDaySelected(data);
+        }
+    }
+
+    /** Handles date changes from calendar body. */
+    const _handleDateChange = (date: Date) => {
+        dispatch({
+            type: 'set-active-date',
+            payload: date
+        });
+        dispatch({
+            type: 'set-selected-date',
+            payload: date
+        });
+
+        if (rangeMode) {
+            if (!beginDate
+                || (beginDate && _getCompareFromView(_currentView, beginDate, date) === 0)
+                || (endDate && _getCompareFromView(_currentView, endDate, date)) === 0) {
+                // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
+                console.log('Resetting dates');
+                console.log('begin date: ' + (beginDate ? formatDateDisplay(beginDate) : "null"));
+                console.log('new date: ' + formatDateDisplay(date));
+                console.log('end date: ' + (endDate ? formatDateDisplay(endDate) : "null"));
+
+                dispatch({
+                    type: 'set-begin-date',
+                    payload: date
+                });
+                dispatch({
+                    type: 'set-end-date',
+                    payload: null
+                });
+                _getSelectedFromView(_currentView, { date: date, beginDate: date, endDate: null });
+
+            } else if (beginDate && _getCompareFromView(_currentView, date, beginDate) < 0) {
+                // if the new selection is before the beginDate, make it the new beginDate
+                const prevBeginDate = beginDate;
+
+                if (endDate) {
+                    // if there is an endDate selected, make the earlier beginDate the new beginDate
+                    console.log('Setting new begin date');
+                    console.log('prev begin date: ' + formatDateDisplay(prevBeginDate));
+                    console.log('new beginDate: ' + formatDateDisplay(date));
+                    console.log('end date: ' + formatDateDisplay(endDate));
+
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: date
+                    });
+                    const data = { date: date, beginDate: date, endDate };
+                    _getSelectedFromView(_currentView, data);
+
+                    if (_isMostPreciseView(_currentView)) {
+                        onFinalDateSelection(data);
+                        onDateChange(data);
+                    }
+
+                } else {
+                    // if there is no endDate selected, make the earlier date the beginDate and the later one the endDate
+                    console.log('Switching begin and end dates');
+
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: date
+                    });
+                    dispatch({
+                        type: 'set-end-date',
+                        payload: prevBeginDate
+                    });
+                    const data = { date: date, beginDate: date, endDate: prevBeginDate };
+                    _getSelectedFromView(_currentView, data);
+
+                    if (_isMostPreciseView(_currentView)) {
+                        onFinalDateSelection(data);
+                        onDateChange(data);
+                    }
+                }
+            } else {
+                // if the new selection is after the endDate, make it the new endDate
+                console.log('Setting new end date');
+
+                dispatch({
+                    type: 'set-end-date', payload: date
+                });
+                const data = { date: date, beginDate, endDate: date };
+                _getSelectedFromView(_currentView, data);
+
+                if (_isMostPreciseView(_currentView)) {
+                    onFinalDateSelection(data);
+                    onDateChange(data);
+                }
+            }
+        } else {
+            // if not in range mode, simply update the selected date
+            console.log('Setting new selected date');
+
+            const data = { date: date, beginDate: null, endDate: null };
+            _getSelectedFromView(_currentView, data);
+
+            if (_isMostPreciseView(_currentView)) {
+                onFinalDateSelection(data);
+                onDateChange(data);
+            }
+        }
+    }
+
+    /** Run on selection or endDate change to determine if the most precise date that can be selected has been selected. */
+    // useEffect(() => {
+    //     // if (
+    //     //     (disableMonth && disableYear && _currentView === 'multiyear')
+    //     //     || (disableMonth && _currentView === 'year')
+    //     //     || (_currentView === 'month')
+    //     // ) {
+    //     if (_isMostPreciseView(_currentView)) {
+    //         if (rangeMode) {
+    //             if (endDate != null
+    //                 && (
+    //                     _prevEndDate.current == null
+    //                     || _getCompareFromView(_currentView, endDate, _prevEndDate.current)
+    //                 )
+    //                 && beginDate != null
+    //             ) {
+    //                 onFinalDateSelection({ date: selectedDate, beginDate, endDate });
+    //                 _prevEndDate.current = endDate;
+    //             }
+    //         } else {
+    //             if (selectedDate != null
+    //                 && (
+    //                     _prevSelectedDate.current == null
+    //                     || _getCompareFromView(_currentView, selectedDate, _prevSelectedDate.current)
+    //                 )) {
+    //                 onFinalDateSelection({ date: selectedDate, beginDate, endDate });
+    //                 _prevSelectedDate.current = selectedDate;
+    //             }
+    //         }
+    //     }
+    // }, [_currentView, _isMostPreciseView, beginDate, endDate, onFinalDateSelection, rangeMode, selectedDate]);
+
+    /** Return styling for surrounding Calendar div. */
+    const _getCalendarClasses = () => {
+        return "calendar " + classNames;
+    }
+
     /** Renders the current view. */
     const renderView = () => {
         switch (_currentView) {
             case 'multiyear':
                 if (!disableMultiyear) {
-                    return <Multiyear></Multiyear>;
+                    return <Multiyear
+                        dateSelected={_handleDateChange}></Multiyear>;
                 }
                 if (!disableYear) {
                     _setCurrentView('year');
@@ -234,7 +333,8 @@ function Calendar({ onFinalDateSelection = (date: DateData) => { } }: { onFinalD
                 break;
             case 'year':
                 if (!disableYear) {
-                    return <Year></Year>;
+                    return <Year
+                        dateSelected={_handleDateChange}></Year>;
                 }
                 if (!disableMonth) {
                     _setCurrentView('month');
@@ -244,7 +344,8 @@ function Calendar({ onFinalDateSelection = (date: DateData) => { } }: { onFinalD
                 break;
             default:
                 if (!disableMonth) {
-                    return <Month></Month>;
+                    return <Month
+                        dateSelected={_handleDateChange}></Month>;
                 }
                 if (!disableMultiyear) {
                     _setCurrentView('multiyear');
@@ -255,7 +356,7 @@ function Calendar({ onFinalDateSelection = (date: DateData) => { } }: { onFinalD
     }
 
     return (
-        <div className="calendar">
+        <div className={_getCalendarClasses()}>
             <CalendarHeader
                 currentView={_currentView}
                 setCurrentView={_setCurrentView}

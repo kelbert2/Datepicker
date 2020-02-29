@@ -13,6 +13,75 @@ export interface DateData {
     beginDate: Date | null,
     endDate: Date | null
 }
+/** Context for Datepicker.
+ * @param selectedDate: Most recently clicked or otherwise selected date.
+ * @param todayDate: Today's date.
+ * @param activeDate: Active date for tab navigation.
+ *
+ * @param onDateChange: Function that returns date, beginDate, and endDate upon Calendar selection.
+ * @param onDateInput: Function that returns date, beginDate, and endDate upon Text Input.
+ * @param onYearSelected: Function that returns date data upon selection in the 'year' view.
+ * @param onMonthSelected: 
+ * @param onDaySelected: 
+ *
+ * @param startAt: Starting date to display, such as today.
+ * @param startView: Starting view to display upon Calendar opening.
+ * @param firstDayOfWeek: 0-indexed representing first day of the week, where 0 is Sunday (accepts ints 0 to 6).
+ *
+ * @param minDate: Minimum selectable date, used for setting a floor.
+ * @param maxDate: Maximum selectable date, used for setting a ceiling.
+ * @param dateFilter: Filter that dates must pass through in order to be selectable (ex: weekdays only).
+
+ * @param rangeMode: Whether the user can select a range of dates or just a single date.
+ * @param beginDate: Starting date used when rangeMode is true.
+ * @param endDate: End date used when rangeMode is true.
+
+ * @param disableMonth: Disallows the month view being shown.
+ * @param disableYear: 
+ * @param disableMultiyear: 
+
+ * @param disable: Disables input and calendar display.
+ * @param disablePopup: Disables the calendar from popping up - will instead appear inline.
+ * @param disableCalendar: Disallows any calendar from displaying.
+ * @param disableInput: Disables text input.
+ * @param popupLarge: If the calendar can popup, it will fill a greater portion of the screen.
+ * @param canCloseCalendar: Allows calendar to be closed.
+ * @param closeAfterSelection: Closes the calendar upon selection of the most precise date allowed (ex: won't close after year selection if can display the month view).
+
+ * @param formatMonthLabel: Formats the header that appears in the month view.
+ * @param formatMonthText: Formats the text that appears in the first row of the month view.
+
+ * @param formatYearLabel: 
+ * @param formatYearText: 
+
+ * @param formatMultiyearLabel: 
+ * @param formatMultiyearText: 
+
+ * @param calendarLabel: string,
+ * @param openCalendarLabel: string,
+
+ * @param nextMonthLabel: Screen readers: 
+ * @param nextYearLabel: 
+ * @param nextMultiyearLabel: 
+
+ * @param prevMonthLabel: 
+ * @param prevYearLabel: 
+ * @param prevMultiyearLabel: 
+
+ * @param switchToMonthViewLabel: 
+ * @param switchToYearViewLabel: 
+ * @param switchToMultiyearViewLabel: 
+
+ * @param singleInputLabel: 
+ * @param beginInputLabel: 
+ * @param endInputLabel: 
+
+ * @param parseStringToDate: 
+ * @param displayDateAsString: 
+
+ * @param dispatch: For React useReducer to modify context values.
+ * 
+ */
 interface IDatepickerContext {
     selectedDate: Date | null,
     todayDate: Date | null,
@@ -42,8 +111,10 @@ interface IDatepickerContext {
 
     disable: boolean,
     disablePopup: boolean,
+    disableCalendar: boolean,
     disableInput: boolean,
     popupLarge: boolean,
+    canCloseCalendar: boolean,
     closeAfterSelection: boolean,
 
     formatMonthLabel: (date: Date) => string,
@@ -109,8 +180,10 @@ const datepickerContextDefaultValue = {
 
     disable: false,
     disablePopup: false,
+    disableCalendar: false,
     disableInput: false,
     popupLarge: false,
+    canCloseCalendar: true,
     closeAfterSelection: true,
 
     formatMonthLabel: (date: Date) =>
@@ -212,6 +285,8 @@ const reducer = (state: IDatepickerContext, action: Action) => {
             return { ...state, disable: action.payload };
         case "set-disable-popup":
             return { ...state, disablePopup: action.payload };
+        case "set-disable-calendar":
+            return { ...state, disableCalendar: action.payload };
         case "set-disable-input":
             return { ...state, disableInput: action.payload };
         case "set-popup-large":
@@ -272,5 +347,4 @@ export function DatepickerContextProvider({ children }: { children: any }) {
 
 export const DatepickerContextConsumer = DatepickerContext.Consumer;
 
-//export { DatepickerContext, DatepickerContextProvider, DatepickerContextConsumer };
 export default DatepickerContext;

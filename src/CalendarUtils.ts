@@ -297,7 +297,7 @@ export const formatDateDisplay = (date: Date) => {
 }
 /** Parse Date from string, assuming Month-Day-Year format, then Day-Month-Year, then Year-Month-Day */
 export const parseStringAsDate = (input: string) => {
-    var parts = input.split(/[-. \/]/);
+    var parts = input.split(/[-. /]/);
     let month = null as number | null;
     let day = null as number | null;
     let year = null as number | null;
@@ -327,6 +327,12 @@ export const parseStringAsDate = (input: string) => {
             day = third;
         }
     }
-    const date = new Date();
-    return new Date(year ? year : getYear(date), month ? month : getMonth(date), day ? day : getDay(date));
+    // const date = new Date();
+    if (year == null || month == null || day == null) {
+        return null;
+    } else {
+        return new Date(year, month, day);
+    }
+
+    // return new Date(year ? year : getYear(date), month ? month : getMonth(date), day ? day : getDay(date));
 }

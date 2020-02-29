@@ -4,7 +4,7 @@ import CalendarBody, { ICalendarCell } from './CalendarBody';
 import { getYear, createDate, addCalendarMonths, getMonth, addCalendarYears, compareDates, getYearName, MONTH_NAMES, addCalendarDays, MONTHS_PER_ROW, compareMonthsAndYears } from './CalendarUtils';
 
 
-function Year() {
+function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {
     const {
         activeDate,
 
@@ -102,6 +102,7 @@ function Year() {
 
     /** Handles when a new month is selected. */
     const _monthSelected = (cellValue: Date) => {
+        dateSelected(cellValue);
     }
 
     /** Handles keydown events on the calendar body when calendar is in year view. */
@@ -202,7 +203,7 @@ function Year() {
 
     /** Returns true if all cells are within the beginDate and endDate range. */
     const _isRangeFull = () => {
-        if (rangeMode && beginDate && endDate) {
+        if (rangeMode && beginDate && endDate && _months[0]) {
             return _months[0][0].value > beginDate
                 && _months[_months.length - 1][MONTHS_PER_ROW - 1].value < endDate;
         }

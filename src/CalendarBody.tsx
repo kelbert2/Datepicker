@@ -104,59 +104,59 @@ export function CalendarBody(
         if (cell.enabled) {
             const date = createDateFromSelectedCell(cell.value);
 
-            selectedValueChange(cell.value);
-            dispatch({
-                type: 'set-active-date', payload: date
-            });
-            dispatch({
-                type: 'set-selected-date', payload: date
-            });
+            selectedValueChange(date);
+            //     dispatch({
+            //         type: 'set-active-date', payload: date
+            //     });
+            //     dispatch({
+            //         type: 'set-selected-date', payload: date
+            //     });
 
-            if (rangeMode) {
-                if (!beginDate
-                    || (beginDate && compare(beginDate, date) === 0)
-                    || (endDate && compare(endDate, date)) === 0) {
-                    // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
-                    dispatch({
-                        type: 'set-begin-date', payload: date
-                    });
-                    dispatch({
-                        type: 'set-end-date', payload: null
-                    });
-                    dateSelected({ date: date, beginDate: date, endDate: null });
+            //     if (rangeMode) {
+            //         if (!beginDate
+            //             || (beginDate && compare(beginDate, date) === 0)
+            //             || (endDate && compare(endDate, date)) === 0) {
+            //             // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
+            //             dispatch({
+            //                 type: 'set-begin-date', payload: date
+            //             });
+            //             dispatch({
+            //                 type: 'set-end-date', payload: null
+            //             });
+            //             dateSelected({ date: date, beginDate: date, endDate: null });
 
-                } else if (beginDate && compare(date, beginDate) < 0) {
-                    // if the new selection is before the beginDate, make it the new beginDate
-                    const prevBeginDate = beginDate;
+            //         } else if (beginDate && compare(date, beginDate) < 0) {
+            //             // if the new selection is before the beginDate, make it the new beginDate
+            //             const prevBeginDate = beginDate;
 
-                    if (endDate) {
-                        // if there is an endDate selected, make the earlier beginDate the new beginDate
-                        dispatch({
-                            type: 'set-begin-date', payload: date
-                        });
-                        dateSelected({ date: date, beginDate: date, endDate });
-                    } else {
-                        // if there is no endDate selected, make the earlier date the beginDate and the later one the endDate
-                        dispatch({
-                            type: 'set-begin-date', payload: date
-                        });
-                        dispatch({
-                            type: 'set-end-date', payload: prevBeginDate
-                        });
-                        dateSelected({ date: date, beginDate: date, endDate: prevBeginDate });
+            //             if (endDate) {
+            //                 // if there is an endDate selected, make the earlier beginDate the new beginDate
+            //                 dispatch({
+            //                     type: 'set-begin-date', payload: date
+            //                 });
+            //                 dateSelected({ date: date, beginDate: date, endDate });
+            //             } else {
+            //                 // if there is no endDate selected, make the earlier date the beginDate and the later one the endDate
+            //                 dispatch({
+            //                     type: 'set-begin-date', payload: date
+            //                 });
+            //                 dispatch({
+            //                     type: 'set-end-date', payload: prevBeginDate
+            //                 });
+            //                 dateSelected({ date: date, beginDate: date, endDate: prevBeginDate });
 
-                    }
-                } else {
-                    // if the new selection is after the endDate, make it the new endDate
-                    dispatch({
-                        type: 'set-end-date', payload: date
-                    });
-                    dateSelected({ date: date, beginDate, endDate: date });
-                }
-            } else {
-                // if not in range mode, simply update the selected date
-                dateSelected({ date: date, beginDate: null, endDate: null });
-            }
+            //             }
+            //         } else {
+            //             // if the new selection is after the endDate, make it the new endDate
+            //             dispatch({
+            //                 type: 'set-end-date', payload: date
+            //             });
+            //             dateSelected({ date: date, beginDate, endDate: date });
+            //         }
+            //     } else {
+            //         // if not in range mode, simply update the selected date
+            //         dateSelected({ date: date, beginDate: null, endDate: null });
+            //     }
         }
         return undefined;
     }

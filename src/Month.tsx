@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import DatepickerContext from './DatepickerContext';
-import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, compareDatesGreaterThan, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
+import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 
-function Month() {
+function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {
     const {
         selectedDate,
         activeDate,
@@ -106,9 +106,10 @@ function Month() {
 
 
     /** Handles when a new day is selected. */
-    const _dateSelected = (date: Date) => {
+    const _dateSelected = useCallback((cellValue: Date) => {
+        dateSelected(cellValue);
         // _populateDays();
-    }
+    }, [dateSelected]);
 
     /** Handles keydown events on the calendar body when calendar is in month view. */
     const _handleUserKeyPress = useCallback((event: KeyboardEvent) => {
@@ -192,7 +193,7 @@ function Month() {
         _focusActiveCell();
         // Prevent unexpected default actions such as form submission.
         event.preventDefault();
-    }, [_prevActiveDate, activeDate, dateFilter, dispatch]);
+    }, [_dateSelected, activeDate, dateFilter, dispatch]);
 
     useEffect(() => {
         window.addEventListener('keydown', _handleUserKeyPress);

@@ -6,7 +6,7 @@ import CalendarBody, { ICalendarCell } from './CalendarBody';
 export const YEARS_PER_ROW = 4;
 export const isRtl = true; // language locale
 
-function Multiyear() {
+function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {
     const {
         activeDate,
 
@@ -123,9 +123,9 @@ function Multiyear() {
     }, [activeDate, formatMultiyearText, _isSameMultiyearView, _populateYears])
 
     /** Handles when a new year is selected. */
-    const _yearSelected = (cellValue: Date) => {
-
-    }
+    const _yearSelected = useCallback((cellValue: Date) => {
+        dateSelected(cellValue);
+    }, [dateSelected]);
 
     /** Handles keydown events on the calendar body when calendar is in multi-year view. */
     const _handleUserKeyPress = useCallback((event: KeyboardEvent) => {
@@ -198,7 +198,7 @@ function Multiyear() {
         _focusActiveCell();
         // Prevent unexpected default actions such as form submission.
         event.preventDefault();
-    }, [_prevActiveDate, activeDate, dispatch, maxDate, minDate]);
+    }, [_yearSelected, activeDate, dispatch, maxDate, minDate]);
 
     /** Listen for keydown events. */
     useEffect(() => {

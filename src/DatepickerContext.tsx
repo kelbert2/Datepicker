@@ -13,6 +13,8 @@ export interface DateData {
     beginDate: Date | null,
     endDate: Date | null
 }
+export type CalendarDisplay = 'popup' | 'popup-large' | 'inline';
+
 /** Context for Datepicker.
  * @param selectedDate: Most recently clicked or otherwise selected date.
  * @param todayDate: Today's date.
@@ -41,10 +43,9 @@ export interface DateData {
  * @param disableMultiyear: 
 
  * @param disable: Disables input and calendar display.
- * @param disablePopup: Disables the calendar from popping up - will instead appear inline.
  * @param disableCalendar: Disallows any calendar from displaying.
  * @param disableInput: Disables text input.
- * @param popupLarge: If the calendar can popup, it will fill a greater portion of the screen.
+ * @param calendarDisplay: Decides if the calendar will display as a popup, inline, or large popup, for Touch UIs or Mobile applications.
  * @param canCloseCalendar: Allows calendar to be closed.
  * @param closeAfterSelection: Closes the calendar upon selection of the most precise date allowed (ex: won't close after year selection if can display the month view).
 
@@ -110,10 +111,9 @@ interface IDatepickerContext {
     disableMultiyear: boolean,
 
     disable: boolean,
-    disablePopup: boolean,
     disableCalendar: boolean,
     disableInput: boolean,
-    popupLarge: boolean,
+    calendarDisplay: CalendarDisplay,
     canCloseCalendar: boolean,
     closeAfterSelection: boolean,
 
@@ -179,10 +179,9 @@ const datepickerContextDefaultValue = {
     disableMultiyear: false,
 
     disable: false,
-    disablePopup: false,
     disableCalendar: false,
     disableInput: false,
-    popupLarge: false,
+    calendarDisplay: 'popup',
     canCloseCalendar: true,
     closeAfterSelection: true,
 
@@ -283,14 +282,16 @@ const reducer = (state: IDatepickerContext, action: Action) => {
 
         case "set-disable":
             return { ...state, disable: action.payload };
-        case "set-disable-popup":
-            return { ...state, disablePopup: action.payload };
         case "set-disable-calendar":
             return { ...state, disableCalendar: action.payload };
         case "set-disable-input":
             return { ...state, disableInput: action.payload };
-        case "set-popup-large":
-            return { ...state, popupLarge: action.payload };
+        case "set-calendar-display":
+            return { ...state, calendarDisplay: action.payload };
+        case "set-can-close-calendar":
+            return { ...state, canCloseCalendar: action.payload };
+        case "set-close-after-selection":
+            return { ...state, closeAfterSelection: action.payload };
 
         case "set-format-month-label":
             return { ...state, formatMonthLabel: action.payload };
@@ -332,6 +333,18 @@ const reducer = (state: IDatepickerContext, action: Action) => {
             return { ...state, switchToYearViewLabel: action.payload };
         case "set-switch-to-multiyear-view-label":
             return { ...state, switchToMultiyearViewLabel: action.payload };
+
+        case "set-single-input-label":
+            return { ...state, singleInputLabel: action.payload };
+        case "set-begin-input-label":
+            return { ...state, beginInputLabel: action.payload };
+        case "set-end-input-label":
+            return { ...state, endInputLabel: action.payload };
+
+        case "set-parse-string-to-date":
+            return { ...state, parseStringToDate: action.payload };
+        case "set-display-date-as-string":
+            return { ...state, displayDateAsString: action.payload };
 
         default:
             return state;

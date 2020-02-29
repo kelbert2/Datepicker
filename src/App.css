@@ -385,7 +385,8 @@ div.header {
 }
 
 .toggle input,
-.checkbox input {
+.checkbox input,
+.radio input {
   opacity: 0;
   width: 0%;
   margin: 0;
@@ -475,4 +476,44 @@ div.header {
 
   transform-origin: center center;
   transform: rotate(45deg);
+}
+
+.radio {
+  display: inline;
+  position: relative;
+  margin: 0 .5em;
+
+  cursor: pointer;
+  /* TODO: double check cursor on all elements */
+}
+
+.radio label::after,
+.radio label::before {
+  display: inline-block;
+  content: '';
+
+  border-radius: .5em;
+}
+
+.radio label::before {
+  margin: 0 .5em;
+  height: .75em;
+  width: .75em;
+
+  background: var(--neutral-light);
+}
+
+.radio input:checked+label::before {
+  background: var(--color);
+}
+
+.radio input:checked+label::after {
+  position: absolute;
+  left: .7em;
+  bottom: .4em;
+
+  height: .375em;
+  width: .375em;
+
+  background: var(--background);
 }

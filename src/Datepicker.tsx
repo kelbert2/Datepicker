@@ -1,9 +1,8 @@
 import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef } from 'react';
-import DatepickerContext, { DateData } from './DatepickerContext';
+import DatepickerContext, { DateData, CalendarDisplay } from './DatepickerContext';
 import Calendar from './Calendar';
-import { formatDateDisplay } from './CalendarUtils';
 
-type OPEN_STATES = 'popup' | 'large' | 'inline' | 'close';
+type OPEN_STATES = CalendarDisplay | 'close';
 const CALENDAR_CLASS_INLINE = 'inline';
 const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
@@ -37,12 +36,11 @@ function Datepicker() {
         disableMultiyear,
 
         disable,
-        disablePopup,
         disableCalendar,
         disableInput,
-        popupLarge,
-        closeAfterSelection,
+        calendarDisplay,
         canCloseCalendar,
+        closeAfterSelection,
 
         singleInputLabel,
         beginInputLabel,
@@ -66,13 +64,10 @@ function Datepicker() {
     useEffect(() => {
         if ((disable || disableCalendar) && canCloseCalendar) {
             _setOpen('close');
-        } else if (disablePopup) {
-            _setOpen('inline');
+        } else if (_open !== 'close') {
+            _setOpen(calendarDisplay);
         }
-        if (_open !== 'close' && !disablePopup) {
-            _setOpen(popupLarge ? 'large' : 'popup');
-        }
-    }, [disable, disablePopup, popupLarge, _open, disableCalendar, canCloseCalendar]);
+    }, [_open, calendarDisplay, canCloseCalendar, disable, disableCalendar]);
 
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
@@ -107,7 +102,7 @@ function Datepicker() {
     const _handleInputClick = () => {
         if (_open === 'close') {
             if (!disable || !disableCalendar) {
-                _setOpen(disablePopup ? 'inline' : popupLarge ? 'large' : 'popup');
+                _setOpen(calendarDisplay);
             }
         } else if (canCloseCalendar) {
             _setOpen('close');
@@ -209,7 +204,14 @@ function Datepicker() {
     }
 
     const _setCalendarClass = () => {
-        return disablePopup ? CALENDAR_CLASS_INLINE : popupLarge ? CALENDAR_CLASS_POPUP_LARGE : CALENDAR_CLASS_POPUP;
+        switch (calendarDisplay) {
+            case 'inline':
+                return CALENDAR_CLASS_INLINE;
+            case 'popup-large':
+                return CALENDAR_CLASS_POPUP_LARGE;
+            default:
+                return CALENDAR_CLASS_POPUP;
+        }
     }
 
     const _renderEndInput = () => {

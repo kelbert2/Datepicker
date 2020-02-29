@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import DatepickerContext from "./DatepickerContext";
+import DatepickerContext, { CalendarDisplay } from "./DatepickerContext";
 import { formatDateDisplay } from "./CalendarUtils";
 
 function TestDisplay() {
@@ -20,9 +20,11 @@ function TestDisplay() {
         disableMultiyear,
 
         disable,
-        disablePopup,
+        disableCalendar,
         disableInput,
-        popupLarge,
+        calendarDisplay,
+        canCloseCalendar,
+        closeAfterSelection,
 
         dispatch
     } = useContext(DatepickerContext);
@@ -49,6 +51,13 @@ function TestDisplay() {
         dispatch({
             type: 'set-disable-multiyear',
             payload: !disableMultiyear
+        });
+    }
+
+    const setCalendarDisplay = (display: CalendarDisplay) => {
+        dispatch({
+            type: 'set-calendar-display',
+            payload: display
         });
     }
 
@@ -91,6 +100,37 @@ function TestDisplay() {
                         checked={!disableMultiyear}
                         className="checkbox" />
                     <label htmlFor="multiyear-view-checkbox">Multiyear</label>
+                </p>
+            </div>
+            <div>
+                <p>Calendar Display:</p>
+                <p>
+                    <div className="radio" >
+                        <input type="radio"
+                            id="radio-calendar-popup"
+                            name="calendar-display"
+                            onClick={() => { setCalendarDisplay('popup') }}
+                            checked={calendarDisplay === 'popup'} />
+                        <label htmlFor="radio-calendar-popup">Popup</label>
+                    </div>
+
+                    <div className="radio" >
+                        <input type="radio"
+                            id="radio-calendar-popup-large"
+                            name="calendar-display"
+                            onClick={() => { setCalendarDisplay('popup-large') }}
+                            checked={calendarDisplay === 'popup-large'} />
+                        <label htmlFor="radio-calendar-popup-large">Large popup</label>
+                    </div>
+
+                    <div className="radio">
+                        <input type="radio"
+                            id="radio-calendar-inline"
+                            name="calendar-display"
+                            onClick={() => { setCalendarDisplay('inline') }}
+                            checked={calendarDisplay === 'inline'} />
+                        <label htmlFor="radio-calendar-inline">Inline</label>
+                    </div>
                 </p>
             </div>
         </div>

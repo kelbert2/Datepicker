@@ -4,6 +4,10 @@ import Calendar from './Calendar';
 import { formatDateDisplay } from './CalendarUtils';
 
 type OPEN_STATES = 'popup' | 'large' | 'inline' | 'close';
+const CALENDAR_CLASS_INLINE = 'inline';
+const CALENDAR_CLASS_POPUP = 'popup';
+const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
+const INPUT_CLASS_FILLED = 'filled';
 
 function Datepicker() {
     const {
@@ -151,6 +155,10 @@ function Datepicker() {
                     type: 'set-selected-date',
                     payload: date
                 });
+                dispatch({
+                    type: 'set-active-date',
+                    payload: date
+                });
                 _setBeginInput(displayDateAsString(date));
                 return;
             }
@@ -168,6 +176,7 @@ function Datepicker() {
     }
     /** On blur, format second text input and set selected and end dates. */
     const _onBlurEndInput = () => {
+        // TODO: if select out of datepicker before choosing an endDate in rangeMode, will keep previous endInput in display despite the fact that underlying variable has become null
         if (_endInput) {
             const date = parseStringToDate(_endInput);
             dispatch({
@@ -185,7 +194,7 @@ function Datepicker() {
 
     /** Set styling class based on whether or not the input box has content. */
     const _setInputClass = (filled: boolean) => {
-        return filled ? 'filled' : '';
+        return filled ? INPUT_CLASS_FILLED : '';
     }
 
     const _handleDateSelectionFromCalendar = (data: DateData) => {
@@ -200,7 +209,7 @@ function Datepicker() {
     }
 
     const _setCalendarClass = () => {
-        return disablePopup ? 'inline' : popupLarge ? 'popup-large' : 'popup';
+        return disablePopup ? CALENDAR_CLASS_INLINE : popupLarge ? CALENDAR_CLASS_POPUP_LARGE : CALENDAR_CLASS_POPUP;
     }
 
     const _renderEndInput = () => {
@@ -247,6 +256,10 @@ function Datepicker() {
                     onFinalDateSelection={_handleDateSelectionFromCalendar}
                     classNames={_setCalendarClass()}
                 ></Calendar>
+                : ''}
+            {_open !== 'close' ?
+                <div onClick={() => _handleInputClick()}
+                    className="overlay"></div>
                 : ''}
         </div>
     );

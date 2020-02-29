@@ -348,3 +348,6 @@ export function DatepickerContextProvider({ children }: { children: any }) {
 export const DatepickerContextConsumer = DatepickerContext.Consumer;
 
 export default DatepickerContext;
+
+// TODO: add custom className applied for dates like holidays
+// TODO: refactor all the popup/disable/inline etc. logic to some specific type to avoid any conflicting values

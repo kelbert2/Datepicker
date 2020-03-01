@@ -2,6 +2,7 @@ import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, u
 import DatepickerContext, { DateData, CalendarDisplay } from './DatepickerContext';
 import Calendar from './Calendar';
 import './Datepicker.css';
+import { compareDaysMonthsAndYears, formatDateDisplay } from './CalendarUtils';
 
 type OPEN_STATES = CalendarDisplay | 'close';
 const CALENDAR_CLASS_INLINE = 'inline';
@@ -55,10 +56,12 @@ function Datepicker() {
     /** Holds open state of the Calendar. */
     const [_open, _setOpen] = useState((canCloseCalendar ? 'close' : 'inline') as OPEN_STATES);
     /** Input in the first text input. */
-    const [_beginInput, _setBeginInput] = useState(undefined as string | undefined);
+    const [_beginInput, _setBeginInput] = useState('' as string);
     /** Input in the second text input. */
-    const [_endInput, _setEndInput] = useState(undefined as string | undefined);
+    const [_endInput, _setEndInput] = useState('' as string);
     const _prevRangeMode = useRef(rangeMode);
+    const [_beginInputFilled, _setBeginInputFilled] = useState(false);
+    const [_endInputFilled, _setEndInputFilled] = useState(false);
 
 
     /** Update Calendar open status if allowances change. */
@@ -100,7 +103,7 @@ function Datepicker() {
 
 
     /** On input click, toggle the Calendar display open or closed. */
-    const _handleInputClick = () => {
+    const _handleNonCalendarClick = () => {
         if (_open === 'close') {
             if (!disable || !disableCalendar) {
                 _setOpen(calendarDisplay);
@@ -111,86 +114,189 @@ function Datepicker() {
     }
     /** Update first text input display with selected date changes. */
     useLayoutEffect(() => {
-        if (!rangeMode && selectedDate) {
-            _setBeginInput(displayDateAsString(selectedDate));
+        if (!rangeMode) {
+            _setBeginInput(selectedDate ? displayDateAsString(selectedDate) : '');
         }
     }, [selectedDate, rangeMode, displayDateAsString]);
     /** Update first text input display with begin date changes. */
     useLayoutEffect(() => {
-        if (rangeMode && beginDate) {
-            _setBeginInput(displayDateAsString(beginDate));
+        if (rangeMode) {
+            _setBeginInput(beginDate ? displayDateAsString(beginDate) : '');
         }
     }, [beginDate, rangeMode, displayDateAsString]);
     /** Update second text input display with end date changes. */
     useLayoutEffect(() => {
-        if (rangeMode && endDate) {
-            _setEndInput(displayDateAsString(endDate));
+        console.log('---End date and Display Changed: : ' + endDate);
+
+        if (rangeMode) {
+            console.log("End date is not null: " + (endDate ? "true" : "false"));
+            _setEndInput(endDate ? displayDateAsString(endDate) : '');
         }
     }, [endDate, rangeMode, displayDateAsString]);
 
+    useEffect(() => {
+        console.log("End Input reset: " + _endInput + 'and end date: ' + endDate);
+    }, [_endInput, endDate]);
+
     /** On first text input change, update internal state. */
     const _handleBeginInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        _setBeginInput((event.target.value.length > 0) ? event.target.value : undefined);
+        _setBeginInput((event.target.value.length > 0) ? event.target.value : '');
     }
     /** On second text input change, update internal state. */
     const _handleEndInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        _setEndInput((event.target.value.length > 0) ? event.target.value : undefined);
+        console.log("Handling text event with input: " + event.target.value);
+        _setEndInput((event.target.value.length > 0) ? event.target.value : '');
     }
+
     /** On blur, format first text input and set selected and begin dates. */
     const _onBlurBeginInput = () => {
-        if (_beginInput) {
+        if (_beginInput !== '') {
             const date = parseStringToDate(_beginInput);
             if (date != null) {
-                if (rangeMode) {
+                if (selectedDate == null || compareDaysMonthsAndYears(selectedDate, date) !== 0) {
+                    dispatch({
+                        type: 'set-selected-date',
+                        payload: date
+                    });
+                }
+                if (activeDate == null || compareDaysMonthsAndYears(activeDate, date) !== 0) {
+                    dispatch({
+                        type: 'set-active-date',
+                        payload: date
+                    });
+                }
+                if (rangeMode && (beginDate == null || compareDaysMonthsAndYears(beginDate, date) !== 0)) {
                     dispatch({
                         type: 'set-begin-date',
                         payload: date
                     });
                 }
-                dispatch({
-                    type: 'set-selected-date',
-                    payload: date
-                });
-                dispatch({
-                    type: 'set-active-date',
-                    payload: date
-                });
-                _setBeginInput(displayDateAsString(date));
+                // _setBeginInput(displayDateAsString(date));
                 return;
+            } else {
+                // Input entered is not a valid date
+                _setBeginInput(rangeMode
+                    ? beginDate ? displayDateAsString(beginDate) : ''
+                    : selectedDate ? displayDateAsString(selectedDate) : '');
+            }
+        } else {
+            // No input was entered
+            _setBeginInput('');
+
+            dispatch({
+                type: 'set-selected-date',
+                payload: null
+            });
+            if (rangeMode) {
+                dispatch({
+                    type: 'set-begin-date',
+                    payload: null
+                });
             }
         }
-        if (rangeMode && beginDate) {
-            _setBeginInput(displayDateAsString(beginDate));
-            return;
-        }
-        if (selectedDate) {
-            _setBeginInput(displayDateAsString(selectedDate));
-            return;
-        }
-        _setBeginInput(undefined);
+        // if (rangeMode && beginDate) {
+        //     // _setBeginInput(displayDateAsString(beginDate));
+        //     return;
+        // }
+        // if (selectedDate) {
+        //     // _setBeginInput(displayDateAsString(selectedDate));
+        //     return;
+        // }
+        // _setBeginInput(undefined);
         // _setBeginInput(_beginInput ? displayDateAsString(parseStringToDate(_beginInput)) : undefined);
     }
     /** On blur, format second text input and set selected and end dates. */
     const _onBlurEndInput = () => {
         // TODO: if select out of datepicker before choosing an endDate in rangeMode, will keep previous endInput in display despite the fact that underlying variable has become null
-        if (_endInput) {
+        console.log("---OnBlur: " + _endInput);
+
+        if (_endInput !== '') {
             const date = parseStringToDate(_endInput);
-            dispatch({
-                type: 'set-selected-date',
-                payload: date
-            });
+            if (date != null) {
+                if (selectedDate == null || compareDaysMonthsAndYears(selectedDate, date) !== 0) {
+                    dispatch({
+                        type: 'set-selected-date',
+                        payload: date
+                    });
+                }
+                if (activeDate == null || compareDaysMonthsAndYears(activeDate, date) !== 0) {
+                    dispatch({
+                        type: 'set-active-date',
+                        payload: date
+                    });
+                }
+
+                if (rangeMode) {
+                    const prevBeginDate = beginDate;
+                    if (prevBeginDate && compareDaysMonthsAndYears(date, prevBeginDate) < 0) {
+                        // if the input date is before the existing beginDate, it becomes the new beginDate
+                        dispatch({
+                            type: 'set-begin-date',
+                            payload: date
+                        });
+                        // We switch previous beginDate for the endDate that the user overwrote
+                        // if (endDate == null) {
+                        // if there is no existing endDate, previous beginDate becomes the endDate
+                        console.log("OnBlur: no existing end date found.");
+                        dispatch({
+                            type: 'set-end-date',
+                            payload: prevBeginDate
+                        });
+
+                        // _setEndInput(displayDateAsString(prevBeginDate));
+                        return;
+                        // } else {
+                        //     // A new value for end Date was typed in here, but will not end up changing the end date, so won't fire an event
+                        //     _setEndInput(endDate ? displayDateAsString(endDate) : '');
+                        //     return;
+                        // }
+                    } else if (endDate == null || compareDaysMonthsAndYears(endDate, date) !== 0) {
+                        // else input date is after existing begindate, or there is no beginDate, input becomes the new endDate
+                        console.log("OnBlur: new end date after begin date.");
+                        dispatch({
+                            type: 'set-end-date',
+                            payload: date
+                        });
+                        // _setEndInput(displayDateAsString(date));
+                        return;
+                    }
+                }
+            } else {
+                // Input entered is not a valid date
+                console.log("invalid end date " + endDate);
+                _setEndInput(rangeMode
+                    ? endDate ? displayDateAsString(endDate) : ''
+                    : selectedDate ? displayDateAsString(selectedDate) : '');
+            }
+        } else {
+            console.log("no input entered " + _endInput);
+            // No Input was entered
+            _setEndInput('');
+
             dispatch({
                 type: 'set-end-date',
-                payload: date
+                payload: null
             });
-            _setEndInput(displayDateAsString(date));
         }
-        _setEndInput(undefined);
     }
 
     /** Set styling class based on whether or not the input box has content. */
     const _setInputClass = (filled: boolean) => {
+        // console.log("Styling Class set: " + _endInput);
         return filled ? INPUT_CLASS_FILLED : '';
+    }
+
+    const _setBeginInputClass = () => {
+        // if (!filled) {
+        //     _setBeginInput(undefined);
+        // }
+        return _setInputClass(_beginInput !== '');
+    }
+    const _setEndInputClass = () => {
+        // if (!filled) {
+        //     _setEndInput(undefined);
+        // }
+        return _setInputClass(_endInput !== '');
     }
 
     const _handleDateSelectionFromCalendar = (data: DateData) => {
@@ -198,6 +304,14 @@ function Datepicker() {
             type: 'set-start-at',
             payload: selectedDate
         });
+        if (rangeMode) {
+            console.log("---Handling Calendar Selection: " + data.endDate);
+
+            // _setBeginInput(beginDate ? displayDateAsString(beginDate) : undefined);
+            // _setEndInput(endDate ? displayDateAsString(endDate) : undefined);
+        } else {
+            // _setBeginInput(selectedDate ? displayDateAsString(selectedDate) : undefined);
+        }
 
         if (closeAfterSelection && canCloseCalendar) {
             _setOpen('close');
@@ -222,8 +336,9 @@ function Datepicker() {
                     disabled={disable || disableInput}
                     onChange={(e) => _handleEndInputChange(e)}
                     onBlur={() => _onBlurEndInput()}
+                    //value={rangeMode ? endDate ? displayDateAsString(endDate) : undefined : undefined}
                     value={_endInput}
-                    className={_setInputClass(_endInput != null)}
+                    className={_setEndInputClass()}
                 />
                 <label>
                     {endInputLabel}
@@ -235,7 +350,7 @@ function Datepicker() {
     return (
         <div>
             <div
-                onClick={() => _handleInputClick()}
+                onClick={() => _handleNonCalendarClick()}
                 className="fields"
             >
                 <div className="field">
@@ -244,7 +359,7 @@ function Datepicker() {
                         onChange={(e) => _handleBeginInputChange(e)}
                         onBlur={() => _onBlurBeginInput()}
                         value={_beginInput}
-                        className={_setInputClass(_beginInput != null)}
+                        className={_setBeginInputClass()}
                     />
                     <label>
                         {rangeMode ? beginInputLabel : singleInputLabel}
@@ -261,7 +376,7 @@ function Datepicker() {
                 ></Calendar>
                 : ''}
             {_open !== 'close' ?
-                <div onClick={() => _handleInputClick()}
+                <div onClick={() => _handleNonCalendarClick()}
                     className="overlay"></div>
                 : ''}
         </div>

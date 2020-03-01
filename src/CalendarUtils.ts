@@ -21,6 +21,7 @@ export const WEEKDAY_NAMES = [
     { long: 'Friday', short: 'F' },
     { long: 'Saturday', short: 'S' }
 ] as longShortNames[];
+
 export const MONTH_NAMES = [
     { long: "January", short: "Jan" },
     { long: "February", short: "Feb" },
@@ -300,10 +301,11 @@ export const formatDateDisplay = (date: Date) => {
 }
 /** Parse Date from string, assuming Month-Day-Year format, then Day-Month-Year, then Year-Month-Day */
 export const parseStringAsDate = (input: string) => {
-    var parts = input.split(/[-. /]/);
+    var parts = input.split(/[-. /]+/);
     let month = null as number | null;
     let day = null as number | null;
     let year = null as number | null;
+
     if (parts[0] && parseInt(parts[0]) > 0) {
         const first = parseInt(parts[0]);
         if (first < 13) {
@@ -330,6 +332,7 @@ export const parseStringAsDate = (input: string) => {
             day = third;
         }
     }
+
     // const date = new Date();
     if (year == null || month == null || day == null) {
         return null;

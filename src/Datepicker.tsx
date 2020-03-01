@@ -1,6 +1,7 @@
 import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef } from 'react';
 import DatepickerContext, { DateData, CalendarDisplay } from './DatepickerContext';
 import Calendar from './Calendar';
+import './Datepicker.css';
 
 type OPEN_STATES = CalendarDisplay | 'close';
 const CALENDAR_CLASS_INLINE = 'inline';

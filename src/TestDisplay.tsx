@@ -1,87 +1,120 @@
-import React, { useContext } from "react";
-import DatepickerContext, { CalendarDisplay } from "./DatepickerContext";
+import React, { useState } from "react";
+import { CalendarDisplay, DateData, DatepickerContextProvider } from "./DatepickerContext";
 import { formatDateDisplay } from "./CalendarUtils";
 import Datepicker from "./Datepicker";
 
 function TestDisplay() {
-    const {
-        selectedDate,
-        activeDate,
 
-        minDate,
-        maxDate,
-        dateFilter,
+    const [_selectedDate, _setSelectedDate] = useState(null as Date | null);
 
-        rangeMode,
-        beginDate,
-        endDate,
+    const [_minDate, _setMinDate] = useState(null as Date | null);
+    const [_maxDate, _setMaxDate] = useState(null as Date | null);
+    let _dateFilter = (date: Date | null) => {
+        return true
+    };
 
-        disableMonth,
-        disableYear,
-        disableMultiyear,
+    const [_rangeMode, _setRangeMode] = useState(true); // check if any props are being passed
+    const [_beginDate, _setBeginDate] = useState(null as Date | null);
+    const [_endDate, _setEndDate] = useState(null as Date | null);
 
-        disable,
-        disableCalendar,
-        disableInput,
-        calendarDisplay,
-        canCloseCalendar,
-        closeAfterSelection,
+    const [_disableMonth, _setdisableMonth] = useState(false);
+    const [_disableYear, _setdisableYear] = useState(false);
+    const [_disableMultiyear, _setdisableMultiyear] = useState(false);
 
-        dispatch
-    } = useContext(DatepickerContext);
+    const [_disable, _setDisable] = useState(false);
+    const [_disableCalendar, _setDisableCalendar] = useState(false);
+    const [_disableInput, _setDisableInput] = useState(false);
+    const [_calendarDisplay, _setCalendarDisplay] = useState('popup' as CalendarDisplay);
+    const [_canCloseCalendar, _setCanCloseCalendar] = useState(true);
+    const [_closeAfterSelection, _setCloseAfterSelection] = useState(true);
 
-    const toggleRangeMode = () => {
-        dispatch({
-            type: 'set-range-mode',
-            payload: !rangeMode
-        });
+
+    const _onDateChange = (d: DateData) => {
+        _setBeginDate(d.beginDate);
+        _setEndDate(d.endDate);
+        _setSelectedDate(d.selectedDate);
+    }
+    const _onDateInput = (d: DateData) => {
+        // console.log("date change in input");
+        _setBeginDate(d.beginDate);
+        _setEndDate(d.endDate);
+        _setSelectedDate(d.selectedDate);
+    }
+    const _onDaySelected = (d: DateData) => {
+        // console.log("day selected in month view");
+    }
+    const _onMonthSelected = (d: DateData) => {
+        // console.log("month selected in year view");
+    }
+    const _onYearSelected = (d: DateData) => {
+        // console.log("year selected in multiyear view");
+    }
+
+    const _toggleRangeMode = () => {
+        _setRangeMode(current => !current);
     }
     const toggleDisableMonth = () => {
-        dispatch({
-            type: 'set-disable-month',
-            payload: !disableMonth
-        });
+        _setdisableMonth(current => !current);
     }
     const toggleDisableYear = () => {
-        dispatch({
-            type: 'set-disable-year',
-            payload: !disableYear
-        });
+        _setdisableYear(current => !current);
     }
     const toggleDisableMultiyear = () => {
-        dispatch({
-            type: 'set-disable-multiyear',
-            payload: !disableMultiyear
-        });
+        _setdisableMultiyear(current => !current);
     }
     const toggleCanClose = () => {
-        dispatch({
-            type: 'set-can-close-calendar',
-            payload: !canCloseCalendar
-        });
+        _setCanCloseCalendar(current => !current);
     }
 
     const setCalendarDisplay = (display: CalendarDisplay) => {
-        dispatch({
-            type: 'set-calendar-display',
-            payload: display
-        });
+        _setCalendarDisplay(display);
     }
 
     return (
         <div className="test">
+            <DatepickerContextProvider>
+                <Datepicker
+                    selectedDate={_selectedDate}
+
+                    onDateChange={(d) => _onDateChange(d)}
+                    onDateInput={(d) => _onDateInput(d)}
+                    onDaySelected={(d) => _onDaySelected(d)}
+                    onMonthSelected={(d) => _onMonthSelected(d)}
+                    onYearSelected={(d) => _onYearSelected(d)}
+
+                    minDate={_minDate}
+                    maxDate={_maxDate}
+                    dateFilter={_dateFilter}
+
+                    rangeMode={_rangeMode}
+                    beginDate={_beginDate}
+                    endDate={_endDate}
+
+                    disableMonth={_disableMonth}
+                    disableYear={_disableYear}
+                    disableMultiyear={_disableMultiyear}
+
+                    disable={_disable}
+                    disableCalendar={_disableCalendar}
+                    disableInput={_disableInput}
+                    calendarDisplay={_calendarDisplay}
+                    canCloseCalendar={_canCloseCalendar}
+                    closeAfterSelection={_closeAfterSelection}
+
+
+                ></Datepicker>
+            </DatepickerContextProvider>
             <div>
-                <p>Active date: {formatDateDisplay(activeDate)} </p>
                 <p className="toggle">
                     <input type="checkbox"
                         id="range-mode-checkbox"
-                        onClick={() => { toggleRangeMode() }}
-                        checked={rangeMode} />
+                        onClick={() => { _toggleRangeMode() }}
+                        checked={_rangeMode} />
                     <label htmlFor="range-mode-checkbox">RangeMode</label>
                 </p>
-                <p>Selected date: {selectedDate ? formatDateDisplay(selectedDate) : 'none selected'}</p>
-                <p>Begin date: {beginDate ? formatDateDisplay(beginDate) : 'none selected'}</p>
-                <p>End date: {endDate ? formatDateDisplay(endDate) : 'none selected'}</p>
+                <p>Selected date: {_selectedDate ? formatDateDisplay(_selectedDate) : 'none selected'}</p>
+                <p>Begin date: {_beginDate ? formatDateDisplay(_beginDate) : 'none selected'}</p>
+                <p>End date: {_endDate ? formatDateDisplay(_endDate) : 'none selected'}</p>
             </div>
             <div>
                 <p>Enable views:</p>
@@ -89,14 +122,14 @@ function TestDisplay() {
                     <input type="checkbox"
                         id="month-view-checkbox"
                         onClick={() => { toggleDisableMonth() }}
-                        checked={!disableMonth} />
+                        checked={!_disableMonth} />
                     <label htmlFor="month-view-checkbox">Month</label>
                 </p>
                 <p className="checkbox">
                     <input type="checkbox"
                         id="year-view-checkbox"
                         onClick={() => { toggleDisableYear() }}
-                        checked={!disableYear}
+                        checked={!_disableYear}
                         className="checkbox" />
                     <label htmlFor="year-view-checkbox">Year</label>
                 </p>
@@ -104,7 +137,7 @@ function TestDisplay() {
                     <input type="checkbox"
                         id="multiyear-view-checkbox"
                         onClick={() => { toggleDisableMultiyear() }}
-                        checked={!disableMultiyear}
+                        checked={!_disableMultiyear}
                         className="checkbox" />
                     <label htmlFor="multiyear-view-checkbox">Multiyear</label>
                 </p>
@@ -117,7 +150,7 @@ function TestDisplay() {
                             id="radio-calendar-popup"
                             name="calendar-display"
                             onClick={() => { setCalendarDisplay('popup') }}
-                            checked={calendarDisplay === 'popup'} />
+                            checked={_calendarDisplay === 'popup'} />
                         <label htmlFor="radio-calendar-popup">Popup</label>
                     </div>
 
@@ -126,7 +159,7 @@ function TestDisplay() {
                             id="radio-calendar-popup-large"
                             name="calendar-display"
                             onClick={() => { setCalendarDisplay('popup-large') }}
-                            checked={calendarDisplay === 'popup-large'} />
+                            checked={_calendarDisplay === 'popup-large'} />
                         <label htmlFor="radio-calendar-popup-large">Large popup</label>
                     </div>
 
@@ -135,7 +168,7 @@ function TestDisplay() {
                             id="radio-calendar-inline"
                             name="calendar-display"
                             onClick={() => { setCalendarDisplay('inline') }}
-                            checked={calendarDisplay === 'inline'} />
+                            checked={_calendarDisplay === 'inline'} />
                         <label htmlFor="radio-calendar-inline">Inline</label>
                     </div>
                 </p>
@@ -143,7 +176,7 @@ function TestDisplay() {
                     <input type="checkbox"
                         id="can-close-calendar-toggle"
                         onClick={() => { toggleCanClose() }}
-                        checked={canCloseCalendar} />
+                        checked={_canCloseCalendar} />
                     <label htmlFor="can-close-calendar-toggle">Can close calendar</label>
                 </p>
             </div>

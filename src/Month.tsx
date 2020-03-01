@@ -252,8 +252,8 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
                 <tr>
                     <th colSpan={7} aria-hidden="true" className="divider"></th>
                 </tr>
-
             </thead>
+
             <CalendarBody
                 rows={_days}
                 labelText={_monthText}

@@ -2,15 +2,11 @@ import React from 'react';
 import './App.css';
 import { DatepickerContextProvider } from './DatepickerContext';
 import TestDisplay from './TestDisplay';
-import Datepicker from './Datepicker';
+import Datepicker from './Input';
 
 function App() {
     return (
-        <DatepickerContextProvider>
-            <Datepicker></Datepicker>
-            <TestDisplay></TestDisplay>
-        </DatepickerContextProvider>
-
+        <TestDisplay></TestDisplay>
     );
 }
 

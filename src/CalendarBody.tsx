@@ -65,9 +65,7 @@ export function CalendarBody(
 
         rangeMode,
         beginDate,
-        endDate,
-
-        dispatch
+        endDate
     } = useContext(DatepickerContext);
 
     /** Blank cell offset for weekdays before the first day of the month. */
@@ -104,10 +102,15 @@ export function CalendarBody(
         if (cell.enabled) {
             const date = createDateFromSelectedCell(cell.value);
 
-            selectedValueChange(date);
+            // if (date) {
+            //     console.log("setting active date from Calendar Body " + date);
             //     dispatch({
             //         type: 'set-active-date', payload: date
             //     });
+            // }
+
+            selectedValueChange(date);
+
             //     dispatch({
             //         type: 'set-selected-date', payload: date
             //     });

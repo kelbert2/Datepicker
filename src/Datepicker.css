@@ -13,7 +13,7 @@
     --border-width: 1.5px;
 }
 
-.calendar+.overlay {
+.calendar:not(.inline)+.overlay {
     position: fixed;
     width: 100vw;
     height: 100vh;
@@ -22,12 +22,16 @@
 }
 
 .calendar {
-    max-width: 322px;
+    /* max-width: calc(325px + 2.25em); */
     /* max-height: 354px; */
-    /* display: block; */
+
+    box-sizing: border-box;
+    padding: 1em 1.25em;
+
     color: var(--on-background);
     background: var(--background);
-    box-sizing: border-box;
+
+    overflow: hidden;
 }
 
 .inline {
@@ -42,39 +46,36 @@
     z-index: 300;
     box-shadow: .02em .02em .125em var(--neutral-dark);
 
-    border-radius: .25em;
+    border-radius: .5em;
 }
-
-.calendar.popup {}
 
 .calendar.popup-large {
     display: block;
     padding: 1em;
 
-    height: 80vw;
-    max-width: 80vw;
-    width: 80vw;
-    top: 10vw;
-    left: 10vw;
+    /* min-height: 350px;
+    min-width: 350px; */
+    left: 50%;
 
+    font-size: 1.125em;
     box-shadow: .25em .25em 1em var(--neutral-dark);
+    transform: translate(-50%, 0);
 }
 
 .calendar.popup-large+.overlay {
+    z-index: 200;
     background: var(--neutral-light);
 }
-
-/* table,
-  td,
-  th {
-    border: 1px solid black;
-  } */
 
 table {
     border-spacing: 0;
     border-collapse: collapse;
     font-family: Roboto, "Helvetica Neue", sans-serif;
     width: 100%;
+}
+
+thead {
+    overflow-x: hidden;
 }
 
 th {
@@ -94,18 +95,15 @@ th {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
-    /* left: -8px;
-    right: -8px; 
-    trying to go past margins*/
+    left: -10em;
+    right: -10em;
+
     height: 1px;
     background: var(--neutral-light);
 }
 
 tbody {
     font-size: .8em;
-    /* min-width: 224px; */
 }
 
 .labelText {
@@ -228,10 +226,6 @@ button:hover {
 }
 
 button.period {
-    /* display: flex;
-    align-items: center;
-    justify-content: space-around; */
-
     padding: 0 2.5em;
     border-radius: .125em;
 }
@@ -286,32 +280,15 @@ button.right::after {
     left: 25%;
 }
 
-/* button.left::before,
-  button.right::before {
-    transform: rotate(45deg);
-  }
-  
-  button.left::after,
-  button.right::after {
-    transform: rotate(-45deg);
-  }
-  
-  button.left::before,
-  button.left::after {
-    transform-origin: left center;
-  }
-  
-  button.right::before,
-  button.right::after {
-    transform-origin: right center;
-  } */
-
 div.header {
     display: flex;
     align-items: center;
     justify-content: space-around;
     width: 100%;
     padding: calc(var(--border-width)*4) 0;
-    /* margin: 2.5% calc(33% / 7 - 2.5em); */
     margin: inherit;
+}
+
+.datepicker {
+    position: relative;
 }

@@ -4,7 +4,7 @@ import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
 import Year from './Year';
 import Month from './Month';
-import { compareDaysMonthsAndYears, VIEW, compareYears, compareMonthsAndYears, formatDateDisplay } from './CalendarUtils';
+import { compareDaysMonthsAndYears, VIEW, compareYears, compareMonthsAndYears } from './CalendarUtils';
 
 /** Returns a calendar.
  *  @param onFinalDateSelection: Calls with selectedDate, beginDate, and endDate when selected in the most precise enabled view.
@@ -25,7 +25,6 @@ export function Calendar(
         activeDate,
 
         onDateChange,
-        onDateInput,
         onYearSelected,
         onMonthSelected,
         onDaySelected,
@@ -179,6 +178,7 @@ export function Calendar(
 
     /** Handles date changes from calendar body. */
     const _handleDateChange = (date: Date) => {
+        console.log("setting active date from Calendar: " + date);
         dispatch({
             type: 'set-active-date',
             payload: date
@@ -189,15 +189,10 @@ export function Calendar(
         });
 
         if (rangeMode) {
-            if (!beginDate
+            if ((!beginDate && !endDate)
                 || (beginDate && _getCompareFromView(_currentView, beginDate, date) === 0)
                 || (endDate && _getCompareFromView(_currentView, endDate, date)) === 0) {
                 // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
-                // console.log('Resetting dates');
-                // console.log('begin date: ' + (beginDate ? formatDateDisplay(beginDate) : "null"));
-                // console.log('new date: ' + formatDateDisplay(date));
-                // console.log('end date: ' + (endDate ? formatDateDisplay(endDate) : "null"));
-
                 dispatch({
                     type: 'set-begin-date',
                     payload: date
@@ -206,24 +201,25 @@ export function Calendar(
                     type: 'set-end-date',
                     payload: null
                 });
-                _getSelectedFromView(_currentView, { date: date, beginDate: date, endDate: null });
+                _getSelectedFromView(_currentView, { selectedDate: date, beginDate: date, endDate: null });
 
+            } else if (!beginDate && endDate) {
+                // if no beginDate has been selected but an endDate has, just set the beginDate
+                dispatch({
+                    type: 'set-begin-date',
+                    payload: date
+                });
             } else if (beginDate && _getCompareFromView(_currentView, date, beginDate) < 0) {
                 // if the new selection is before the beginDate, make it the new beginDate
                 const prevBeginDate = beginDate;
 
                 if (endDate) {
                     // if there is an endDate selected, make the earlier beginDate the new beginDate
-                    // console.log('Setting new begin date');
-                    // console.log('prev begin date: ' + formatDateDisplay(prevBeginDate));
-                    // console.log('new beginDate: ' + formatDateDisplay(date));
-                    // console.log('end date: ' + formatDateDisplay(endDate));
-
                     dispatch({
                         type: 'set-begin-date',
                         payload: date
                     });
-                    const data = { date: date, beginDate: date, endDate };
+                    const data = { selectedDate: date, beginDate: date, endDate };
                     _getSelectedFromView(_currentView, data);
 
                     if (_isMostPreciseView(_currentView)) {
@@ -233,8 +229,6 @@ export function Calendar(
 
                 } else {
                     // if there is no endDate selected, make the earlier date the beginDate and the later one the endDate
-                    // console.log('Switching begin and end dates');
-
                     dispatch({
                         type: 'set-begin-date',
                         payload: date
@@ -243,7 +237,7 @@ export function Calendar(
                         type: 'set-end-date',
                         payload: prevBeginDate
                     });
-                    const data = { date: date, beginDate: date, endDate: prevBeginDate };
+                    const data = { selectedDate: date, beginDate: date, endDate: prevBeginDate };
                     _getSelectedFromView(_currentView, data);
 
                     if (_isMostPreciseView(_currentView)) {
@@ -253,12 +247,10 @@ export function Calendar(
                 }
             } else {
                 // if the new selection is after the endDate, make it the new endDate
-                // console.log('Setting new end date');
-
                 dispatch({
                     type: 'set-end-date', payload: date
                 });
-                const data = { date: date, beginDate, endDate: date };
+                const data = { selectedDate: date, beginDate, endDate: date };
                 _getSelectedFromView(_currentView, data);
 
                 if (_isMostPreciseView(_currentView)) {
@@ -268,9 +260,7 @@ export function Calendar(
             }
         } else {
             // if not in range mode, simply update the selected date
-            // console.log('Setting new selected date');
-
-            const data = { date: date, beginDate: null, endDate: null };
+            const data = { selectedDate: date, beginDate: null, endDate: null };
             _getSelectedFromView(_currentView, data);
 
             if (_isMostPreciseView(_currentView)) {

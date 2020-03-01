@@ -4,16 +4,26 @@ import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear, formatDateDispl
 // Based on: https://github.com/SaturnTeam/saturn-datepicker/tree/master/saturn-datepicker/src/datepicker
 // All IDatepickerContext values will be public and updateable outside except for dispatch
 
-interface DateCell {
-    date: Date | null,
-    cell: number | null
-}
 export interface DateData {
-    date: Date | null,
+    selectedDate: Date | null,
     beginDate: Date | null,
-    endDate: Date | null
+    endDate: Date | null,
+    activeDate?: Date | null
 }
 export type CalendarDisplay = 'popup' | 'popup-large' | 'inline';
+export interface DatepickerTheme {
+    "--color": string,
+    "--color-light": string,
+    "--on-color": string,
+    "--on-color-light": string,
+
+    "--background": string,
+    "--neutral-light": string,
+    "--neutral": string,
+    "--neutral-dark": string,
+    "--on-background": string
+}
+// as { [key: string]: string };
 
 /** Context for Datepicker.
  * @param selectedDate: Most recently clicked or otherwise selected date.
@@ -22,9 +32,9 @@ export type CalendarDisplay = 'popup' | 'popup-large' | 'inline';
  *
  * @param onDateChange: Function that returns date, beginDate, and endDate upon Calendar selection.
  * @param onDateInput: Function that returns date, beginDate, and endDate upon Text Input.
- * @param onYearSelected: Function that returns date data upon selection in the 'year' view.
- * @param onMonthSelected: 
- * @param onDaySelected: 
+ * @param onDaySelected: Function that returns date data upon selection in the 'month' view.
+ * @param onMonthSelected: Function that returns date data upon selection in the 'year' view.
+ * @param onYearSelected: Function that returns date data upon selection in the 'multiyear' view.
  *
  * @param startAt: Starting date to display, such as today.
  * @param startView: Starting view to display upon Calendar opening.
@@ -33,66 +43,67 @@ export type CalendarDisplay = 'popup' | 'popup-large' | 'inline';
  * @param minDate: Minimum selectable date, used for setting a floor.
  * @param maxDate: Maximum selectable date, used for setting a ceiling.
  * @param dateFilter: Filter that dates must pass through in order to be selectable (ex: weekdays only).
-
+ 
  * @param rangeMode: Whether the user can select a range of dates or just a single date.
  * @param beginDate: Starting date used when rangeMode is true.
  * @param endDate: End date used when rangeMode is true.
-
+ * 
  * @param disableMonth: Disallows the month view being shown.
- * @param disableYear: 
- * @param disableMultiyear: 
-
+ * @param disableYear: Disallows the year view being shown.
+ * @param disableMultiyear: Disallows the multiyear view being shown.
+ * 
  * @param disable: Disables input and calendar display.
  * @param disableCalendar: Disallows any calendar from displaying.
  * @param disableInput: Disables text input.
  * @param calendarDisplay: Decides if the calendar will display as a popup, inline, or large popup, for Touch UIs or Mobile applications.
  * @param canCloseCalendar: Allows calendar to be closed.
  * @param closeAfterSelection: Closes the calendar upon selection of the most precise date allowed (ex: won't close after year selection if can display the month view).
-
+ * 
  * @param formatMonthLabel: Formats the header that appears in the month view.
  * @param formatMonthText: Formats the text that appears in the first row of the month view.
-
- * @param formatYearLabel: 
- * @param formatYearText: 
-
- * @param formatMultiyearLabel: 
- * @param formatMultiyearText: 
-
+ * 
+ * @param formatYearLabel: Formats the header that appears in the year view.
+ * @param formatYearText: Formats the text that appears in the first row of the year view.
+ * 
+ * @param formatMultiyearLabel: Formats the header that appears in the multiyear view.
+ * @param formatMultiyearText: Formats the text that appears in the first row of the multiyear view.
+ * 
  * @param calendarLabel: string,
  * @param openCalendarLabel: string,
-
+ * 
  * @param nextMonthLabel: Screen readers: 
  * @param nextYearLabel: 
  * @param nextMultiyearLabel: 
-
+ * 
  * @param prevMonthLabel: 
  * @param prevYearLabel: 
  * @param prevMultiyearLabel: 
-
+ * 
  * @param switchToMonthViewLabel: 
  * @param switchToYearViewLabel: 
  * @param switchToMultiyearViewLabel: 
-
+ * 
  * @param singleInputLabel: 
  * @param beginInputLabel: 
  * @param endInputLabel: 
-
+ * 
  * @param parseStringToDate: 
  * @param displayDateAsString: 
-
- * @param dispatch: For React useReducer to modify context values.
  * 
+ * @param theme: Provides DatepickerTheme colors for styling purposes.
+ * 
+ * @param dispatch: For React useReducer to modify context values.
  */
-interface IDatepickerContext {
+export interface IDatepickerContext {
     selectedDate: Date | null,
     todayDate: Date | null,
     activeDate: Date,
 
-    onDateChange: (d: DateData) => {},
-    onDateInput: (d: DateData) => {},
-    onYearSelected: (d: DateData) => {},
-    onMonthSelected: (d: DateData) => {},
-    onDaySelected: (d: DateData) => {},
+    onDateChange: (d: DateData) => {} | void,
+    onDateInput: (d: DateData) => {} | void,
+    onDaySelected: (d: DateData) => {} | void,
+    onMonthSelected: (d: DateData) => {} | void,
+    onYearSelected: (d: DateData) => {} | void,
 
     startAt: Date | null,
     startView: VIEW,
@@ -100,7 +111,7 @@ interface IDatepickerContext {
 
     minDate: Date | null,
     maxDate: Date | null,
-    dateFilter: (date: Date | null) => true,
+    dateFilter: (date: Date | null) => boolean,
 
     rangeMode: boolean,
     beginDate: Date | null,
@@ -145,8 +156,10 @@ interface IDatepickerContext {
     beginInputLabel: string,
     endInputLabel: string,
 
-    parseStringToDate: (input: string) => Date,
+    parseStringToDate: (input: string) => Date | null,
     displayDateAsString: (date: Date) => string,
+
+    theme: DatepickerTheme,
 
     dispatch: React.Dispatch<Action>,
 }
@@ -154,13 +167,13 @@ interface IDatepickerContext {
 const datepickerContextDefaultValue = {
     selectedDate: null as Date | null,
     todayDate: new Date() as Date | null,
-    activeDate: new Date() as Date | null,
+    activeDate: new Date() as Date,
 
     onDateChange: (d: DateData) => { },
     onDateInput: (d: DateData) => { },
-    onYearSelected: (d: DateData) => { },
-    onMonthSelected: (d: DateData) => { },
     onDaySelected: (d: DateData) => { },
+    onMonthSelected: (d: DateData) => { },
+    onYearSelected: (d: DateData) => { },
 
     startAt: new Date() as Date | null,
     startView: 'month' as VIEW,
@@ -222,6 +235,20 @@ const datepickerContextDefaultValue = {
 
     parseStringToDate: (input: string) => parseStringAsDate(input),
     displayDateAsString: (date: Date) => formatDateDisplay(date),
+
+    theme: {
+        "--color": "salmon",
+        "--color-light": "rgb(250, 186, 160)",
+        "--on-color": "white",
+        "--on-color-light": "black",
+
+        "--background": "white",
+        "--neutral-light": "rgba(0, 0, 0, .1)",
+        "--neutral": "rgba(0, 0, 0, .4)",
+        "--neutral-dark": "rgba(0, 0, 0, .5)",
+        "--on-background": "black"
+    }
+
 } as IDatepickerContext;
 const DatepickerContext = React.createContext(datepickerContextDefaultValue);
 // export default React.createContext(datepickerContextDefaultValue);
@@ -230,7 +257,7 @@ interface Action {
     type: string,
     payload: any
 }
-const reducer = (state: IDatepickerContext, action: Action) => {
+export const reducer = (state: IDatepickerContext, action: Action) => {
     switch (action.type) {
         case "reset":
             return datepickerContextDefaultValue;
@@ -364,3 +391,71 @@ export default DatepickerContext;
 
 // TODO: add custom className applied for dates like holidays
 // TODO: refactor all the popup/disable/inline etc. logic to some specific type to avoid any conflicting values
+
+export interface IDatepickerProps {
+    selectedDate?: Date | null,
+    todayDate?: Date | null,
+    activeDate?: Date,
+
+    onDateChange?: (d: DateData) => {} | void,
+    onDateInput?: (d: DateData) => {} | void,
+    onDaySelected?: (d: DateData) => {} | void,
+    onMonthSelected?: (d: DateData) => {} | void,
+    onYearSelected?: (d: DateData) => {} | void,
+
+    startAt?: Date | null,
+    startView?: VIEW,
+    firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6,
+
+    minDate?: Date | null,
+    maxDate?: Date | null,
+    dateFilter?: (date: Date | null) => boolean,
+
+    rangeMode?: boolean,
+    beginDate?: Date | null,
+    endDate?: Date | null,
+
+    disableMonth?: boolean,
+    disableYear?: boolean,
+    disableMultiyear?: boolean,
+
+    disable?: boolean,
+    disableCalendar?: boolean,
+    disableInput?: boolean,
+    calendarDisplay?: CalendarDisplay,
+    canCloseCalendar?: boolean,
+    closeAfterSelection?: boolean,
+
+    formatMonthLabel?: (date: Date) => string,
+    formatMonthText?: (date: Date) => string,
+
+    formatYearLabel?: (date: Date) => string,
+    formatYearText?: (date: Date) => string,
+
+    formatMultiyearLabel?: (date: Date, minYearOfPage?: number) => string,
+    formatMultiyearText?: (date: Date) => string,
+
+    calendarLabel?: string,
+    openCalendarLabel?: string,
+
+    nextMonthLabel?: string,
+    nextYearLabel?: string,
+    nextMultiyearLabel?: string,
+
+    prevMonthLabel?: string,
+    prevYearLabel?: string,
+    prevMultiyearLabel?: string,
+
+    switchToMonthViewLabel?: string,
+    switchToYearViewLabel?: string,
+    switchToMultiyearViewLabel?: string,
+
+    singleInputLabel?: string,
+    beginInputLabel?: string,
+    endInputLabel?: string,
+
+    parseStringToDate?: (input: string) => Date | null,
+    displayDateAsString?: (date: Date) => string,
+
+    theme?: DatepickerTheme,
+}

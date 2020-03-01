@@ -119,7 +119,7 @@ function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Dat
             case 32: { // SPACE
 
                 // monthSelected(getMonth());
-                onMonthSelected({ date: activeDate, beginDate, endDate });
+                onMonthSelected({ selectedDate: activeDate, beginDate, endDate });
                 // event.preventDefault();
                 break;
             }

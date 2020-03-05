@@ -14,7 +14,7 @@
 }
 
 /*  TODO: Make another surrounding class to increase specificity and ensure styling in here will override any in Datepicker.css. */
-.calendar.inline {
+.datepicker .calendar.inline {
   display: block;
 
   margin: .5em auto;

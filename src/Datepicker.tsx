@@ -174,9 +174,9 @@ function Datepicker({
         }
     };
 
+    // TODO: May refactor to have Calendar be called here
     return (
         <DatepickerContextProvider>
-            <div onClick={(d) => onDateChange({ selectedDate: selectedDate, beginDate, endDate })}>Click the child</div>
             <Input></Input>
         </DatepickerContextProvider>
     )

@@ -163,31 +163,55 @@ td.disabled {
 }
 
 td.withinRange,
-td.hoveredWithin {
+td.withinHoveredRange {
     border-radius: 0;
 }
 
 td.beginRange,
-td.hoveredBefore,
-td.hoveredAfterEnd.hoveredRangeLimit {
+td.beginHoveredRange:not(.withinRange) {
     border-top-left-radius: 999px;
     border-bottom-left-radius: 999px;
 }
 
 td.endRange,
-td.hoveredAfter,
-td.hoveredBeforeBegin.hoveredRangeLimit {
+td.endHoveredRange:not(.withinRange) {
     border-top-right-radius: 999px;
     border-bottom-right-radius: 999px;
 }
 
 td.hovered div,
 td:hover div,
-td.hoveredBefore,
-td.hoveredAfter,
-td.hoveredWithin {
+td.withinHoveredRange {
     background-color: var(--hover);
     color: var(--on-hover);
+}
+
+td.beginRange.withinHoveredRange:not(.beginHoveredRange) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background: linear-gradient(to left, var(--color-light), var(--hover));
+}
+
+td.endRange.withinHoveredRange:not(.endHoveredRange) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background: linear-gradient(to right, var(--color-light), var(--hover));
+}
+
+td.beginRange.beginHoveredRange,
+td.endRange.beginHoveredRange {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    background: linear-gradient(to right, var(--color-light), var(--hover));
+}
+
+td.beginRange.endHoveredRange:not(.hovered),
+td.endRange.endHoveredRange:not(.hovered) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+
+    background: linear-gradient(to left, var(--color-light), var(--hover));
 }
 
 td.beginRange,
@@ -204,23 +228,6 @@ td.selected div {
     color: var(--on-color);
     font-weight: 500;
 }
-
-td.hoveredAfterBegin,
-td.hoveredAfterEnd {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-
-    background: linear-gradient(to right, var(--color-light), var(--hover));
-}
-
-td.hoveredBeforeBegin,
-td.hoveredBeforeEnd {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-
-    background: linear-gradient(to left, var(--color-light), var(--hover));
-}
-
 
 td.today div {
     border-color: var(--neutral);

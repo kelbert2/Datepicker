@@ -10,6 +10,12 @@
     --neutral-dark: rgba(0, 0, 0, .5);
     --on-background: black;
 
+    --hover: rgba(0, 0, 0, .1);
+    --on-hover: black;
+
+    --disabled: white;
+    --on-disabled: rgba(0, 0, 0, .4);
+
     --border-width: 1.5px;
 }
 
@@ -151,6 +157,10 @@ td div {
 /* td.active div {
     background-color: var(--neutral);
   } */
+td.disabled {
+    background-color: var(--disabled);
+    color: var(--on-disabled);
+}
 
 td.withinRange,
 td.hoveredWithin {
@@ -158,13 +168,15 @@ td.hoveredWithin {
 }
 
 td.beginRange,
-td.hoveredBefore {
+td.hoveredBefore,
+td.hoveredAfterEnd.hoveredRangeLimit {
     border-top-left-radius: 999px;
     border-bottom-left-radius: 999px;
 }
 
 td.endRange,
-td.hoveredAfter {
+td.hoveredAfter,
+td.hoveredBeforeBegin.hoveredRangeLimit {
     border-top-right-radius: 999px;
     border-bottom-right-radius: 999px;
 }
@@ -174,7 +186,8 @@ td:hover div,
 td.hoveredBefore,
 td.hoveredAfter,
 td.hoveredWithin {
-    background-color: var(--neutral-light);
+    background-color: var(--hover);
+    color: var(--on-hover);
 }
 
 td.beginRange,
@@ -192,24 +205,22 @@ td.selected div {
     font-weight: 500;
 }
 
-td.hoveredAfterSelect,
-td.hoveredBeforeSelect {
-    border-radius: 0;
+td.hoveredAfterBegin,
+td.hoveredAfterEnd {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    background: linear-gradient(to right, var(--color-light), var(--hover));
 }
 
-td.hoveredAfterSelect {
-    background-color: linear-gradient(to right, var(--color-light), var(--neutral-light));
+td.hoveredBeforeBegin,
+td.hoveredBeforeEnd {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+
+    background: linear-gradient(to left, var(--color-light), var(--hover));
 }
 
-td.hoveredBeforeSelect {
-    background-color: linear-gradient(to left, var(--color-light), var(--neutral-light));
-}
-
-td.disabled {
-    background-color: var(--gray);
-    color: var(--on-gray);
-
-}
 
 td.today div {
     border-color: var(--neutral);

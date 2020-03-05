@@ -152,15 +152,73 @@ export function CalendarBody(
         return beginDate && endDate && compare(date, beginDate) > 0 && compare(date, endDate) < 0;
     }
 
+    const _isBefore = (date: Date, baseDate: Date | null, cellIndex?: number, baseCellIndex?: number) => {
+        const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
+
+        if (!baseDate || !rangeMode) {
+            return false;
+        } else {
+            // const baseCellNumber = baseCellIndex ? baseCellIndex : dateToMonthCellIndex(baseDate);
+            return compare(date, baseDate) > 0;
+        }
+    }
+
+    const _isAfter = (date: Date, baseDate: Date | null, cellIndex?: number, baseCellIndex?: number) => {
+        const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
+
+        if (!baseDate || !rangeMode) {
+            return false;
+        } else {
+            // const baseCellNumber = baseCellIndex ? baseCellIndex : dateToMonthCellIndex(baseDate);
+            return compare(date, baseDate) < 0;
+        }
+    }
+
+    /** Is within the range (hovered, baseDate], where hovered is before baseDate */
+    const _isBetweenHoveredAndDate = (date: Date, baseDate: Date | null, cellIndex?: number, baseCellIndex?: number) => {
+        const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
+
+        if (!_cellHovered || !rangeMode || !baseDate) {
+            return false;
+        } else {
+            const baseCellNumber = dateToMonthCellIndex(baseDate);
+            if (_cellHovered < baseCellNumber) {
+                // if hovered is before base, needs to be after cell hovered
+                return compare(date, baseDate) < 0 && cellNumber >= _cellHovered;
+            }
+            // if (_cellHovered > beginNumber) {
+            //     // if hovered is after begin, needs to be before cell hovered
+            //     return compare(date, beginDate) > 0 && cellNumber <= _cellHovered;
+            // }
+        }
+        return false;
+    }
+    const _isBetweenDateAndHovered = (date: Date, baseDate: Date | null, cellIndex?: number, baseCellIndex?: number) => {
+        const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
+
+        if (!_cellHovered || !rangeMode || !baseDate) {
+            return false;
+        } else {
+            const baseCellNumber = dateToMonthCellIndex(baseDate);
+            if (_cellHovered > baseCellNumber) {
+                // if hovered is before base, needs to be after cell hovered
+                return compare(date, baseDate) > 0 && cellNumber <= _cellHovered;
+            }
+            // if (_cellHovered > beginNumber) {
+            //     // if hovered is after begin, needs to be before cell hovered
+            //     return compare(date, beginDate) > 0 && cellNumber <= _cellHovered;
+            // }
+        }
+        return false;
+    }
+
     /** Whether to mark a date as within a range before the end has been selected, (hovered, begin]. */
     const _isBetweenHoveredAndBegin = (date: Date, cellIndex?: number) => {
         const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
 
         if (!_cellHovered || !rangeMode || !beginDate) {
             return false;
-        }
-
-        if (beginDate) {
+        } else {
             const beginNumber = dateToMonthCellIndex(beginDate);
             if (_cellHovered < beginNumber) {
                 // if hovered is before begin, needs to be after cell hovered
@@ -198,35 +256,6 @@ export function CalendarBody(
         // if (endDate && _cellHovered > dateToMonthCellIndex(endDate)) {
         //     return date > endDate && cellNumber > _cellHovered;
         // }
-        return false;
-    }
-
-    const _isAfterBegin = (date: Date) => {
-
-        if (rangeMode && beginDate) {
-            return date > beginDate;
-        }
-        return false;
-    }
-    const _isAfterEnd = (date: Date) => {
-
-        if (rangeMode && endDate) {
-            return date > endDate;
-        }
-        return false;
-    }
-
-    const _isBeforeSelected = (date: Date) => {
-        if (rangeMode && selectedDate) {
-            return date > selectedDate;
-        }
-        return false;
-    }
-
-    const _isAfterSelected = (date: Date) => {
-        if (rangeMode && selectedDate) {
-            return date > selectedDate;
-        }
         return false;
     }
 
@@ -288,8 +317,14 @@ export function CalendarBody(
         const withinHover = "hoveredWithin";
         const selectedClass = "selected";
         const todayClass = "today";
-        const hoveredAfterSelectionClass = "hoveredAfterSelect";
-        const hoveredBeforeSelectionClass = "hoveredBeforeSelect";
+
+        const hoveredBeforeBeginClass = "hoveredBeforeBegin";
+        const hoveredAfterBeginClass = "hoveredAfterBegin";
+        const hoveredBeforeEndClass = "hoveredBeforeEnd";
+        const hoveredAfterEndClass = "hoveredAfterEnd";
+        const hoveredRangeLimitClass = "hoveredRangeLimit";
+
+
 
         let classes = [] as string[];
 
@@ -300,36 +335,47 @@ export function CalendarBody(
             classes.push(activeClass);
         }
         if (rangeMode) {
-            // if (_isBeginningOfRange(cell.value, cell.cellIndex)) {
             if (beginDate && compare(beginDate, cell.value) === 0) {
+                // if is the beginDate
                 classes.push(beginRangeClass);
 
                 if (_cellHovered && _cellHovered < cell.cellIndex) {
                     // if hovered is before begin
-                    classes.push(hoveredBeforeClass);
+                    classes.push(hoveredBeforeBeginClass);
+                } else if (!endDate && _cellHovered && _cellHovered > cell.cellIndex) {
+                    // if hovered is after begin, but there is no selected end date;
+                    classes.push(hoveredAfterBeginClass);
+                    classes.push(hoveredRangeLimitClass);
                 }
             }
-            // if (_isEndOfRange(cell.value, cell.cellIndex)) {
             if (endDate && compare(endDate, cell.value) === 0) {
+                // if is the endDate
                 classes.push(endRangeClass);
 
                 if (_cellHovered && _cellHovered > cell.cellIndex) {
                     // if hovered is after end
-                    classes.push(hoveredAfterClass);
+                    classes.push(hoveredAfterEndClass);
+                } else if (!beginDate && _cellHovered && _cellHovered < cell.cellIndex) {
+                    // if hovered is before end, but there is no selected beginDate
+                    classes.push(hoveredBeforeEndClass);
+                    classes.push(hoveredRangeLimitClass);
                 }
             }
             if (_isWithinRange(cell.value)) {
+                // is between beginDate and endDate
                 classes.push(withinRangeClass);
-                // } else if (_isBetweenHoveredAndBegin(cell.value, cell.cellIndex)) {
-            } else if (_isBetweenHoveredAndBegin(cell.value, cell.cellIndex)) {
+            } else if (_isBetweenHoveredAndDate(cell.value, beginDate, cell.cellIndex) || (!beginDate && _isBetweenHoveredAndDate(cell.value, endDate, cell.cellIndex))) {
+                // if hovered is before beginDate and cell is between hovered and beginDate, or there is no beginDate, and it is between hovered and the endDate
                 classes.push(withinHover);
                 if (cell.cellIndex === _cellHovered) {
+                    // cell is currently hovered and therefore the beginning of this hovered range
                     classes.push(hoveredBeforeClass);
                 }
-                // } else if (_isBetweenHoveredAndEnd(cell.value, cell.cellIndex)) {
-            } else if (_isBetweenHoveredAndEnd(cell.value, cell.cellIndex)) {
+            } else if (_isBetweenDateAndHovered(cell.value, endDate, cell.cellIndex) || (!endDate && _isBetweenDateAndHovered(cell.value, beginDate, cell.cellIndex))) {
+                // if hovered is after endDate and cell is between hovered and endDate, or there is no endDate, and it is between hovered and beginDate
                 classes.push(withinHover);
                 if (cell.cellIndex === _cellHovered) {
+                    // cell is currently hovered and therefore the end of this hovered range
                     classes.push(hoveredAfterClass);
                 }
             }
@@ -338,7 +384,7 @@ export function CalendarBody(
         if (_previewCellOver(cell.value, cell.cellIndex)) {
             classes.push(hoveredClass);
         }
-        if ((selectedDate && compare(selectedDate, cell.value) === 0) || (beginDate && compare(beginDate, cell.value) === 0) || (endDate && compare(endDate, cell.value) === 0)) {
+        if ((selectedDate && compare(selectedDate, cell.value) === 0)) {
             classes.push(selectedClass);
         }
         if (todayDate ? compare(todayDate, cell.value) === 0 : compare(new Date(), cell.value) === 0) {

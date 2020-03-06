@@ -178,7 +178,6 @@ export function Calendar(
 
     /** Handles date changes from calendar body. */
     const _handleDateChange = (date: Date) => {
-        console.log("setting active date from Calendar: " + date);
         dispatch({
             type: 'set-active-date',
             payload: date

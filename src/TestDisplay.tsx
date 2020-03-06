@@ -40,6 +40,18 @@ function TestDisplay() {
         _setEndDate(d.endDate);
         _setSelectedDate(d.selectedDate);
     }
+    const _onMinDateChange = (d: DateData) => {
+        _setMinDate(d.selectedDate);
+    }
+    const _onMinDateInput = (d: DateData) => {
+        _setMinDate(d.selectedDate);
+    }
+    const _onMaxDateChange = (d: DateData) => {
+        _setMaxDate(d.selectedDate);
+    }
+    const _onMaxDateInput = (d: DateData) => {
+        _setMaxDate(d.selectedDate);
+    }
     const _onDaySelected = (d: DateData) => {
         // console.log("day selected in month view");
     }
@@ -71,7 +83,9 @@ function TestDisplay() {
     }
 
     return (
-        <div className="test">
+        <div role="main"
+            className="test">
+            <h1>Datepicker</h1>
             <DatepickerContextProvider>
                 <Datepicker
                     selectedDate={_selectedDate}
@@ -100,8 +114,6 @@ function TestDisplay() {
                     calendarDisplay={_calendarDisplay}
                     canCloseCalendar={_canCloseCalendar}
                     closeAfterSelection={_closeAfterSelection}
-
-
                 ></Datepicker>
             </DatepickerContextProvider>
             <div>
@@ -115,6 +127,68 @@ function TestDisplay() {
                 <p>Selected date: {_selectedDate ? formatDateDisplay(_selectedDate) : 'none selected'}</p>
                 <p>Begin date: {_beginDate ? formatDateDisplay(_beginDate) : 'none selected'}</p>
                 <p>End date: {_endDate ? formatDateDisplay(_endDate) : 'none selected'}</p>
+            </div>
+            <div>
+                <p>Minimum date:
+                <Datepicker
+                        selectedDate={_minDate}
+
+                        onDateChange={(d) => _onMinDateChange(d)}
+                        onDateInput={(d) => _onMinDateInput(d)}
+                        onDaySelected={(d) => _onDaySelected(d)}
+                        onMonthSelected={(d) => _onMonthSelected(d)}
+                        onYearSelected={(d) => _onYearSelected(d)}
+
+                        minDate={null}
+                        maxDate={null}
+                        dateFilter={_dateFilter}
+
+                        rangeMode={false}
+                        beginDate={null}
+                        endDate={null}
+
+                        disableMonth={_disableMonth}
+                        disableYear={_disableYear}
+                        disableMultiyear={_disableMultiyear}
+
+                        disable={_disable}
+                        disableCalendar={_disableCalendar}
+                        disableInput={_disableInput}
+                        calendarDisplay={_calendarDisplay}
+                        canCloseCalendar={true}
+                        closeAfterSelection={_closeAfterSelection}
+                    ></Datepicker>
+                </p>
+                <p>Maximum date:
+                <Datepicker
+                        selectedDate={_maxDate}
+
+                        onDateChange={(d) => _onMaxDateChange(d)}
+                        onDateInput={(d) => _onMaxDateInput(d)}
+                        onDaySelected={(d) => _onDaySelected(d)}
+                        onMonthSelected={(d) => _onMonthSelected(d)}
+                        onYearSelected={(d) => _onYearSelected(d)}
+
+                        minDate={null}
+                        maxDate={null}
+                        dateFilter={_dateFilter}
+
+                        rangeMode={false}
+                        beginDate={null}
+                        endDate={null}
+
+                        disableMonth={_disableMonth}
+                        disableYear={_disableYear}
+                        disableMultiyear={_disableMultiyear}
+
+                        disable={_disable}
+                        disableCalendar={_disableCalendar}
+                        disableInput={_disableInput}
+                        calendarDisplay={_calendarDisplay}
+                        canCloseCalendar={true}
+                        closeAfterSelection={_closeAfterSelection}
+                    ></Datepicker>
+                </p>
             </div>
             <div>
                 <p>Enable views:</p>

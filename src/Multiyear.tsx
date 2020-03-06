@@ -86,10 +86,6 @@ function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date
 
     /** Runs on mount */
     useEffect(() => {
-        /* We want a range years such that we maximize the number of
-         enabled dates visible at once. This prevents issues where the minimum year
-         is the last item of a page OR the maximum year is the first item of a page.
-        */
         _populateYears();
 
         /** Handles when a new year is selected. */

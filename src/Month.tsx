@@ -238,7 +238,8 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
     }
 
     return (
-        <table role="grid">
+        <table
+            role="grid">
             <thead>
                 <tr
                     className="week-labels">

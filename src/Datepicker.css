@@ -129,7 +129,8 @@ td {
     padding: calc(var(--border-width) * 3) var(--border-width);
 
     line-height: 1;
-    /* outline: 0; */
+    outline: 0;
+    /* Handle focus response same as handle hover. */
 }
 
 td div {
@@ -158,8 +159,9 @@ td div {
     background-color: var(--neutral);
   } */
 td.disabled {
-    background-color: var(--disabled);
+    cursor: default;
     color: var(--on-disabled);
+    background-color: var(--disabled);
 }
 
 td.withinRange,
@@ -180,8 +182,8 @@ td.endHoveredRange:not(.withinRange) {
 }
 
 td.hovered div,
-td:hover div,
-td:focus div,
+td:not(.disabled):hover div,
+td:not(.disabled):focus div,
 td.withinHoveredRange {
     background-color: var(--hover);
     color: var(--on-hover);
@@ -251,15 +253,18 @@ td.today.selected.endRange div {
 
 button {
     height: 2em;
-    cursor: pointer;
 
     font-size: 1em;
     background-color: transparent;
     border: none;
 }
 
-button:focus,
-button:hover {
+button:not(:disabled) {
+    cursor: pointer;
+}
+
+button:not(:disabled):focus,
+button:not(:disabled):hover {
     background-color: var(--neutral-light);
 }
 
@@ -288,8 +293,8 @@ button.right {
     border-radius: 999px;
 }
 
-button.left::after,
-button.right::after {
+button.left:not(:disabled)::after,
+button.right:not(:disabled)::after {
     border-right: .2em solid var(--neutral-dark);
     border-bottom: .2em solid var(--neutral-dark);
 

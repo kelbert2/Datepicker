@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import DatepickerContext from './DatepickerContext';
-import { getYear, VIEW, addCalendarMonths, addCalendarYears, getActiveOffset, YEARS_PER_PAGE, getStartingYear, compareMonthsAndYears, compareYears } from './CalendarUtils';
+import { getYear, VIEW, addCalendarMonths, addCalendarYears, getActiveOffset, YEARS_PER_PAGE, getStartingYear, compareMonthsAndYears, compareYears, getMonth, formatDateDisplay } from './CalendarUtils';
 
 interface CalenderHeaderProps {
     currentView: VIEW,
@@ -195,17 +195,14 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
 
     /** Whether the previous period button is enabled. */
     const _previousEnabled = () => {
-        if (!minDate) {
-            return true;
-        }
         return !minDate ||
-            !_isSameView(activeDate, minDate);
+            _isSameView(activeDate, minDate) < 0;
     }
 
     /** Whether the next period button is enabled. */
     const _nextEnabled = () => {
         return !maxDate ||
-            !_isSameView(activeDate, maxDate);
+            _isSameView(activeDate, maxDate) > 0;
     }
 
     return (

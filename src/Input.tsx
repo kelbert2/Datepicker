@@ -1,4 +1,4 @@
-import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import DatepickerContext, { DateData, CalendarDisplay } from './DatepickerContext';
 import Calendar from './Calendar';
 import { compareDaysMonthsAndYears, simpleUID } from './CalendarUtils';
@@ -44,8 +44,11 @@ function Input() {
     const [_beginInput, _setBeginInput] = useState('' as string);
     /** Input in the second text input. */
     const [_endInput, _setEndInput] = useState('' as string);
+    /** Timer to avoid on focus respose not running because seen after on blur. */
     const timer = useRef(null as NodeJS.Timeout | null);
+    /** Previous rangeMode value. */
     const _prevRangeMode = useRef(rangeMode);
+    /** UID for inputs and labels. */
     const [id] = useState(() => simpleUID('myprefix-'));
 
     /** Update Calendar open status if allowances change. */
@@ -128,7 +131,6 @@ function Input() {
                     });
                 }
                 if (activeDate == null || compareDaysMonthsAndYears(activeDate, date) !== 0) {
-                    console.log("resetting active date on input blur: " + date);
                     dispatch({
                         type: 'set-active-date',
                         payload: date
@@ -231,12 +233,11 @@ function Input() {
         onDateInput({ selectedDate: selectedDate, beginDate, endDate });
 
     }
-
+    /** Close the calendar if clicked off. */
     const _handleNonCalendarClick = () => {
         onDateInput({ selectedDate: selectedDate, beginDate, endDate });
         onDateChange({ selectedDate: selectedDate, beginDate, endDate });
 
-        console.log('on blur click');
         if (_open === 'close') {
             if (!disable || !disableCalendar) {
                 _setOpen(calendarDisplay);
@@ -246,12 +247,9 @@ function Input() {
         }
     }
 
-    /** On input click, toggle the Calendar display open or closed. */
-    //  // We close the popover on the next tick by using setTimeout.
-    // This is necessary because we need to first check if
-    // another child of the element has received focus as
-    // the blur event fires prior to the new focus event.
+    /** Upon click off input and not on any children of the input, toggle the Calendar display closed. */
     const _onBlurAll = () => {
+        // as blur event fires prior to new focus events, need to wait to see if a child has been focused.
         timer.current = setTimeout(() => {
             _handleNonCalendarClick();
         }, 700);
@@ -259,15 +257,21 @@ function Input() {
         return () => timer.current ? clearTimeout(timer.current) : {};
     }
 
-    // If a child receives focus, do not close the popover.
+    /** If a child receives focus, do not close the calendar. */
     const _onFocusHandler = () => {
         if (timer.current) {
             clearTimeout(timer.current);
         }
     }
-    /** Set styling class based on whether or not the input box has content. */
-    const _setInputClass = (filled: boolean) => {
-        return filled ? INPUT_CLASS_FILLED : '';
+
+    /** Handle keydown events when Fields div is in focus. */
+    const _handleKeyDownOverFields = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        const { keyCode } = event;
+        switch (keyCode) {
+            case 13: {// Enter
+                _handleNonCalendarClick();
+            }
+        }
     }
 
     /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
@@ -280,6 +284,11 @@ function Input() {
         if (closeAfterSelection && canCloseCalendar) {
             _setOpen('close');
         }
+    }
+
+    /** Set styling class based on whether or not the input box has content. */
+    const _setInputClass = (filled: boolean) => {
+        return filled ? INPUT_CLASS_FILLED : '';
     }
 
     /** Set Calendar display mode. */
@@ -321,12 +330,14 @@ function Input() {
             className="datepicker"
         >
             <div
+                role="button"
+                tabIndex={0}
                 onClick={() => _handleNonCalendarClick()}
+                onKeyDown={(e) => _handleKeyDownOverFields(e)}
                 className="fields"
             >
                 <div className="field">
                     <input
-                        role="textbox"
                         type="text"
                         disabled={disable || disableInput}
                         onChange={(e) => _handleBeginInputChange(e)}
@@ -342,7 +353,7 @@ function Input() {
                 </div>
                 {rangeMode ? <span> - </span> : ''}
                 {!rangeMode ? '' : _renderEndInput()}
-                <button role="button">Open</button>
+                <button>Open</button>
             </div>
             {
                 _open !== 'close' ?
@@ -354,7 +365,8 @@ function Input() {
             }
             {
                 _open === 'popup-large' ?
-                    <div onClick={() => _handleNonCalendarClick()}
+                    <div role="presentation"
+                        onClick={() => _handleNonCalendarClick()}
                         className="overlay"></div>
                     : ''
             }

@@ -211,7 +211,7 @@ function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Dat
     }
 
     return (
-        <table role="presentation">
+        <table>
             <thead>
                 <tr><th colSpan={4} aria-hidden="true" className="divider"></th></tr>
             </thead>
@@ -227,6 +227,7 @@ function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Dat
                 beginDateSelected={false}
                 isBeforeSelected={false}
                 isCurrentMonthBeforeSelected={false}
+                handleUserKeyPress={(e) => _handleUserKeyPress(e)}
                 isRangeFull={_isRangeFull()}
                 activeCell={_getActiveCell()}
                 numCols={4}

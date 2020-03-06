@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useCallback, useRef } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import DatepickerContext, { DateData } from './DatepickerContext';
 import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
@@ -49,8 +49,8 @@ export function Calendar(
 
     const [_currentView, _setCurrentView] = useState(startView);
 
-    const _prevSelectedDate = useRef(selectedDate as Date);
-    const _prevEndDate = useRef(endDate as Date);
+    // const _prevSelectedDate = useRef(selectedDate as Date);
+    // const _prevEndDate = useRef(endDate as Date);
     // const [beginDateSelected, setBeginDateSelected] = useState(false);
 
     /** Run on mount: set active date and view changes. */

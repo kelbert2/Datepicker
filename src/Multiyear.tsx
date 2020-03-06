@@ -233,7 +233,7 @@ function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date
     }
 
     return (
-        <table role="presentation">
+        <table>
             <thead>
                 <tr>
                     <th colSpan={4} aria-hidden="true" className="divider"></th>
@@ -251,6 +251,7 @@ function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date
                 beginDateSelected={false}
                 isBeforeSelected={false}
                 isCurrentMonthBeforeSelected={false}
+                handleUserKeyPress={(e) => _handleUserKeyPress(e)}
                 isRangeFull={_isRangeFull()}
                 activeCell={_getActiveCell()}
                 numCols={4}

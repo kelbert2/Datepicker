@@ -238,12 +238,12 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
     }
 
     return (
-        <table role="presentation">
+        <table role="grid">
             <thead>
                 <tr
                     className="week-labels">
                     {_weekdays.map(dayLabel => (
-                        <th
+                        <th scope="col"
                             key={dayLabel.long}>
                             {dayLabel.short}
                         </th>
@@ -265,6 +265,7 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
                 beginDateSelected={false}
                 isBeforeSelected={false}
                 isCurrentMonthBeforeSelected={selectedDate ? getMonth(activeDate) > getMonth(selectedDate) : false}
+                handleUserKeyPress={(e) => _handleUserKeyPress(e)}
                 isRangeFull={_isRangeFull()}
                 activeCell={_getActiveCell()}
                 numCols={7}

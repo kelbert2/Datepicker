@@ -342,3 +342,21 @@ export const parseStringAsDate = (input: string) => {
 
     // return new Date(year ? year : getYear(date), month ? month : getMonth(date), day ? day : getDay(date));
 }
+
+// https://stackoverflow.com/questions/29420835/how-to-generate-unique-ids-for-form-labels-in-react
+export const gen4 = () => {
+    return Math.random().toString(16).slice(-4)
+}
+
+export const simpleUID = (prefix: string) => {
+    return (prefix || '').concat([
+        gen4(),
+        gen4(),
+        gen4(),
+        gen4(),
+        gen4(),
+        gen4(),
+        gen4(),
+        gen4()
+    ].join(''))
+}

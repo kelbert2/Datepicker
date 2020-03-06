@@ -1,6 +1,6 @@
-import React, { useState, useContext, useLayoutEffect } from 'react';
+import React, { useState, useContext, useLayoutEffect, useCallback, useRef, useEffect } from 'react';
 import DatepickerContext, { DateData } from './DatepickerContext';
-import { sameDate, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, compareDates } from './CalendarUtils';
+import { sameDate, dateToMonthCellIndex, getDayDifference, getFirstDateOfMonthByDate, compareDates, addCalendarYears, addCalendarMonths, addCalendarDays, getDaysPerMonth, getMonth, getDay, DAYS_PER_WEEK } from './CalendarUtils';
 
 export interface ICalendarCell {
     cellIndex: number,
@@ -22,6 +22,7 @@ export interface ICalendarCell {
          *  @param isBeforeSelected: If the current month is before the date already selected
          *  @param isCurrentMonthBeforeSelected: True when the current month is before the date already selected
          *  @param isRangeFull: Whether to mark all dates as within the selected range
+         *  @param handleUserKeyPress: How to handle key presses over entire body
          *  @param activeCell: Cell number in the table
          *  @param numCols: Number of columns in the table
          *  @param cellAspectRatio: The height/ width ratio to use for the cells
@@ -39,6 +40,7 @@ export function CalendarBody(
         isBeforeSelected = false,
         isCurrentMonthBeforeSelected = false,
         isRangeFull = false,
+        handleUserKeyPress = (event: KeyboardEvent) => { },
         activeCell = 0,
         numCols = 7,
         cellAspectRatio = 1
@@ -54,6 +56,7 @@ export function CalendarBody(
         isBeforeSelected: boolean,
         isCurrentMonthBeforeSelected: boolean,
         isRangeFull: boolean,
+        handleUserKeyPress: (event: KeyboardEvent) => {} | void,
         activeCell: number,
         numCols: number,
         cellAspectRatio: number
@@ -61,11 +64,20 @@ export function CalendarBody(
 
     const {
         selectedDate,
+        activeDate,
         todayDate,
+
+        firstDayOfWeek,
+
+        minDate,
+        maxDate,
+        dateFilter,
 
         rangeMode,
         beginDate,
-        endDate
+        endDate,
+
+        dispatch
     } = useContext(DatepickerContext);
 
     /** Blank cell offset for weekdays before the first day of the month. */
@@ -76,6 +88,8 @@ export function CalendarBody(
     const [_cellWidth, _setCellWidth] = useState(null as string | null);
     /** Flat index of the current hovered cell. */
     const [_cellHovered, _setCellHovered] = useState(null as number | null);
+    /** Previous active date. */
+    const _prevActiveDate = useRef(activeDate);
 
     /** On numCols or rows change, recalculate the first row offset. */
     useLayoutEffect(() => {
@@ -84,7 +98,7 @@ export function CalendarBody(
 
     /** On activeCell change, update which cell is hovered. */
     useLayoutEffect(() => {
-        _setCellHovered(activeCell + 1);
+        _setCellHovered(activeCell);
     }, [activeCell]);
 
     /** On cellAspectRatio or numCols change, update the cell padding. */
@@ -178,10 +192,55 @@ export function CalendarBody(
     }
 
     /** Whether to highlight the target cell when selecting the second date while in range mode */
-    const _previewCellOver = (date: Date, cellIndex?: number) => {
-        const cellNumber = cellIndex ? cellIndex : getDayDifference(date, getFirstDateOfMonthByDate(date));
-        return _cellHovered === cellNumber && rangeMode && beginDateSelected;
+    // const _previewCellOver = (date: Date, cellIndex?: number) => {
+    //     const cellNumber = cellIndex ? cellIndex : getDayDifference(date, getFirstDateOfMonthByDate(date));
+    //     return _cellHovered === cellNumber && rangeMode && beginDateSelected;
+    // }
+
+    /** When mouse enters hover zone for a cell */
+    const _onHover = (cell: ICalendarCell) => {
+        _setCellHovered(cell.cellIndex);
+        return undefined;
     }
+    /** When mouse exists hover zone for a cell */
+    const _offHover = (cell: ICalendarCell) => {
+        if (_cellHovered === cell.cellIndex) {
+            _setCellHovered(null);
+        }
+        return undefined;
+    }
+
+    const _handleCellFocus = (cell: ICalendarCell) => {
+        activeCell = cell.cellIndex;
+        _setCellHovered(cell.cellIndex);
+
+        dispatch({
+            type: 'set-active-date',
+            payload: cell.value
+        });
+    }
+    const _handleCellKeypress = (event: React.KeyboardEvent<HTMLTableDataCellElement>, cell: ICalendarCell) => {
+        const { charCode } = event;
+
+        console.log("got a keypress! on element: " + cell.cellIndex + "of keycode: " + charCode);
+
+        switch (charCode) {
+            case 13: {// Enter
+                _cellClicked(cell);
+            }
+        }
+    }
+
+    const _handleUserKeyPress = useCallback((event: KeyboardEvent) => {
+        handleUserKeyPress(event);
+    }, [handleUserKeyPress]);
+
+    useEffect(() => {
+        window.addEventListener('keydown', _handleUserKeyPress);
+        return () => {
+            window.removeEventListener('keydown', _handleUserKeyPress);
+        };
+    }, [_handleUserKeyPress]);
 
     /* DISPLAY ----------------------------------------------------------------------------------------- */
 
@@ -217,9 +276,9 @@ export function CalendarBody(
         if (_isActiveCell(rowIndex, colIndex)) {
             styles.push(activeClass);
         }
-        if (_previewCellOver(cell.value, cell.cellIndex)) {
-            styles.push(hoveredClass);
-        }
+        // if (_previewCellOver(cell.value, cell.cellIndex)) {
+        //     styles.push(hoveredClass);
+        // }
         if (rangeMode) {
             if (beginDate && compare(beginDate, cell.value) === 0) {
                 // if is the beginDate
@@ -274,19 +333,6 @@ export function CalendarBody(
         return styles.join(' ');
     }
 
-    /** When mouse enters hover zone for a cell */
-    const _onHover = (cell: ICalendarCell) => {
-        _setCellHovered(cell.cellIndex);
-        return undefined;
-    }
-    /** When mouse exists hover zone for a cell */
-    const _offHover = (cell: ICalendarCell) => {
-        if (_cellHovered === cell.cellIndex) {
-            _setCellHovered(null);
-        }
-        return undefined;
-    }
-
     /** Renders first row of Calendar Body with special spacer cell. */
     const _renderTextRow = () => {
         /* If there's not enough space in the first row, create a separate label row. Row is marked as 
@@ -338,10 +384,14 @@ export function CalendarBody(
                 const item = rows[rowIndex][colIndex];
                 if (item != null) {
                     renderedCells.push(
-                        <td role="gridcell"
-                            tabIndex={_isActiveCell(rowIndex, colIndex) ? 0 : -1}
+                        <td
+                            role="gridcell"
+                            // tabIndex={_isActiveCell(rowIndex, colIndex) ? 0 : -1}
+                            tabIndex={0}
                             className={_setCellClass(item, rowIndex, colIndex)}
-                            onClick={() => { _cellClicked(item) }}
+                            onClick={() => _cellClicked(item)}
+                            onKeyPress={(e) => _handleCellKeypress(e, item)}
+                            onFocus={() => _handleCellFocus(item)}
                             // use arrow function on click else fires on page load
                             onMouseEnter={() => _onHover(item)}
                             onMouseLeave={() => _offHover(item)}

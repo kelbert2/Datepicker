@@ -1,6 +1,6 @@
 import DatepickerContext, { DateData, IDatepickerContext, reducer, IDatepickerProps } from "./DatepickerContext";
 import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay } from "./CalendarUtils";
-import React, { createContext } from "react";
+import React from "react";
 import Input from "./Input";
 import './Datepicker.css';
 

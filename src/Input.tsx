@@ -353,7 +353,7 @@ function Input() {
                 </div>
                 {rangeMode ? <span> - </span> : ''}
                 {!rangeMode ? '' : _renderEndInput()}
-                <button>Open</button>
+                <button className="fields-button"><span></span></button>
             </div>
             {
                 _open !== 'close' ?

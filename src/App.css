@@ -11,6 +11,9 @@
   --on-background: black;
 
   --border-width: 1.5px;
+
+  --fields-button-height: 2.4em;
+  --fields-button-width: 2em;
 }
 
 /*  TODO: Make another surrounding class to increase specificity and ensure styling in here will override any in Datepicker.css. */
@@ -75,13 +78,84 @@
   font-weight: bold;
 }
 
-.field button {
-  position: absolute;
-  right: 0;
-  bottom: .5em;
+.fields-button {
+  position: relative;
+  cursor: pointer;
+
+  height: var(--fields-button-height);
+  width: var(--fields-button-width);
+  box-sizing: border-box;
+
+  border: none;
 }
 
-.toggle {
+.fields-button::before,
+.fields-button::after,
+.fields-button span::before,
+.fields-button span::after {
+  content: '';
+  display: inline-block;
+
+  border-radius: calc(var(--fields-button-width) / 5);
+}
+
+.fields-button::after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  height: var(--fields-button-width);
+  width: var(--fields-button-width);
+  box-sizing: border-box;
+
+  border: calc(var(--fields-button-width) / 5) solid var(--on-background);
+  background: transparent;
+}
+
+.fields-button span {
+  position: absolute;
+  display: inline-block;
+  left: 0;
+  top: calc(var(--fields-button-height) / 4);
+
+  height: calc(var(--fields-button-height) / 5);
+  width: var(--fields-button-width);
+
+  background: var(--on-background);
+}
+
+.fields-button span::before,
+.fields-button span::after {
+  position: absolute;
+  top: calc(var(--fields-button-height) / -4);
+
+  height: calc(var(--fields-button-height) / 3);
+  width: calc(var(--fields-button-width) / 5);
+  background: var(--on-background);
+}
+
+.fields-button span::before {
+  right: calc(var(--fields-button-width) / 10);
+}
+
+.fields-button span::after {
+  left: calc(var(--fields-button-width) / 10);
+}
+
+.fields-button:hover::before,
+.fields-button:focus::before {
+  position: absolute;
+  bottom: -.75em;
+  left: -.75em;
+
+  height: 3.5em;
+  width: 3.5em;
+
+  border-radius: 1.5em;
+  background: var(--neutral-light);
+}
+
+.fields>button .toggle {
   position: relative;
 
 }

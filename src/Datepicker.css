@@ -75,18 +75,18 @@
     background: var(--neutral-light);
 }
 
-table {
+.calendar table {
     border-spacing: 0;
     border-collapse: collapse;
     font-family: Roboto, "Helvetica Neue", sans-serif;
     width: 100%;
 }
 
-thead {
+.calendar thead {
     overflow-x: hidden;
 }
 
-th {
+.calendar th {
     text-align: center;
     padding: 0 0 .7em 0;
     font-size: .7em;
@@ -94,12 +94,12 @@ th {
     color: var(--neutral);
 }
 
-.divider {
+.calendar .divider {
     position: relative;
     height: var(--border-width);
 }
 
-.divider::after {
+.calendar .divider::after {
     content: '';
     position: absolute;
     top: 0;
@@ -110,17 +110,17 @@ th {
     background: var(--neutral-light);
 }
 
-tbody {
+.calendar tbody {
     font-size: .8em;
 }
 
-.labelText {
+.calendar .labelText {
     color: var(--neutral-dark);
     font-size: 1.1em;
     font-weight: 500;
 }
 
-td {
+.calendar td {
     cursor: pointer;
     position: relative;
 
@@ -133,7 +133,7 @@ td {
     /* Handle focus response same as handle hover. */
 }
 
-td div {
+.calendar td div {
     width: 90%;
     height: 90%;
 
@@ -158,100 +158,100 @@ td div {
 /* td.active div {
     background-color: var(--neutral);
   } */
-td.disabled {
+.calendar td.disabled {
     cursor: default;
     color: var(--on-disabled);
     background-color: var(--disabled);
 }
 
-td.withinRange,
-td.withinHoveredRange {
+.calendar td.withinRange,
+.calendar td.withinHoveredRange {
     border-radius: 0;
 }
 
-td.beginRange,
-td.beginHoveredRange:not(.withinRange) {
+.calendar td.beginRange,
+.calendar td.beginHoveredRange:not(.withinRange) {
     border-top-left-radius: 999px;
     border-bottom-left-radius: 999px;
 }
 
-td.endRange,
-td.endHoveredRange:not(.withinRange) {
+.calendar td.endRange,
+.calendar td.endHoveredRange:not(.withinRange) {
     border-top-right-radius: 999px;
     border-bottom-right-radius: 999px;
 }
 
-td.hovered div,
-td:not(.disabled):hover div,
-td:not(.disabled):focus div,
-td.withinHoveredRange {
+.calendar td.hovered div,
+.calendar td:not(.disabled):hover div,
+.calendar td:not(.disabled):focus div,
+.calendar td.withinHoveredRange {
     background-color: var(--hover);
     color: var(--on-hover);
 }
 
-td.beginRange.withinHoveredRange:not(.beginHoveredRange) {
+.calendar td.beginRange.withinHoveredRange:not(.beginHoveredRange) {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     background: linear-gradient(to left, var(--color-light), var(--hover));
 }
 
-td.endRange.withinHoveredRange:not(.endHoveredRange) {
+.calendar td.endRange.withinHoveredRange:not(.endHoveredRange) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     background: linear-gradient(to right, var(--color-light), var(--hover));
 }
 
-td.beginRange.beginHoveredRange,
-td.endRange.beginHoveredRange {
+.calendar td.beginRange.beginHoveredRange,
+.calendar td.endRange.beginHoveredRange {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 
     background: linear-gradient(to right, var(--color-light), var(--hover));
 }
 
-td.beginRange.endHoveredRange:not(.hovered),
-td.endRange.endHoveredRange:not(.hovered) {
+.calendar td.beginRange.endHoveredRange:not(.hovered),
+.calendar td.endRange.endHoveredRange:not(.hovered) {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 
     background: linear-gradient(to left, var(--color-light), var(--hover));
 }
 
-td.beginRange,
-td.endRange,
-td.withinRange {
+.calendar td.beginRange,
+.calendar td.endRange,
+.calendar td.withinRange {
     background-color: var(--color-light);
     color: var(--on-color-light);
 }
 
-td.beginRange div,
-td.endRange div,
-td.selected div {
+.calendar td.beginRange div,
+.calendar td.endRange div,
+.calendar td.selected div {
     background-color: var(--color);
     color: var(--on-color);
     font-weight: 500;
 }
 
-td.today div {
+.calendar td.today div {
     border-color: var(--neutral);
 }
 
-td.today.selected div {
+.calendar td.today.selected div {
     border-color: var(--color);
 }
 
-td.today.selected div,
-td.today.active div {
+.calendar td.today.selected div,
+.calendar td.today.active div {
     box-shadow: inset 0 0 0 var(--border-width) var(--background);
 }
 
-td.today.selected.withinRange div,
-td.today.selected.beginRange div,
-td.today.selected.endRange div {
+.calendar td.today.selected.withinRange div,
+.calendar td.today.selected.beginRange div,
+.calendar td.today.selected.endRange div {
     box-shadow: inset 0 0 0 var(--border-width) var(--color-light);
 }
 
-button {
+.calendar button {
     height: 2em;
 
     font-size: 1em;
@@ -259,21 +259,21 @@ button {
     border: none;
 }
 
-button:not(:disabled) {
+.calendar button:not(:disabled) {
     cursor: pointer;
 }
 
-button:not(:disabled):focus,
-button:not(:disabled):hover {
+.calendar button:not(:disabled):focus,
+.calendar button:not(:disabled):hover {
     background-color: var(--neutral-light);
 }
 
-button.period {
+.calendar button.period {
     padding: 0 2.5em;
     border-radius: .125em;
 }
 
-button.period:not(:disabled)::after {
+.calendar button.period:not(:disabled)::after {
     display: inline-block;
     content: '';
     margin: .125em;
@@ -286,23 +286,23 @@ button.period:not(:disabled)::after {
     border-top: .32em solid var(--neutral-dark);
 }
 
-button.left,
-button.right {
+.calendar button.left,
+.calendar button.right {
     position: relative;
     width: 2em;
     border-radius: 999px;
 }
 
-button.left:not(:disabled)::after,
-button.right:not(:disabled)::after {
+.calendar button.left:not(:disabled)::after,
+.calendar button.right:not(:disabled)::after {
     border-right: .2em solid var(--neutral-dark);
     border-bottom: .2em solid var(--neutral-dark);
 
     transform-origin: center center;
 }
 
-button.left::after,
-button.right::after {
+.calendar button.left::after,
+.calendar button.right::after {
     content: '';
     display: block;
     position: absolute;
@@ -314,16 +314,16 @@ button.right::after {
 
 }
 
-button.left::after {
+.calendar button.left::after {
     transform: rotate(135deg);
 }
 
-button.right::after {
+.calendar button.right::after {
     transform: rotate(-45deg);
     left: 25%;
 }
 
-div.header {
+.calendar div.header {
     display: flex;
     align-items: center;
     justify-content: space-around;

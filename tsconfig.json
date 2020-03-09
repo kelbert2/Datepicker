@@ -1,12 +1,16 @@
 {
   "compilerOptions": {
+    "outDir": "./build",
     "target": "es5",
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "es6",
+      "es2016",
+      "es2017"
     ],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -17,9 +21,22 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react"
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "removeComments": true,
+    "declaration": true,
+    "sourceMap": true,
+    "jsx": "react",
+    "typeRoots": [
+      "index.d.ts",
+      "node_modules/@types"
+    ]
   },
   "include": [
-    "src"
-  ]
+    "src", "rollup.config.js"
+  ],
+  "exclude": ["node_modules", "build"]
 }

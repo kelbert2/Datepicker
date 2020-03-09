@@ -52,13 +52,13 @@ function TestDisplay() {
     const _onMaxDateInput = (d: DateData) => {
         _setMaxDate(d.selectedDate);
     }
-    const _onDaySelected = (d: DateData) => {
+    const _onDaySelected = (_d: DateData) => {
         // console.log("day selected in month view");
     }
-    const _onMonthSelected = (d: DateData) => {
+    const _onMonthSelected = (_d: DateData) => {
         // console.log("month selected in year view");
     }
-    const _onYearSelected = (d: DateData) => {
+    const _onYearSelected = (_d: DateData) => {
         // console.log("year selected in multiyear view");
     }
 

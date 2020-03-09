@@ -1,32 +1,34 @@
 {
-  "name": "datepicker",
-  "version": "0.1.0",
+  "name": "custom-react-datepicker",
+  "version": "1.0.0",
+  "description": "Customizable ranged (or not!) datepicker built in react.",
+  "author": "Kristianna Elbert",
+  "license": "ISC",
   "private": true,
+  "peerDependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
   "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.4.1",
-    "@testing-library/user-event": "^7.2.1",
-    "@types/jest": "^24.9.1",
     "@types/node": "^12.12.28",
     "@types/react": "^16.9.22",
     "@types/react-dom": "^16.9.5",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
     "react-scripts": "3.4.0",
     "typescript": "^3.7.5"
   },
+  "main": "build/index.js",
+  "module": "build/index.es.js",
+  "jsnext:main": "build/index.es.js",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "build": "rm -rf ./build && rollup -c",
+    "test": "jest",
+    "lint": "tslint -c tslint.json --project tsconfig.json",
+    "prepare": "npm test && npm lint && npm build",
     "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "plugin:jsx-a11y/recommended"
-    ],
-    "plugins": ["jsx-a11y"]
   },
   "browserslist": {
     "production": [
@@ -41,7 +43,31 @@
     ]
   },
   "devDependencies": {
+    "tslint": "^6.0.0",
+    "tslint-react": "^4.2.0",
     "@types/react-axe": "^3.1.0",
-    "react-axe": "^3.4.1"
+    "react-axe": "^3.4.1",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.4.1",
+    "@testing-library/user-event": "^7.2.1",
+    "@types/jest": "^24.9.1",
+    "rollup": "^2.0.2",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-peer-deps-external": "^2.2.2",
+    "rollup-plugin-typescript2": "^0.26.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "plugin:jsx-a11y/recommended"
+    ],
+    "plugins": [
+      "jsx-a11y"
+    ]
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
   }
 }

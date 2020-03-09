@@ -66,10 +66,6 @@ export function CalendarBody(
         selectedDate,
         todayDate,
 
-        minDate,
-        maxDate,
-        dateFilter,
-
         rangeMode,
         beginDate,
         endDate,
@@ -149,11 +145,12 @@ export function CalendarBody(
     /** Returns true if date is within the range (hovered, baseDate), inclusive, where hovered is before baseDate. */
     const _isBetweenHoveredAndDate = (date: Date, baseDate: Date | null, cellIndex?: number, baseCellIndex?: number) => {
         const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
+        const baseNumber = baseCellIndex ? baseCellIndex : dateToMonthCellIndex(date);
 
         if (!_cellHovered || !rangeMode || !baseDate) {
             return false;
         } else {
-            return (_cellHovered < dateToMonthCellIndex(baseDate))
+            return (_cellHovered < baseNumber)
                 ? compare(date, baseDate) <= 0 && cellNumber >= _cellHovered
                 : false;
         }
@@ -161,11 +158,13 @@ export function CalendarBody(
     /** Returns true if date is within the range (baseDate, hovered), inclusive, where baseDate is before hovered. */
     const _isBetweenDateAndHovered = (date: Date, baseDate: Date | null, cellIndex?: number, baseCellIndex?: number) => {
         const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
+        const baseNumber = baseCellIndex ? baseCellIndex : dateToMonthCellIndex(date);
+
 
         if (!_cellHovered || !rangeMode || !baseDate) {
             return false;
         } else {
-            return (_cellHovered > dateToMonthCellIndex(baseDate))
+            return (_cellHovered > baseNumber)
                 ? compare(date, baseDate) >= 0 && cellNumber <= _cellHovered
                 : false;
         }
@@ -325,6 +324,7 @@ export function CalendarBody(
                 </tr>
             );
         }
+        return '';
     }
 
     /** Renders all rows of the table. */

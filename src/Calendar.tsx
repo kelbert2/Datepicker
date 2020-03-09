@@ -32,10 +32,6 @@ export function Calendar(
         startAt,
         startView,
 
-        minDate,
-        maxDate,
-        dateFilter,
-
         rangeMode,
         beginDate,
         endDate,
@@ -342,6 +338,7 @@ export function Calendar(
                     _setCurrentView('year');
                 }
         }
+        return '';
     }
 
     return (

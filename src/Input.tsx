@@ -9,6 +9,7 @@ const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 const INPUT_CLASS_FILLED = 'filled';
 
+// TODO: When input is deleted, set dates as null
 function Input() {
     const {
         selectedDate,
@@ -235,6 +236,8 @@ function Input() {
     }
     /** Close the calendar if clicked off. */
     const _handleNonCalendarClick = () => {
+        console.log("Handling click");
+
         onDateInput({ selectedDate: selectedDate, beginDate, endDate });
         onDateChange({ selectedDate: selectedDate, beginDate, endDate });
 
@@ -249,8 +252,10 @@ function Input() {
 
     /** Upon click off input and not on any children of the input, toggle the Calendar display closed. */
     const _onBlurAll = () => {
+        console.log("recieved a blur event");
         // as blur event fires prior to new focus events, need to wait to see if a child has been focused.
         timer.current = setTimeout(() => {
+            console.log("dealing with blur event");
             _handleNonCalendarClick();
         }, 700);
 
@@ -259,6 +264,7 @@ function Input() {
 
     /** If a child receives focus, do not close the calendar. */
     const _onFocusHandler = () => {
+        console.log('received focus');
         if (timer.current) {
             clearTimeout(timer.current);
         }
@@ -353,7 +359,9 @@ function Input() {
                 </div>
                 {rangeMode ? <span> - </span> : ''}
                 {!rangeMode ? '' : _renderEndInput()}
-                <button className="fields-button"><span></span></button>
+                <button
+                    aria-label="Open calendar"
+                    className="fields-button"><span></span></button>
             </div>
             {
                 _open !== 'close' ?

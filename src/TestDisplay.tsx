@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, ChangeEvent } from "react";
 import { CalendarDisplay, DateData, DatepickerContextProvider } from "./DatepickerContext";
-import { formatDateDisplay } from "./CalendarUtils";
+import { formatDateDisplay, parseStringAsDate } from "./CalendarUtils";
 import Datepicker from "./Datepicker";
 
 function TestDisplay() {
@@ -82,6 +82,10 @@ function TestDisplay() {
         _setCalendarDisplay(display);
     }
 
+    const _onMaxInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        _setMaxDate((event.target.value && (event.target.value.length) > 0) ? parseStringAsDate(event.target.value) : null);
+    }
+
     return (
         <div role="main"
             className="test">
@@ -160,7 +164,13 @@ function TestDisplay() {
                     ></Datepicker>
                 </p>
                 <p>Maximum date:
-                <Datepicker
+                    <label>
+                        <input
+                            onBlur={(e) => _onMaxInputChange(e)}
+                            value={_maxDate ? formatDateDisplay(_maxDate) : undefined}
+                        ></input>
+                    </label>
+                    <Datepicker
                         selectedDate={_maxDate}
 
                         onDateChange={(d) => _onMaxDateChange(d)}

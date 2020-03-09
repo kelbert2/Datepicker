@@ -345,7 +345,9 @@ export function Calendar(
     }
 
     return (
-        <div className={_getCalendarClasses()}>
+        <div className={_getCalendarClasses()}
+            tabIndex={-1}
+        >
             <CalendarHeader
                 currentView={_currentView}
                 setCurrentView={_setCurrentView}

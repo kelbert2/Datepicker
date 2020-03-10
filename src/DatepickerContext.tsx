@@ -55,9 +55,10 @@ export interface DatepickerTheme {
  * @param disable: Disables input and calendar display.
  * @param disableCalendar: Disallows any calendar from displaying.
  * @param disableInput: Disables text input.
- * @param calendarDisplay: Decides if the calendar will display as a popup, inline, or large popup, for Touch UIs or Mobile applications.
+ * @param calendarOpenDisplay: Decides if the calendar will display as a popup, inline, or large popup, for Touch UIs or Mobile applications.
  * @param canCloseCalendar: Allows calendar to be closed.
  * @param closeAfterSelection: Closes the calendar upon selection of the most precise date allowed (ex: won't close after year selection if can display the month view).
+ * @param setCalendarOpen: On true, opens the calendar; on false, closes the calendar.
  * 
  * @param formatMonthLabel: Formats the header that appears in the month view.
  * @param formatMonthText: Formats the text that appears in the first row of the month view.
@@ -124,9 +125,10 @@ export interface IDatepickerContext {
     disable: boolean,
     disableCalendar: boolean,
     disableInput: boolean,
-    calendarDisplay: CalendarDisplay,
+    calendarOpenDisplay: CalendarDisplay,
     canCloseCalendar: boolean,
     closeAfterSelection: boolean,
+    setCalendarOpen: boolean,
 
     formatMonthLabel: (date: Date) => string,
     formatMonthText: (date: Date) => string,
@@ -161,7 +163,7 @@ export interface IDatepickerContext {
 
     theme: DatepickerTheme,
 
-    dispatch: React.Dispatch<Action>,
+    dispatch: React.Dispatch<IAction>,
 }
 
 const datepickerContextDefaultValue = {
@@ -194,9 +196,10 @@ const datepickerContextDefaultValue = {
     disable: false,
     disableCalendar: false,
     disableInput: false,
-    calendarDisplay: 'popup',
+    calendarOpenDisplay: 'popup',
     canCloseCalendar: true,
     closeAfterSelection: true,
+    setCalendarOpen: false,
 
     formatMonthLabel: (date: Date) =>
         getMonthNames('short')[getMonth(date)].toLocaleUpperCase() + ' ' + getYear(date),
@@ -253,11 +256,12 @@ const datepickerContextDefaultValue = {
 const DatepickerContext = React.createContext(datepickerContextDefaultValue);
 // export default React.createContext(datepickerContextDefaultValue);
 
-interface Action {
+
+export interface IAction {
     type: string,
     payload: any
 }
-export const reducer = (state: IDatepickerContext, action: Action) => {
+export const reducer = (state: IDatepickerContext, action: IAction) => {
     switch (action.type) {
         case "reset":
             return datepickerContextDefaultValue;
@@ -314,7 +318,7 @@ export const reducer = (state: IDatepickerContext, action: Action) => {
         case "set-disable-input":
             return { ...state, disableInput: action.payload };
         case "set-calendar-display":
-            return { ...state, calendarDisplay: action.payload };
+            return { ...state, calendarOpenDisplay: action.payload };
         case "set-can-close-calendar":
             return { ...state, canCloseCalendar: action.payload };
         case "set-close-after-selection":
@@ -422,9 +426,10 @@ export interface IDatepickerProps {
     disable?: boolean,
     disableCalendar?: boolean,
     disableInput?: boolean,
-    calendarDisplay?: CalendarDisplay,
+    calendarOpenDisplay?: CalendarDisplay,
     canCloseCalendar?: boolean,
     closeAfterSelection?: boolean,
+    setCalendarOpen?: boolean,
 
     formatMonthLabel?: (date: Date) => string,
     formatMonthText?: (date: Date) => string,

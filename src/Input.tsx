@@ -3,7 +3,7 @@ import DatepickerContext, { DateData, CalendarDisplay } from './DatepickerContex
 import Calendar from './Calendar';
 import { compareDaysMonthsAndYears, simpleUID } from './CalendarUtils';
 
-type OPEN_STATES = CalendarDisplay | 'close';
+export type OPEN_STATES = CalendarDisplay | 'close';
 const CALENDAR_CLASS_INLINE = 'inline';
 const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
@@ -25,9 +25,10 @@ function Input() {
         disable,
         disableCalendar,
         disableInput,
-        calendarDisplay,
+        calendarOpenDisplay,
         canCloseCalendar,
         closeAfterSelection,
+        setCalendarOpen,
 
         singleInputLabel,
         beginInputLabel,
@@ -40,26 +41,26 @@ function Input() {
         = useContext(DatepickerContext);
 
     /** Holds open state of the Calendar. */
-    const [_open, _setOpen] = useState((canCloseCalendar ? 'close' : 'inline') as OPEN_STATES);
+    const [_calendarDisplay, _setCalendarDisplay] = useState((canCloseCalendar ? 'close' : 'inline') as OPEN_STATES);
     /** Input in the first text input. */
     const [_beginInput, _setBeginInput] = useState('' as string);
     /** Input in the second text input. */
     const [_endInput, _setEndInput] = useState('' as string);
+    /** UID for inputs and labels. */
+    const [id] = useState(() => simpleUID('myprefix-'));
     /** Timer to avoid on focus respose not running because seen after on blur. */
     const timer = useRef(null as NodeJS.Timeout | null);
     /** Previous rangeMode value. */
     const _prevRangeMode = useRef(rangeMode);
-    /** UID for inputs and labels. */
-    const [id] = useState(() => simpleUID('myprefix-'));
 
     /** Update Calendar open status if allowances change. */
     useEffect(() => {
         if ((disable || disableCalendar) && canCloseCalendar) {
-            _setOpen('close');
-        } else if (_open !== 'close') {
-            _setOpen(calendarDisplay);
+            _setCalendarDisplay('close');
+        } else if (_calendarDisplay !== 'close') {
+            _setCalendarDisplay(calendarOpenDisplay);
         }
-    }, [_open, calendarDisplay, canCloseCalendar, disable, disableCalendar]);
+    }, [_calendarDisplay, calendarOpenDisplay, canCloseCalendar, disable, disableCalendar, setCalendarOpen]);
 
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
@@ -87,7 +88,7 @@ function Input() {
             }
             _prevRangeMode.current = rangeMode;
 
-            onDateInput({ selectedDate: selectedDate, beginDate, endDate });
+            onDateInput({ selectedDate, beginDate, endDate });
         }
     }, [beginDate, dispatch, endDate, onDateInput, rangeMode, selectedDate]);
 
@@ -131,12 +132,12 @@ function Input() {
                         payload: date
                     });
                 }
-                if (activeDate == null || compareDaysMonthsAndYears(activeDate, date) !== 0) {
-                    dispatch({
-                        type: 'set-active-date',
-                        payload: date
-                    });
-                }
+                // if (activeDate == null || compareDaysMonthsAndYears(activeDate, date) !== 0) {
+                //     dispatch({
+                //         type: 'set-active-date',
+                //         payload: date
+                //     });
+                // }
 
                 if (rangeMode) {
                     const prevEndDate = endDate;
@@ -176,8 +177,8 @@ function Input() {
                 });
             }
         }
-        onDateInput({ selectedDate: selectedDate, beginDate, endDate });
-
+        onDateInput({ selectedDate, beginDate, endDate });
+        onDateChange({ selectedDate, beginDate, endDate });
     }
     /** On blur, format second text input and set selected and end dates. */
     const _onBlurEndInput = () => {
@@ -190,12 +191,12 @@ function Input() {
                         payload: date
                     });
                 }
-                if (activeDate == null || compareDaysMonthsAndYears(activeDate, date) !== 0) {
-                    dispatch({
-                        type: 'set-active-date',
-                        payload: date
-                    });
-                }
+                // if (activeDate == null || compareDaysMonthsAndYears(activeDate, date) !== 0) {
+                //     dispatch({
+                //         type: 'set-active-date',
+                //         payload: date
+                //     });
+                // }
 
                 if (rangeMode) {
                     const prevBeginDate = beginDate;
@@ -231,31 +232,30 @@ function Input() {
                 payload: null
             });
         }
-        onDateInput({ selectedDate: selectedDate, beginDate, endDate });
-
+        onDateInput({ selectedDate, beginDate, endDate });
+        onDateChange({ selectedDate, beginDate, endDate });
     }
     /** Close the calendar if clicked off. */
     const _handleNonCalendarClick = () => {
-        console.log("Handling click");
+        // console.log("Handling click");
 
-        onDateInput({ selectedDate: selectedDate, beginDate, endDate });
-        onDateChange({ selectedDate: selectedDate, beginDate, endDate });
+        onDateInput({ selectedDate, beginDate, endDate });
+        onDateChange({ selectedDate, beginDate, endDate });
 
-        if (_open === 'close') {
-            if (!disable || !disableCalendar) {
-                _setOpen(calendarDisplay);
+        if (_calendarDisplay === 'close') {
+            if (!disable && !disableCalendar) {
+                _setCalendarDisplay(calendarOpenDisplay);
             }
         } else if (canCloseCalendar) {
-            _setOpen('close');
+            _setCalendarDisplay('close');
         }
     }
 
     /** Upon click off input and not on any children of the input, toggle the Calendar display closed. */
     const _onBlurAll = () => {
-        console.log("recieved a blur event");
         // as blur event fires prior to new focus events, need to wait to see if a child has been focused.
         timer.current = setTimeout(() => {
-            console.log("dealing with blur event");
+            // console.log("dealing with blur event");
             _handleNonCalendarClick();
         }, 700);
 
@@ -264,7 +264,6 @@ function Input() {
 
     /** If a child receives focus, do not close the calendar. */
     const _onFocusHandler = () => {
-        console.log('received focus');
         if (timer.current) {
             clearTimeout(timer.current);
         }
@@ -274,7 +273,7 @@ function Input() {
     const _handleKeyDownOverFields = (event: React.KeyboardEvent<HTMLDivElement>) => {
         const { keyCode } = event;
         switch (keyCode) {
-            case 13: {// Enter
+            case 13: { // Enter
                 _handleNonCalendarClick();
             }
         }
@@ -282,13 +281,13 @@ function Input() {
 
     /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
     const _handleDateSelectionFromCalendar = (data: DateData) => {
-        dispatch({
-            type: 'set-start-at',
-            payload: selectedDate
-        });
+        // dispatch({
+        //     type: 'set-start-at',
+        //     payload: selectedDate
+        // });
 
         if (closeAfterSelection && canCloseCalendar) {
-            _setOpen('close');
+            _setCalendarDisplay('close');
         }
     }
 
@@ -299,7 +298,7 @@ function Input() {
 
     /** Set Calendar display mode. */
     const _setCalendarClass = () => {
-        switch (calendarDisplay) {
+        switch (calendarOpenDisplay) {
             case 'inline':
                 return CALENDAR_CLASS_INLINE;
             case 'popup-large':
@@ -364,7 +363,7 @@ function Input() {
                     className="fields-button"><span></span></button>
             </div>
             {
-                _open !== 'close' ?
+                _calendarDisplay !== 'close' ?
                     <Calendar
                         onFinalDateSelection={_handleDateSelectionFromCalendar}
                         classNames={_setCalendarClass()}
@@ -372,7 +371,7 @@ function Input() {
                     : ''
             }
             {
-                _open === 'popup-large' ?
+                _calendarDisplay === 'popup-large' ?
                     <div role="presentation"
                         onClick={() => _handleNonCalendarClick()}
                         className="overlay"></div>

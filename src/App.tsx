@@ -1,10 +1,14 @@
 import React from 'react';
 import './App.css';
 import TestDisplay from './TestDisplay';
+import InputTest from './InputTest';
 
 function App() {
     return (
-        <TestDisplay></TestDisplay>
+        <div>
+            <TestDisplay></TestDisplay>
+            <InputTest></InputTest>
+        </div>
     );
 }
 

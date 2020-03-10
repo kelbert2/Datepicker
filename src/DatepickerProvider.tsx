@@ -1,10 +1,10 @@
-import DatepickerContext, { DateData, IDatepickerContext, reducer, IDatepickerProps } from "./DatepickerContext";
+import DatepickerContext, { DateData, IDatepickerContext, reducer, IDatepickerProps, IAction } from "./DatepickerContext";
 import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay } from "./CalendarUtils";
 import React from "react";
-import Input from "./Input";
 import './Datepicker.css';
+import DatepickerNoInput from "./DatepickerNoInput";
 
-function Datepicker({
+function DatepickerProvider({
     selectedDate = null as Date | null,
     todayDate = new Date() as Date | null,
     activeDate = new Date() as Date,
@@ -122,7 +122,7 @@ function Datepicker({
         disable,
         disableCalendar,
         disableInput,
-        calendarOpenDisplay: calendarOpenDisplay,
+        calendarOpenDisplay,
         canCloseCalendar,
         closeAfterSelection,
         setCalendarOpen,
@@ -179,9 +179,9 @@ function Datepicker({
     // TODO: May refactor to have Calendar be called here
     return (
         <DatepickerContextProvider>
-            <Input></Input>
+            <DatepickerNoInput></DatepickerNoInput>
         </DatepickerContextProvider>
     )
 }
 
-export default Datepicker;
+export default DatepickerProvider;

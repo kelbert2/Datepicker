@@ -4,7 +4,7 @@ import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
 import Year from './Year';
 import Month from './Month';
-import { compareDaysMonthsAndYears, VIEW, compareYears, compareMonthsAndYears } from './CalendarUtils';
+import { compareDaysMonthsAndYears, VIEW, getCompareFromView, compareDates, formatDateDisplay } from './CalendarUtils';
 
 /** Returns a calendar.
  *  @param onFinalDateSelection: Calls with selectedDate, beginDate, and endDate when selected in the most precise enabled view.
@@ -29,6 +29,10 @@ export function Calendar(
         onMonthSelected,
         onDaySelected,
 
+        minDate,
+        maxDate,
+        dateFilter,
+
         startAt,
         startView,
 
@@ -48,6 +52,88 @@ export function Calendar(
     // const _prevSelectedDate = useRef(selectedDate as Date);
     // const _prevEndDate = useRef(endDate as Date);
     // const [beginDateSelected, setBeginDateSelected] = useState(false);
+
+
+    //TODO: move these or get it to update input quicker
+    /** On minDate change, check if any values are too low as to be invalid. */
+    useEffect(() => {
+        console.log("min date change: " + (minDate ? formatDateDisplay(minDate) : "null"));
+        if (minDate) {
+            if (selectedDate && compareDates(selectedDate, minDate) < 0) {
+                // Selected date is before minDate
+                dispatch({
+                    type: 'set-selected-date',
+                    payload: minDate
+                });
+            }
+            if (rangeMode) {
+                if (beginDate && compareDates(beginDate, minDate) < 0) {
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: minDate
+                    });
+                }
+                if (endDate && compareDates(endDate, minDate) < 0) {
+                    dispatch({
+                        type: 'set-end-date',
+                        payload: minDate
+                    });
+                }
+            }
+        }
+    }, [minDate, beginDate, dispatch, endDate, rangeMode, selectedDate]);
+    /** On maxDate change, check if any values are too high as to be invalid. */
+    useEffect(() => {
+        if (maxDate) {
+            if (selectedDate && compareDates(selectedDate, maxDate) > 0) {
+                // Selected date is before minDate
+                dispatch({
+                    type: 'set-selected-date',
+                    payload: maxDate
+                });
+            }
+            if (rangeMode) {
+                if (beginDate && compareDates(beginDate, maxDate) > 0) {
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: maxDate
+                    });
+                }
+                if (endDate && compareDates(endDate, maxDate) > 0) {
+                    dispatch({
+                        type: 'set-end-date',
+                        payload: maxDate
+                    });
+                }
+            }
+        }
+    }, [maxDate, beginDate, dispatch, endDate, rangeMode, selectedDate]);
+    /** On date filter change, check if any values are invalid. */
+    useEffect(() => {
+        if (!dateFilter(selectedDate)) {
+            // Selected date is before minDate
+            dispatch({
+                type: 'set-selected-date',
+                payload: null
+            });
+        }
+        if (rangeMode) {
+            if (!dateFilter(beginDate)) {
+                dispatch({
+                    type: 'set-begin-date',
+                    payload: null
+                });
+            }
+            if (!dateFilter(endDate)) {
+                dispatch({
+                    type: 'set-end-date',
+                    payload: null
+                });
+            }
+        }
+    }, [dateFilter, beginDate, dispatch, endDate, rangeMode, selectedDate]);
+
+
 
     /** Run on mount: set active date and view changes. */
     useEffect(() => {
@@ -161,17 +247,6 @@ export function Calendar(
         }
     }, [disableMonth, disableYear, disableMultiyear]);
 
-    const _getCompareFromView = (view: VIEW, date1: Date, date2: Date) => {
-        switch (view) {
-            case 'multiyear':
-                return compareYears(date1, date2);
-            case 'year':
-                return compareMonthsAndYears(date1, date2);
-            default:
-                return compareDaysMonthsAndYears(date1, date2);
-        }
-    }
-
     const _getSelectedFromView = (view: VIEW, data: DateData) => {
         switch (view) {
             case 'multiyear':
@@ -206,8 +281,8 @@ export function Calendar(
 
         if (rangeMode) {
             if ((!beginDate && !endDate)
-                || (beginDate && _getCompareFromView(_currentView, beginDate, date) === 0)
-                || (endDate && _getCompareFromView(_currentView, endDate, date)) === 0) {
+                || (beginDate && getCompareFromView(_currentView, beginDate, date) === 0)
+                || (endDate && getCompareFromView(_currentView, endDate, date)) === 0) {
                 // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
                 dispatch({
                     type: 'set-begin-date',
@@ -221,7 +296,7 @@ export function Calendar(
 
             } else if (!beginDate && endDate) {
                 // if no beginDate has been selected but an endDate has, check to see if selected date is before or after the selected end date
-                if (_getCompareFromView(_currentView, date, endDate) > 0) {
+                if (getCompareFromView(_currentView, date, endDate) > 0) {
                     // date is after the end date
                     const prevEndDate = endDate;
                     dispatch({
@@ -239,7 +314,7 @@ export function Calendar(
                         payload: date
                     });
                 }
-            } else if (beginDate && _getCompareFromView(_currentView, date, beginDate) < 0) {
+            } else if (beginDate && getCompareFromView(_currentView, date, beginDate) < 0) {
                 // if the new selection is before the beginDate, make it the new beginDate
                 const prevBeginDate = beginDate;
 

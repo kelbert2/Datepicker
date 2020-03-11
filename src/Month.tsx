@@ -1,11 +1,10 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import DatepickerContext from './DatepickerContext';
-import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears, dateToMonthCellIndex } from './CalendarUtils';
+import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 
 function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {
     const {
-        selectedDate,
         activeDate,
 
         onDaySelected,
@@ -274,11 +273,8 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
                 dateSelected={onDaySelected}
                 createDateFromSelectedCell={(date: Date) => { return date }}
                 dateToCellIndex={(date) => _dateToCellIndex(date)}
-                beginDateSelected={false}
-                isBeforeSelected={false}
-                isCurrentMonthBeforeSelected={selectedDate ? getMonth(activeDate) > getMonth(selectedDate) : false}
-                handleUserKeyPress={(e) => _handleUserKeyPress(e)}
                 isRangeFull={_isRangeFull()}
+                handleUserKeyPress={(e) => _handleUserKeyPress(e)}
                 activeCell={_getActiveCell()}
                 numCols={7}
                 cellAspectRatio={1}

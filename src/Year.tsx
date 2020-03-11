@@ -234,11 +234,8 @@ function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Dat
                 dateSelected={onMonthSelected}
                 createDateFromSelectedCell={(date: Date) => { return createDate(getYear(date), getMonth(date), 1) }}
                 dateToCellIndex={(date) => _dateToCellIndex(date)}
-                beginDateSelected={false}
-                isBeforeSelected={false}
-                isCurrentMonthBeforeSelected={false}
-                handleUserKeyPress={(e) => _handleUserKeyPress(e)}
                 isRangeFull={_isRangeFull()}
+                handleUserKeyPress={(e) => _handleUserKeyPress(e)}
                 activeCell={_getActiveCell()}
                 numCols={4}
                 cellAspectRatio={4 / 7}

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useLayoutEffect, useCallback, useEffect } from 'react';
 import DatepickerContext, { DateData } from './DatepickerContext';
-import { sameDate, dateToMonthCellIndex, compareDates, getDay, formatDateDisplay } from './CalendarUtils';
+import { sameDate, dateToMonthCellIndex, compareDates } from './CalendarUtils';
 
 export interface ICalendarCell {
     cellIndex: number,
@@ -17,10 +17,7 @@ export interface ICalendarCell {
          *  @param selectedValueChange: Emits cell's value when a new cell is selected, 
          *  @param compare: Function to use to compare two dates (returns 0 if equal, negative if the first value is less than the second, positive if greater than)
          *  @param dateSelected: emits updated date, beginDate, and endDate depending on which cell has been selected
-         *  @param createDateFromSelectedCell: Function to create a date for emission when a cell is selected
-         *  @param beginDateSelected: If the user has already selected the start of the dates interval
-         *  @param isBeforeSelected: If the current month is before the date already selected
-         *  @param isCurrentMonthBeforeSelected: True when the current month is before the date already selected
+         *  @param createDateFromSelectedCell: Function to create a date for event emission when a cell is selected
          *  @param isRangeFull: Whether to mark all dates as within the selected range
          *  @param handleUserKeyPress: How to handle key presses over entire body
          *  @param activeCell: Cell number in the table
@@ -37,9 +34,6 @@ export function CalendarBody(
         dateSelected = (d: DateData) => { },
         createDateFromSelectedCell = (date: Date) => { return date },
         dateToCellIndex = (date: Date) => { return dateToMonthCellIndex(date) },
-        beginDateSelected = false,
-        isBeforeSelected = false,
-        isCurrentMonthBeforeSelected = false,
         isRangeFull = false,
         handleUserKeyPress = (event: KeyboardEvent) => { },
         activeCell = 0,
@@ -54,9 +48,6 @@ export function CalendarBody(
         dateSelected: (d: DateData) => {} | void,
         createDateFromSelectedCell: (date: Date) => Date,
         dateToCellIndex: (date: Date) => number,
-        beginDateSelected: boolean,
-        isBeforeSelected: boolean,
-        isCurrentMonthBeforeSelected: boolean,
         isRangeFull: boolean,
         handleUserKeyPress: (event: KeyboardEvent) => {} | void,
         activeCell: number,

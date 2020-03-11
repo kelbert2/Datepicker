@@ -193,6 +193,17 @@ const convert = (date: any) => {
                             : NaN
     );
 }
+export const getCompareFromView = (view: VIEW, date1: Date, date2: Date) => {
+    switch (view) {
+        case 'multiyear':
+            return compareYears(date1, date2);
+        case 'year':
+            return compareMonthsAndYears(date1, date2);
+        default:
+            return compareDaysMonthsAndYears(date1, date2);
+    }
+}
+
 /** Compares two dates. */
 export const compareDates = (date1: Date, date2: Date) => {
     // Compare two dates (could be of any type supported by the convert
@@ -298,6 +309,7 @@ const euclideanModulo = (a: number, b: number) => {
     return (a % b + b) % b;
 }
 
+/** Formats a date to a short, readable string. */
 export const formatDateDisplay = (date: Date) => {
     if (date != null) {
         return (getMonth(date) + 1) + ' / ' + getDay(date) + ' / ' + getYear(date);
@@ -352,7 +364,7 @@ export const parseStringAsDate = (input: string) => {
 export const gen4 = () => {
     return Math.random().toString(16).slice(-4)
 }
-
+/** Creates a simple unique ID with a given prefix. */
 export const simpleUID = (prefix: string) => {
     return (prefix || '').concat([
         gen4(),

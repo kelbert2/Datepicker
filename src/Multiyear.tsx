@@ -255,11 +255,8 @@ function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date
                 dateSelected={onYearSelected}
                 createDateFromSelectedCell={(date: Date) => { return createDate(getYear(date), 0, 1) }}
                 dateToCellIndex={(date) => _dateToCellIndex(date)}
-                beginDateSelected={false}
-                isBeforeSelected={false}
-                isCurrentMonthBeforeSelected={false}
-                handleUserKeyPress={(e) => _handleUserKeyPress(e)}
                 isRangeFull={_isRangeFull()}
+                handleUserKeyPress={(e) => _handleUserKeyPress(e)}
                 activeCell={_getActiveCell()}
                 numCols={4}
                 cellAspectRatio={4 / 7}

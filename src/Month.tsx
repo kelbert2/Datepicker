@@ -85,7 +85,6 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
 
         // init
         //updateRangeSpecificValues();
-        // dispatch({ type: 'set-selected-date', payload: getDateInCurrentMonth(selectedDate) });
         // dispatch({ type: 'set-today-date', payload: getDateInCurrentMonth(new Date()) });
 
         // Rotate the labels for days of the week based on the configured first day of the week.

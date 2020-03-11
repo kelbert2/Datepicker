@@ -10,7 +10,8 @@ function Datepicker({
     activeDate = new Date() as Date,
 
     onDateChange = (d: DateData) => { },
-    onDateInput = (d: DateData) => { },
+    onCalendarDateChange = (d: DateData) => { },
+    onInputDateChange = (d: DateData) => { },
     onDaySelected = (d: DateData) => { },
     onMonthSelected = (d: DateData) => { },
     onYearSelected = (d: DateData) => { },
@@ -98,7 +99,8 @@ function Datepicker({
         activeDate,
 
         onDateChange,
-        onDateInput,
+        onCalendarDateChange,
+        onInputDateChange,
         onDaySelected,
         onMonthSelected,
         onYearSelected,

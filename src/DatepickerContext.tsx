@@ -30,8 +30,9 @@ export interface DatepickerTheme {
  * @param todayDate: Today's date.
  * @param activeDate: Active date for tab navigation.
  *
- * @param onDateChange: Function that returns date, beginDate, and endDate upon Calendar selection.
- * @param onDateInput: Function that returns date, beginDate, and endDate upon Text Input.
+ * @param onDateChange: Function that returns date, beginDate, and endDate upon selection.
+ * @param onCalendarDateChange: Function that returns date, beginDate, and endDate upon Calendar selection.
+ * @param onInputDateChange: Function that returns date, beginDate, and endDate upon Text Input.
  * @param onDaySelected: Function that returns date data upon selection in the 'month' view.
  * @param onMonthSelected: Function that returns date data upon selection in the 'year' view.
  * @param onYearSelected: Function that returns date data upon selection in the 'multiyear' view.
@@ -101,7 +102,8 @@ export interface IDatepickerContext {
     activeDate: Date,
 
     onDateChange: (d: DateData) => {} | void,
-    onDateInput: (d: DateData) => {} | void,
+    onCalendarDateChange: (d: DateData) => {} | void,
+    onInputDateChange: (d: DateData) => {} | void,
     onDaySelected: (d: DateData) => {} | void,
     onMonthSelected: (d: DateData) => {} | void,
     onYearSelected: (d: DateData) => {} | void,
@@ -172,7 +174,8 @@ const datepickerContextDefaultValue = {
     activeDate: new Date() as Date,
 
     onDateChange: (d: DateData) => { },
-    onDateInput: (d: DateData) => { },
+    onCalendarDateChange: (d: DateData) => { },
+    onInputDateChange: (d: DateData) => { },
     onDaySelected: (d: DateData) => { },
     onMonthSelected: (d: DateData) => { },
     onYearSelected: (d: DateData) => { },
@@ -401,8 +404,9 @@ export interface IDatepickerProps {
     todayDate?: Date | null,
     activeDate?: Date,
 
-    onDateChange?: (d: DateData) => {} | void,
-    onDateInput?: (d: DateData) => {} | void,
+    onDateChange: (d: DateData) => {} | void,
+    onCalendarDateChange?: (d: DateData) => {} | void,
+    onInputDateChange?: (d: DateData) => {} | void,
     onDaySelected?: (d: DateData) => {} | void,
     onMonthSelected?: (d: DateData) => {} | void,
     onYearSelected?: (d: DateData) => {} | void,

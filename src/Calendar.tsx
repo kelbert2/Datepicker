@@ -25,6 +25,7 @@ export function Calendar(
         activeDate,
 
         onDateChange,
+        onCalendarDateChange,
         onYearSelected,
         onMonthSelected,
         onDaySelected,
@@ -52,88 +53,6 @@ export function Calendar(
     // const _prevSelectedDate = useRef(selectedDate as Date);
     // const _prevEndDate = useRef(endDate as Date);
     // const [beginDateSelected, setBeginDateSelected] = useState(false);
-
-
-    //TODO: move these or get it to update input quicker
-    /** On minDate change, check if any values are too low as to be invalid. */
-    useEffect(() => {
-        console.log("min date change: " + (minDate ? formatDateDisplay(minDate) : "null"));
-        if (minDate) {
-            if (selectedDate && compareDates(selectedDate, minDate) < 0) {
-                // Selected date is before minDate
-                dispatch({
-                    type: 'set-selected-date',
-                    payload: minDate
-                });
-            }
-            if (rangeMode) {
-                if (beginDate && compareDates(beginDate, minDate) < 0) {
-                    dispatch({
-                        type: 'set-begin-date',
-                        payload: minDate
-                    });
-                }
-                if (endDate && compareDates(endDate, minDate) < 0) {
-                    dispatch({
-                        type: 'set-end-date',
-                        payload: minDate
-                    });
-                }
-            }
-        }
-    }, [minDate, beginDate, dispatch, endDate, rangeMode, selectedDate]);
-    /** On maxDate change, check if any values are too high as to be invalid. */
-    useEffect(() => {
-        if (maxDate) {
-            if (selectedDate && compareDates(selectedDate, maxDate) > 0) {
-                // Selected date is before minDate
-                dispatch({
-                    type: 'set-selected-date',
-                    payload: maxDate
-                });
-            }
-            if (rangeMode) {
-                if (beginDate && compareDates(beginDate, maxDate) > 0) {
-                    dispatch({
-                        type: 'set-begin-date',
-                        payload: maxDate
-                    });
-                }
-                if (endDate && compareDates(endDate, maxDate) > 0) {
-                    dispatch({
-                        type: 'set-end-date',
-                        payload: maxDate
-                    });
-                }
-            }
-        }
-    }, [maxDate, beginDate, dispatch, endDate, rangeMode, selectedDate]);
-    /** On date filter change, check if any values are invalid. */
-    useEffect(() => {
-        if (!dateFilter(selectedDate)) {
-            // Selected date is before minDate
-            dispatch({
-                type: 'set-selected-date',
-                payload: null
-            });
-        }
-        if (rangeMode) {
-            if (!dateFilter(beginDate)) {
-                dispatch({
-                    type: 'set-begin-date',
-                    payload: null
-                });
-            }
-            if (!dateFilter(endDate)) {
-                dispatch({
-                    type: 'set-end-date',
-                    payload: null
-                });
-            }
-        }
-    }, [dateFilter, beginDate, dispatch, endDate, rangeMode, selectedDate]);
-
-
 
     /** Run on mount: set active date and view changes. */
     useEffect(() => {
@@ -247,6 +166,7 @@ export function Calendar(
         }
     }, [disableMonth, disableYear, disableMultiyear]);
 
+    /** Returns response to selected date based on provided view. */
     const _getSelectedFromView = (view: VIEW, data: DateData) => {
         switch (view) {
             case 'multiyear':
@@ -266,7 +186,9 @@ export function Calendar(
         });
 
         onFinalDateSelection(data);
+        // TODO: see if should move these one level up:
         onDateChange(data);
+        onCalendarDateChange(data);
     }
     /** Handles date changes from calendar body. */
     const _handleDateChange = (date: Date) => {

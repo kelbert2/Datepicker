@@ -14,7 +14,8 @@ function DatepickerNoInput() {
         selectedDate,
 
         onDateChange,
-        onDateInput,
+        onCalendarDateChange,
+        onInputDateChange,
 
         minDate,
         maxDate,
@@ -74,13 +75,13 @@ function DatepickerNoInput() {
             }
             _prevRangeMode.current = rangeMode;
 
-            onDateInput({ selectedDate: selectedDate, beginDate, endDate });
+            onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+            onDateChange({ selectedDate, beginDate, endDate });
         }
-    }, [beginDate, dispatch, endDate, onDateInput, rangeMode, selectedDate]);
+    }, [beginDate, dispatch, endDate, onDateChange, onInputDateChange, rangeMode, selectedDate]);
 
     /** On minDate change, check if any values are too low as to be invalid. */
     useEffect(() => {
-        console.log("min date change!");
         if (minDate) {
             if (selectedDate && compareDates(selectedDate, minDate) < 0) {
                 // Selected date is before minDate
@@ -88,6 +89,8 @@ function DatepickerNoInput() {
                     type: 'set-selected-date',
                     payload: minDate
                 });
+                onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                onDateChange({ selectedDate, beginDate, endDate });
             }
             if (rangeMode) {
                 if (beginDate && compareDates(beginDate, minDate) < 0) {
@@ -95,16 +98,20 @@ function DatepickerNoInput() {
                         type: 'set-begin-date',
                         payload: minDate
                     });
+                    onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                    onDateChange({ selectedDate, beginDate, endDate });
                 }
                 if (endDate && compareDates(endDate, minDate) < 0) {
                     dispatch({
                         type: 'set-end-date',
                         payload: minDate
                     });
+                    onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                    onDateChange({ selectedDate, beginDate, endDate });
                 }
             }
         }
-    }, [minDate, beginDate, dispatch, endDate, rangeMode, selectedDate]);
+    }, [minDate, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
     /** On maxDate change, check if any values are too high as to be invalid. */
     useEffect(() => {
         if (maxDate) {
@@ -114,6 +121,8 @@ function DatepickerNoInput() {
                     type: 'set-selected-date',
                     payload: maxDate
                 });
+                onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                onDateChange({ selectedDate, beginDate, endDate });
             }
             if (rangeMode) {
                 if (beginDate && compareDates(beginDate, maxDate) > 0) {
@@ -121,16 +130,20 @@ function DatepickerNoInput() {
                         type: 'set-begin-date',
                         payload: maxDate
                     });
+                    onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                    onDateChange({ selectedDate, beginDate, endDate });
                 }
                 if (endDate && compareDates(endDate, maxDate) > 0) {
                     dispatch({
                         type: 'set-end-date',
                         payload: maxDate
                     });
+                    onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                    onDateChange({ selectedDate, beginDate, endDate });
                 }
             }
         }
-    }, [maxDate, beginDate, dispatch, endDate, rangeMode, selectedDate]);
+    }, [maxDate, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
     /** On date filter change, check if any values are invalid. */
     useEffect(() => {
         if (!dateFilter(selectedDate)) {
@@ -139,6 +152,8 @@ function DatepickerNoInput() {
                 type: 'set-selected-date',
                 payload: null
             });
+            onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+            onDateChange({ selectedDate, beginDate, endDate });
         }
         if (rangeMode) {
             if (!dateFilter(beginDate)) {
@@ -146,15 +161,19 @@ function DatepickerNoInput() {
                     type: 'set-begin-date',
                     payload: null
                 });
+                onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                onDateChange({ selectedDate, beginDate, endDate });
             }
             if (!dateFilter(endDate)) {
                 dispatch({
                     type: 'set-end-date',
                     payload: null
                 });
+                onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                onDateChange({ selectedDate, beginDate, endDate });
             }
         }
-    }, [dateFilter, beginDate, dispatch, endDate, rangeMode, selectedDate]);
+    }, [dateFilter, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
 
     /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
     const _handleDateSelectionFromCalendar = (data: DateData) => {
@@ -162,7 +181,10 @@ function DatepickerNoInput() {
         //     type: 'set-start-at',
         //     payload: selectedDate
         // });
+        console.log("No input calendar said to close");
 
+        console.log("Handling date selection from calendar");
+        console.log(data);
         if (closeAfterSelection && canCloseCalendar) {
             _setCalendarDisplay('close');
         }
@@ -170,9 +192,9 @@ function DatepickerNoInput() {
 
     /** Close the calendar if clicked off. */
     const _handleNonCalendarClick = () => {
-        // console.log("Handling click from no input");
+        console.log("Handling click from no input");
 
-        onDateInput({ selectedDate: selectedDate, beginDate, endDate });
+        onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
         onDateChange({ selectedDate: selectedDate, beginDate, endDate });
 
         if (_calendarDisplay === 'close') {

@@ -1,7 +1,7 @@
 import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import DatepickerContext, { DateData, CalendarDisplay } from './DatepickerContext';
 import Calendar from './Calendar';
-import { compareDaysMonthsAndYears, simpleUID } from './CalendarUtils';
+import { compareDaysMonthsAndYears, simpleUID, compareDates, formatDateDisplay } from './CalendarUtils';
 
 export type OPEN_STATES = CalendarDisplay | 'close';
 const CALENDAR_CLASS_INLINE = 'inline';
@@ -19,8 +19,12 @@ function Input() {
         beginDate,
         endDate,
 
+        minDate,
+        maxDate,
+        dateFilter,
+
         onDateChange,
-        onDateInput,
+        onInputDateChange,
 
         disable,
         disableCalendar,
@@ -52,6 +56,12 @@ function Input() {
     const timer = useRef(null as NodeJS.Timeout | null);
     /** Previous rangeMode value. */
     const _prevRangeMode = useRef(rangeMode);
+    /** Previous minDate value. */
+    const _prevMinDate = useRef(null as Date | null);
+    /** Previous maxDate value. */
+    const _prevMaxDate = useRef(null as Date | null);
+    /** Previous dateFilter function. */
+    const _prevDateFilter = useRef(dateFilter);
 
     /** Update Calendar open status if allowances change. */
     useEffect(() => {
@@ -88,9 +98,108 @@ function Input() {
             }
             _prevRangeMode.current = rangeMode;
 
-            onDateInput({ selectedDate, beginDate, endDate });
+            onInputDateChange({ selectedDate, beginDate, endDate });
+            onDateChange({ selectedDate, beginDate, endDate });
         }
-    }, [beginDate, dispatch, endDate, onDateInput, rangeMode, selectedDate]);
+    }, [rangeMode, beginDate, dispatch, endDate, onDateChange, onInputDateChange, selectedDate]);
+    //TODO: move these or get it to update input quicker
+    /** On minDate change, check if any values are too low as to be invalid. */
+    useEffect(() => {
+        console.log("minDate: " + (minDate ? formatDateDisplay(minDate) : "null"));
+        console.log("Previous: " + (_prevMinDate.current ? formatDateDisplay(_prevMinDate.current) : "null"))
+        if (minDate !== _prevMinDate.current) {
+            console.log("min date change!");
+            if (minDate) {
+                if (selectedDate && compareDates(selectedDate, minDate) < 0) {
+                    // Selected date is before minDate
+                    dispatch({
+                        type: 'set-selected-date',
+                        payload: minDate
+                    });
+                }
+                if (rangeMode) {
+                    if (beginDate && compareDates(beginDate, minDate) < 0) {
+                        dispatch({
+                            type: 'set-begin-date',
+                            payload: minDate
+                        });
+                    }
+                    if (endDate && compareDates(endDate, minDate) < 0) {
+                        dispatch({
+                            type: 'set-end-date',
+                            payload: minDate
+                        });
+                    }
+                }
+                onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                onDateChange({ selectedDate, beginDate, endDate });
+            }
+            _prevMinDate.current = minDate;
+        }
+    }, [minDate, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
+    /** On maxDate change, check if any values are too high as to be invalid. */
+    useEffect(() => {
+        if (maxDate !== _prevMaxDate.current) {
+            console.log("maxDate change!");
+            if (maxDate) {
+                if (selectedDate && compareDates(selectedDate, maxDate) > 0) {
+                    // Selected date is before minDate
+                    dispatch({
+                        type: 'set-selected-date',
+                        payload: maxDate
+                    });
+                }
+                if (rangeMode) {
+                    if (beginDate && compareDates(beginDate, maxDate) > 0) {
+                        dispatch({
+                            type: 'set-begin-date',
+                            payload: maxDate
+                        });
+                    }
+                    if (endDate && compareDates(endDate, maxDate) > 0) {
+                        dispatch({
+                            type: 'set-end-date',
+                            payload: maxDate
+                        });
+                    }
+                }
+                onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                onDateChange({ selectedDate, beginDate, endDate });
+            }
+            _prevMaxDate.current = maxDate;
+        }
+    }, [maxDate, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
+    /** On date filter change, check if any values are invalid. */
+    useEffect(() => {
+        if (dateFilter !== _prevDateFilter.current) {
+            console.log("date filter change!");
+            if (!dateFilter(selectedDate)) {
+                // Selected date is before minDate
+                dispatch({
+                    type: 'set-selected-date',
+                    payload: null
+                });
+            }
+            if (rangeMode) {
+                if (!dateFilter(beginDate)) {
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: null
+                    });
+                }
+                if (!dateFilter(endDate)) {
+                    dispatch({
+                        type: 'set-end-date',
+                        payload: null
+                    });
+                }
+            }
+            _prevDateFilter.current = dateFilter;
+
+            onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+            onDateChange({ selectedDate, beginDate, endDate });
+        }
+    }, [dateFilter, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
 
 
     /** Update first text input display with selected date changes. */
@@ -177,7 +286,7 @@ function Input() {
                 });
             }
         }
-        onDateInput({ selectedDate, beginDate, endDate });
+        onInputDateChange({ selectedDate, beginDate, endDate });
         onDateChange({ selectedDate, beginDate, endDate });
     }
     /** On blur, format second text input and set selected and end dates. */
@@ -232,14 +341,14 @@ function Input() {
                 payload: null
             });
         }
-        onDateInput({ selectedDate, beginDate, endDate });
+        onInputDateChange({ selectedDate, beginDate, endDate });
         onDateChange({ selectedDate, beginDate, endDate });
     }
     /** Close the calendar if clicked off. */
     const _handleNonCalendarClick = () => {
         // console.log("Handling click");
 
-        onDateInput({ selectedDate, beginDate, endDate });
+        onInputDateChange({ selectedDate, beginDate, endDate });
         onDateChange({ selectedDate, beginDate, endDate });
 
         if (_calendarDisplay === 'close') {

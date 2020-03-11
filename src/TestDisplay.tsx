@@ -34,17 +34,23 @@ function TestDisplay() {
     const maxTimer = useRef(null as NodeJS.Timeout | null);
 
 
-
     const _onDateChange = (d: DateData) => {
         _setBeginDate(d.beginDate);
         _setEndDate(d.endDate);
         _setSelectedDate(d.selectedDate);
     }
-    const _onDateInput = (d: DateData) => {
-        // console.log("date change in input");
-        _setBeginDate(d.beginDate);
-        _setEndDate(d.endDate);
-        _setSelectedDate(d.selectedDate);
+    const _onCalendarDateChange = (d: DateData) => {
+        console.log("date change in calendar");
+        // _setBeginDate(d.beginDate);
+        // _setEndDate(d.endDate);
+        // _setSelectedDate(d.selectedDate);
+    }
+    const _onInputDateChange = (d: DateData) => {
+        console.log("date change in input");
+        // todo: ensure that all input and calendar date changes also fire ondatechange
+        // _setBeginDate(d.beginDate);
+        // _setEndDate(d.endDate);
+        // _setSelectedDate(d.selectedDate);
     }
     const _onMinDateChange = (d: DateData) => {
         _setMinDate(d.selectedDate);
@@ -133,7 +139,8 @@ function TestDisplay() {
                     selectedDate={_selectedDate}
 
                     onDateChange={(d) => _onDateChange(d)}
-                    onDateInput={(d) => _onDateInput(d)}
+                    onCalendarDateChange={(d) => _onCalendarDateChange(d)}
+                    onInputDateChange={(d) => _onInputDateChange(d)}
                     onDaySelected={(d) => _onDaySelected(d)}
                     onMonthSelected={(d) => _onMonthSelected(d)}
                     onYearSelected={(d) => _onYearSelected(d)}
@@ -176,7 +183,8 @@ function TestDisplay() {
                         selectedDate={_minDate}
 
                         onDateChange={(d) => _onMinDateChange(d)}
-                        onDateInput={(d) => _onMinDateInput(d)}
+                        onCalendarDateChange={(d) => _onMinDateChange(d)}
+                        onInputDateChange={(d) => _onMinDateInput(d)}
                         onDaySelected={(d) => _onDaySelected(d)}
                         onMonthSelected={(d) => _onMonthSelected(d)}
                         onYearSelected={(d) => _onYearSelected(d)}
@@ -219,8 +227,9 @@ function TestDisplay() {
                         <DatepickerProvider
                             selectedDate={_maxDate}
 
-                            onDateChange={(d) => _onMaxDateChange(d)}
-                            onDateInput={(d) => _onMaxDateInput(d)}
+                            onDateChange={(d) => { _onMaxDateChange(d) }}
+                            onCalendarDateChange={(d) => _onMaxDateChange(d)}
+                            onInputDateChange={(d) => _onMaxDateInput(d)}
                             onDaySelected={(d) => _onDaySelected(d)}
                             onMonthSelected={(d) => _onMonthSelected(d)}
                             onYearSelected={(d) => _onYearSelected(d)}

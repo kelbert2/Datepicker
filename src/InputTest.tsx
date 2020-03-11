@@ -2,7 +2,6 @@ import React, { useState, ChangeEvent, useRef, useLayoutEffect } from "react";
 import { CalendarDisplay, DateData, DatepickerContextProvider } from "./DatepickerContext";
 import { formatDateDisplay, parseStringAsDate, compareDaysMonthsAndYears } from "./CalendarUtils";
 import Datepicker from "./Datepicker";
-import DatepickerNoInput from "./DatepickerNoInput";
 import DatepickerProvider from "./DatepickerProvider";
 import { OPEN_STATES } from "./Input";
 
@@ -145,7 +144,7 @@ function InputTest() {
 
     /** Close the calendar if clicked off. */
     const _handleNonCalendarClick = () => {
-        // console.log("Handling click");
+        console.log("Handling non calendar click");
 
         // console.log("-- selected date: " + (_selectedDate ? formatDateDisplay(_selectedDate) : "null"));
         // console.log("-- begin date: " + (_beginDate ? formatDateDisplay(_beginDate) : "null"));
@@ -195,13 +194,13 @@ function InputTest() {
     const _handleDateSelectionFromCalendar = (data: DateData) => {
         // TODO: make sure startAt dates are being reset in Calendar
 
-        // console.log("recieved date from calendar.");
+        console.log("recieved date from calendar.");
 
         _setSelectedDate(data.selectedDate);
         _setBeginDate(data.beginDate);
         _setEndDate(data.endDate);
 
-        // console.log("-- selected date: " + (data.selectedDate));
+        console.log("-- selected date: " + (data.selectedDate));
         // console.log("-- begin date: " + (data.beginDate));
         // console.log("-- end date: " + (data.endDate));
 

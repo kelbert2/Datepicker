@@ -247,7 +247,7 @@ export function CalendarBody(
                 // if is the beginDate
                 styles.push(beginRangeClass);
 
-                if (!endDate) {
+                if (!endDate || compare(beginDate, endDate) === 0) {
                     if (_cellHovered != null && _cellHovered < cellIndex) {
                         // if hovered is before begin
                         styles.push(endHoveredRangeClass);
@@ -261,7 +261,7 @@ export function CalendarBody(
                 // if is the endDate
                 styles.push(endRangeClass);
 
-                if (!beginDate) {
+                if (!beginDate || compare(beginDate, endDate) === 0) {
                     if (_cellHovered != null && _cellHovered > cellIndex) {
                         // if hovered is after end
                         styles.push(beginHoveredRangeClass);

@@ -204,6 +204,7 @@ function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date
         };
     }, [_handleUserKeyPress]);
 
+    /** Convert a given date to a year cell index. */
     const _dateToCellIndex = (date: Date) => {
         if (getYear(date) < getYear(_years[0][0].value)) {
             return -1;

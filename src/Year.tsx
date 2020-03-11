@@ -46,7 +46,6 @@ function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Dat
         if (minDate) {
             const minYear = getYear(minDate);
             const minMonth = getMonth(minDate);
-
             return year < minYear || (year === minYear && month < minMonth);
         }
         return false;
@@ -83,7 +82,6 @@ function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Dat
         //     _dateFormats.display.monthYearA11yLabel);
 
         return {
-            cellIndex: month,
             value: createDate(getYear(activeDate), month, 1),
             displayValue: monthName.toLocaleUpperCase(),
             ariaLabel: MONTH_NAMES[month].long,

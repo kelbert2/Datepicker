@@ -36,19 +36,6 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
     /** Weekday labels. */
     const [_weekdays, _setWeekdays] = useState(WEEKDAY_NAMES);
 
-    /** Convert a given date to a month cell index. */
-    const _dateToCellIndex = useCallback((date: Date) => {
-        // console.log("active date index: " + (getDay(activeDate) - 1));
-        // console.log("date: " + (getDay(date) - 1));
-        if (getYear(date) < getYear(activeDate) || getMonth(date) < getMonth(activeDate)) {
-            return -1;
-        }
-        if (getYear(date) > getYear(activeDate) || getMonth(date) > getMonth(activeDate)) {
-            return 32;
-        }
-        return getDay(date) - 1;
-    }, [activeDate]);
-
     /** Date filter for the month */
     const _shouldEnableDay = useCallback((date: Date) => {
         return !!date &&
@@ -67,13 +54,12 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
         // displayValue = dateNames[i];
 
         return {
-            cellIndex: _dateToCellIndex(date),
             value: date,
             displayValue: '' + day,
             ariaLabel: '' + day,
             enabled: _shouldEnableDay(date)
         } as ICalendarCell;
-    }, [_dateToCellIndex, _shouldEnableDay, activeDate]);
+    }, [_shouldEnableDay, activeDate]);
 
 
     /** Reloads days. */
@@ -119,10 +105,9 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
 
     /** Handles when a new day is selected. */
     const _dateSelected = useCallback((cellValue: Date) => {
-        console.log("Selected cell index: " + _dateToCellIndex(cellValue));
         dateSelected(cellValue);
         // _populateDays();
-    }, [dateSelected, _dateToCellIndex]);
+    }, [dateSelected]);
 
     /** Handles keydown events on the calendar body when calendar is in month view. */
     const _handleUserKeyPress = useCallback((event: KeyboardEvent) => {
@@ -215,19 +200,16 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
         };
     }, [_handleUserKeyPress]);
 
-    // /** Convert a given date to a month cell index. */
-    // const _dateToCellIndex = (date: Date) => {
-    //     // console.log("active date index: " + (getDay(activeDate) - 1));
-    //     // console.log("date: " + (getDay(date) - 1));
-
-    //     if (getYear(date) < getYear(activeDate) || getMonth(date) < getMonth(activeDate)) {
-    //         return -1;
-    //     }
-    //     if (getYear(date) > getYear(activeDate) || getMonth(date) > getMonth(activeDate)) {
-    //         return 32;
-    //     }
-    //     return getDay(date) - 1;
-    // }
+    /** Convert a given date to a day cell index. */
+    const _dateToCellIndex = useCallback((date: Date) => {
+        if (getYear(date) < getYear(activeDate) || getMonth(date) < getMonth(activeDate)) {
+            return -1;
+        }
+        if (getYear(date) > getYear(activeDate) || getMonth(date) > getMonth(activeDate)) {
+            return 32;
+        }
+        return getDay(date) - 1;
+    }, [activeDate]);
 
     /** Returns flat index (not row, column) of active cell. */
     const _getActiveCell = () => {

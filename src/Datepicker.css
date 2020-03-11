@@ -181,8 +181,8 @@
     border-bottom-right-radius: 999px;
 }
 
-/* .calendar td:not(.disabled):hover div, */
-/* .calendar td:not(.disabled):focus div, */
+.calendar td:not(.disabled):hover div,
+.calendar td:not(.disabled):focus div,
 .calendar td.hovered div,
 .calendar td.withinHoveredRange {
     background-color: var(--hover);

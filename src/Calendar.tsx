@@ -220,11 +220,25 @@ export function Calendar(
                 _getSelectedFromView(_currentView, { selectedDate: date, beginDate: date, endDate: null });
 
             } else if (!beginDate && endDate) {
-                // if no beginDate has been selected but an endDate has, just set the beginDate
-                dispatch({
-                    type: 'set-begin-date',
-                    payload: date
-                });
+                // if no beginDate has been selected but an endDate has, check to see if selected date is before or after the selected end date
+                if (_getCompareFromView(_currentView, date, endDate) > 0) {
+                    // date is after the end date
+                    const prevEndDate = endDate;
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: prevEndDate
+                    });
+                    dispatch({
+                        type: 'set-end-date',
+                        payload: date
+                    });
+                } else {
+                    // date is before the end date, just set the begin date
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: date
+                    });
+                }
             } else if (beginDate && _getCompareFromView(_currentView, date, beginDate) < 0) {
                 // if the new selection is before the beginDate, make it the new beginDate
                 const prevBeginDate = beginDate;

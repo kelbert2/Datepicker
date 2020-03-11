@@ -75,6 +75,17 @@ export function Calendar(
         _updateTodayDate();
     }, [activeDate, _updateTodayDate]);
 
+    // TODO: See if this worked
+    /** On selected date change, set the active date. */
+    useEffect(() => {
+        if (selectedDate) {
+            dispatch({
+                type: 'set-active-date',
+                payload: selectedDate
+            });
+        }
+    }, [dispatch, selectedDate]);
+
     // const dateSelected = (date: Date) => {
     //     if (rangeMode) {
     //         if (!beginDateSelected) {
@@ -171,7 +182,17 @@ export function Calendar(
                 return onDaySelected(data);
         }
     }
+    const _finalDateSelection = (data: DateData) => {
+        // console.log("recieved final date selection");
+        // TODO: see if this worked
+        dispatch({
+            type: 'set-start-at',
+            payload: data.selectedDate
+        });
 
+        onFinalDateSelection(data);
+        onDateChange(data);
+    }
     /** Handles date changes from calendar body. */
     const _handleDateChange = (date: Date) => {
         dispatch({
@@ -218,8 +239,7 @@ export function Calendar(
                     _getSelectedFromView(_currentView, data);
 
                     if (_isMostPreciseView(_currentView)) {
-                        onFinalDateSelection(data);
-                        onDateChange(data);
+                        _finalDateSelection(data);
                     }
 
                 } else {
@@ -236,8 +256,7 @@ export function Calendar(
                     _getSelectedFromView(_currentView, data);
 
                     if (_isMostPreciseView(_currentView)) {
-                        onFinalDateSelection(data);
-                        onDateChange(data);
+                        _finalDateSelection(data);
                     }
                 }
             } else {
@@ -249,8 +268,7 @@ export function Calendar(
                 _getSelectedFromView(_currentView, data);
 
                 if (_isMostPreciseView(_currentView)) {
-                    onFinalDateSelection(data);
-                    onDateChange(data);
+                    _finalDateSelection(data);
                 }
             }
         } else {
@@ -259,8 +277,7 @@ export function Calendar(
             _getSelectedFromView(_currentView, data);
 
             if (_isMostPreciseView(_currentView)) {
-                onFinalDateSelection(data);
-                onDateChange(data);
+                _finalDateSelection(data);
             }
         }
     }

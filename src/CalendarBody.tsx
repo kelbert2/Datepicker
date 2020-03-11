@@ -1,6 +1,6 @@
 import React, { useState, useContext, useLayoutEffect, useCallback, useEffect } from 'react';
 import DatepickerContext, { DateData } from './DatepickerContext';
-import { sameDate, dateToMonthCellIndex, compareDates } from './CalendarUtils';
+import { sameDate, dateToMonthCellIndex, compareDates, getDay, formatDateDisplay } from './CalendarUtils';
 
 export interface ICalendarCell {
     cellIndex: number,
@@ -36,6 +36,7 @@ export function CalendarBody(
         compare = compareDates,
         dateSelected = (d: DateData) => { },
         createDateFromSelectedCell = (date: Date) => { return date },
+        dateToCellIndex = (date: Date) => { return dateToMonthCellIndex(date) },
         beginDateSelected = false,
         isBeforeSelected = false,
         isCurrentMonthBeforeSelected = false,
@@ -52,6 +53,7 @@ export function CalendarBody(
         compare: (date1: Date, date2: Date) => number,
         dateSelected: (d: DateData) => {} | void,
         createDateFromSelectedCell: (date: Date) => Date,
+        dateToCellIndex: (date: Date) => number,
         beginDateSelected: boolean,
         isBeforeSelected: boolean,
         isCurrentMonthBeforeSelected: boolean,
@@ -89,6 +91,7 @@ export function CalendarBody(
 
     /** On activeCell change, update which cell is hovered. */
     useLayoutEffect(() => {
+        console.log("Active cell changed: " + activeCell);
         _setCellHovered(activeCell);
     }, [activeCell]);
 
@@ -107,25 +110,27 @@ export function CalendarBody(
         if (cell.enabled) {
             const date = createDateFromSelectedCell(cell.value);
 
-            // if (date) {
-            //     dispatch({
-            //         type: 'set-active-date', payload: date
-            //     });
-            // }
-
-            selectedValueChange(date);
+            if (date) {
+                // dispatch({
+                //     type: 'set-active-date', payload: date
+                // });
+                selectedValueChange(date);
+            }
         }
         return undefined;
     }
 
     /** Determines if given row and column is the location of the current activeCell. */
-    const _isActiveCell = (rowIndex: number, colIndex: number) => {
-        let cellNumber = rowIndex * numCols + colIndex;
-        if (rowIndex) {
-            // first row may not be full
-            cellNumber -= _firstRowOffset;
-        }
-        return cellNumber === activeCell;
+    // const _isActiveCell = (rowIndex: number, colIndex: number) => {
+    //     let cellNumber = rowIndex * numCols + colIndex;
+    //     if (rowIndex) {
+    //         // first row may not be full
+    //         cellNumber -= _firstRowOffset;
+    //     }
+    //     return cellNumber === activeCell;
+    // }
+    const _isActiveCell = (cell: ICalendarCell) => {
+        return dateToCellIndex(cell.value) === activeCell;
     }
 
     /** Whether to mark as between begin and end dates in the selected range, exclusive. */
@@ -144,8 +149,8 @@ export function CalendarBody(
 
     /** Returns true if date is within the range (hovered, baseDate), inclusive, where hovered is before baseDate. */
     const _isBetweenHoveredAndDate = (date: Date, baseDate: Date | null, cellIndex?: number, baseCellIndex?: number) => {
-        const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
-        const baseNumber = baseCellIndex ? baseCellIndex : dateToMonthCellIndex(date);
+        const cellNumber = cellIndex ? cellIndex : dateToCellIndex(date);
+        const baseNumber = baseCellIndex ? baseCellIndex : dateToCellIndex(date);
 
         if (!_cellHovered || !rangeMode || !baseDate) {
             return false;
@@ -157,9 +162,8 @@ export function CalendarBody(
     }
     /** Returns true if date is within the range (baseDate, hovered), inclusive, where baseDate is before hovered. */
     const _isBetweenDateAndHovered = (date: Date, baseDate: Date | null, cellIndex?: number, baseCellIndex?: number) => {
-        const cellNumber = cellIndex ? cellIndex : dateToMonthCellIndex(date);
-        const baseNumber = baseCellIndex ? baseCellIndex : dateToMonthCellIndex(date);
-
+        const cellNumber = cellIndex ? cellIndex : dateToCellIndex(date);
+        const baseNumber = baseCellIndex ? baseCellIndex : dateToCellIndex(date);
 
         if (!_cellHovered || !rangeMode || !baseDate) {
             return false;
@@ -173,6 +177,9 @@ export function CalendarBody(
     /** When mouse enters hover zone for a cell */
     const _onHover = (cell: ICalendarCell) => {
         if (cell.enabled) {
+            // console.log("on Hovered cell index: " + cell.cellIndex);
+            // console.log("calculated cell index: " + dateToCellIndex(cell.value));
+            // these are correct here - is it not updated quickly enough?
             _setCellHovered(cell.cellIndex);
         }
         return undefined;
@@ -221,7 +228,7 @@ export function CalendarBody(
     /* DISPLAY ----------------------------------------------------------------------------------------- */
 
     /** Sets styling classes for each cell */
-    const _setCellClass = (cell: ICalendarCell, rowIndex: number, colIndex: number) => {
+    const _setCellClass = (cell: ICalendarCell) => {
         const selectedClass = "selected";
         const todayClass = "today";
 
@@ -237,7 +244,6 @@ export function CalendarBody(
         const endHoveredRangeClass = "endHoveredRange";
         const withinHoveredRangeClass = "withinHoveredRange";
 
-
         let styles = [] as string[];
 
         if ((selectedDate && compare(selectedDate, cell.value) === 0)) {
@@ -249,7 +255,8 @@ export function CalendarBody(
         if (!cell.enabled) {
             styles.push(disabledClass);
         }
-        if (_isActiveCell(rowIndex, colIndex)) {
+        // if (_isActiveCell(rowIndex, colIndex)) {
+        if (_isActiveCell(cell)) {
             styles.push(activeClass);
         }
         if (rangeMode) {
@@ -285,23 +292,34 @@ export function CalendarBody(
                 // is between beginDate and endDate
                 styles.push(withinRangeClass);
             }
-            if (_isBetweenHoveredAndDate(cell.value, beginDate, cell.cellIndex) || (!beginDate && _isBetweenHoveredAndDate(cell.value, endDate, cell.cellIndex))) {
+            if ((!beginDate && endDate && _isBetweenHoveredAndDate(cell.value, endDate)) || (beginDate && _isBetweenHoveredAndDate(cell.value, beginDate))) {
                 // if hovered is before beginDate and cell is between hovered and beginDate, or there is no beginDate, and it is between hovered and the endDate
                 styles.push(withinHoveredRangeClass);
-                if (cell.cellIndex === _cellHovered) {
+
+                if (dateToCellIndex(cell.value) === _cellHovered) {
                     // cell is currently hovered and therefore the beginning of this hovered range
                     styles.push(hoveredClass);
                     styles.push(beginHoveredRangeClass);
                 }
-            } else if (_isBetweenDateAndHovered(cell.value, endDate, cell.cellIndex) || (!endDate && _isBetweenDateAndHovered(cell.value, beginDate, cell.cellIndex))) {
+            }
+            // else
+            if ((!endDate && beginDate && _isBetweenDateAndHovered(cell.value, beginDate)) || (endDate && _isBetweenDateAndHovered(cell.value, endDate))) {
                 // if hovered is after endDate and cell is between hovered and endDate, or there is no endDate, and it is between hovered and beginDate
                 styles.push(withinHoveredRangeClass);
-                if (cell.cellIndex === _cellHovered) {
+
+                if (dateToCellIndex(cell.value) === _cellHovered) {
                     // cell is currently hovered and therefore the end of this hovered range
                     styles.push(hoveredClass);
                     styles.push(endHoveredRangeClass);
                 }
             }
+
+            // if (_cellHovered) {
+            //     console.log("cell date: " + formatDateDisplay(cell.value));
+            //     console.log(cell);
+            //     console.log("calculated cell index: " + dateToCellIndex(cell.value));
+            //     console.log("hovered: " + _cellHovered);
+            // }
         }
         return styles.join(' ');
     }
@@ -362,7 +380,7 @@ export function CalendarBody(
                             role="gridcell"
                             // tabIndex={_isActiveCell(rowIndex, colIndex) ? 0 : -1}
                             tabIndex={item.enabled ? 0 : -1}
-                            className={_setCellClass(item, rowIndex, colIndex)}
+                            className={_setCellClass(item)}
                             onClick={() => _cellClicked(item)}
                             onKeyPress={(e) => _handleCellKeypress(e, item)}
                             onFocus={() => _handleCellFocus(item)}

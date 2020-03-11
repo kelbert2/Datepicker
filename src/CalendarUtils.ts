@@ -193,6 +193,7 @@ const convert = (date: any) => {
                             : NaN
     );
 }
+/** Compares two dates. */
 export const compareDates = (date1: Date, date2: Date) => {
     // Compare two dates (could be of any type supported by the convert
     // function above) and returns:
@@ -203,12 +204,23 @@ export const compareDates = (date1: Date, date2: Date) => {
     // NOTE: The code inside isFinite does an assignment (=).
     return (isFinite(date1 = convert(date1).valueOf())
         && isFinite(date2 = convert(date2).valueOf()) ?
-        (date1 > date2 ? 1 : -1) - (date1 < date2 ? 1 : -1) :
+        (date1 > date2 ? 1 : 0) - (date1 < date2 ? 1 : 0) :
         NaN);
 }
+/** Compares two numbers with each other. Returns -1 on less than, 0 on equals, and 1 on greater than. */
 const compareNumbers = (value1: number, value2: number) => {
-    return (value1 > value2 ? 1 : -1) - (value1 < value2 ? 1 : -1);
+    return (value1 > value2 ? 1 : 0) - (value1 < value2 ? 1 : 0);
+    // if (value1 === value2) {
+    //     return 0;
+    // }
+    // if (value1 > value2) {
+    //     return 1;
+    // }
+    // // if (value1 < value2) {
+    // return -1;
+    // //}
 }
+/** Looks at the days, months, and years to compare two dates. */
 export const compareDaysMonthsAndYears = (date1: Date, date2: Date) => {
     const comparedMonthsAndYears = compareMonthsAndYears(date1, date2);
     if (comparedMonthsAndYears === 0) {
@@ -216,6 +228,7 @@ export const compareDaysMonthsAndYears = (date1: Date, date2: Date) => {
     }
     return comparedMonthsAndYears;
 }
+/** Looks at the months and years to compare two dates. */
 export const compareMonthsAndYears = (date1: Date, date2: Date) => {
     const comparedYears = compareYears(date1, date2);
     if (comparedYears === 0) {
@@ -223,6 +236,7 @@ export const compareMonthsAndYears = (date1: Date, date2: Date) => {
     }
     return comparedYears;
 }
+/** Looks at years to compare two dates. */
 export const compareYears = (date1: Date, date2: Date) => {
     return compareNumbers(getYear(date1), getYear(date2));
 }

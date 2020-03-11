@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import DatepickerContext from './DatepickerContext';
-import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
+import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears, dateToMonthCellIndex } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 
 function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {
@@ -80,7 +80,7 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
         _setDays(days);
     }, [_createCellForDay, _firstWeekOffset, activeDate]);
 
-    /** Run on mount */
+    /** Runs setup on mount. */
     useEffect(() => {
         // constructor
         // dispatch({ type: 'set-active-date', payload: new Date() });
@@ -97,19 +97,33 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
         // this._changeDetectorRef.markForCheck();
     }, [_populateDays, firstDayOfWeek]);
 
-    /** Repopulate on activeDate change. */
+    /** Repopulates on activeDate change. */
     useEffect(() => {
         _setMonthText(formatMonthText(activeDate));
 
         _populateDays();
     }, [activeDate, _firstWeekOffset, formatMonthText, _populateDays]);
 
+    /** Convert a given date to a month cell index. */
+    const _dateToCellIndex = useCallback((date: Date) => {
+        // console.log("active date index: " + (getDay(activeDate) - 1));
+        // console.log("date: " + (getDay(date) - 1));
+
+        if (getYear(date) < getYear(activeDate) || getMonth(date) < getMonth(activeDate)) {
+            return -1;
+        }
+        if (getYear(date) > getYear(activeDate) || getMonth(date) > getMonth(activeDate)) {
+            return 32;
+        }
+        return getDay(date) - 1;
+    }, [activeDate]);
 
     /** Handles when a new day is selected. */
     const _dateSelected = useCallback((cellValue: Date) => {
+        console.log("Selected cell index: " + _dateToCellIndex(cellValue));
         dateSelected(cellValue);
         // _populateDays();
-    }, [dateSelected]);
+    }, [dateSelected, _dateToCellIndex]);
 
     /** Handles keydown events on the calendar body when calendar is in month view. */
     const _handleUserKeyPress = useCallback((event: KeyboardEvent) => {
@@ -202,11 +216,26 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
         };
     }, [_handleUserKeyPress]);
 
+    // /** Convert a given date to a month cell index. */
+    // const _dateToCellIndex = (date: Date) => {
+    //     // console.log("active date index: " + (getDay(activeDate) - 1));
+    //     // console.log("date: " + (getDay(date) - 1));
+
+    //     if (getYear(date) < getYear(activeDate) || getMonth(date) < getMonth(activeDate)) {
+    //         return -1;
+    //     }
+    //     if (getYear(date) > getYear(activeDate) || getMonth(date) > getMonth(activeDate)) {
+    //         return 32;
+    //     }
+    //     return getDay(date) - 1;
+    // }
+
     /** Returns flat index (not row, column) of active cell. */
     const _getActiveCell = () => {
         return getDay(activeDate) - 1;
     }
 
+    // TODO: Clean this up.
     /** Focuses the active cell after the microtask queue is empty. */
     const _focusActiveCell = () => {
         // CalendarBody._focusActiveCell();
@@ -263,6 +292,7 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
                 compare={compareDaysMonthsAndYears}
                 dateSelected={onDaySelected}
                 createDateFromSelectedCell={(date: Date) => { return date }}
+                dateToCellIndex={(date) => _dateToCellIndex(date)}
                 beginDateSelected={false}
                 isBeforeSelected={false}
                 isCurrentMonthBeforeSelected={selectedDate ? getMonth(activeDate) > getMonth(selectedDate) : false}
@@ -272,7 +302,7 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
                 numCols={7}
                 cellAspectRatio={1}
             ></CalendarBody>
-        </table>
+        </table >
     );
 }
 

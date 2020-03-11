@@ -186,6 +186,17 @@ function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Dat
         };
     }, [_handleUserKeyPress]);
 
+    /** Convert a given date to a month cell index. */
+    const _dateToCellIndex = (date: Date) => {
+        if (getYear(date) < getYear(activeDate)) {
+            return -1;
+        }
+        if (getYear(date) > getYear(activeDate)) {
+            return 32;
+        }
+        return getMonth(date);
+    }
+
     /** Returns flat index (not row, column) of active cell. */
     const _getActiveCell = () => {
         return getMonth(activeDate);
@@ -224,6 +235,7 @@ function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Dat
                 compare={compareMonthsAndYears}
                 dateSelected={onMonthSelected}
                 createDateFromSelectedCell={(date: Date) => { return createDate(getYear(date), getMonth(date), 1) }}
+                dateToCellIndex={(date) => _dateToCellIndex(date)}
                 beginDateSelected={false}
                 isBeforeSelected={false}
                 isCurrentMonthBeforeSelected={false}

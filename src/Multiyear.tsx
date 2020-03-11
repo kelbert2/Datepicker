@@ -204,6 +204,15 @@ function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date
         };
     }, [_handleUserKeyPress]);
 
+    const _dateToCellIndex = (date: Date) => {
+        if (getYear(date) < getYear(_years[0][0].value)) {
+            return -1;
+        }
+        if (getYear(date) > getYear(_years[_years.length - 1][YEARS_PER_ROW - 1].value)) {
+            return 32;
+        }
+        return getYear(date) - getYear(_years[0][0].value);
+    }
     /** Returns flat index (not row, column coordinates) of active cell. */
     const _getActiveCell = () => {
         return getActiveOffset(activeDate, minDate, maxDate);
@@ -244,6 +253,7 @@ function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date
                 compare={compareYears}
                 dateSelected={onYearSelected}
                 createDateFromSelectedCell={(date: Date) => { return createDate(getYear(date), 0, 1) }}
+                dateToCellIndex={(date) => _dateToCellIndex(date)}
                 beginDateSelected={false}
                 isBeforeSelected={false}
                 isCurrentMonthBeforeSelected={false}

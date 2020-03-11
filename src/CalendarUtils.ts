@@ -210,15 +210,6 @@ export const compareDates = (date1: Date, date2: Date) => {
 /** Compares two numbers with each other. Returns -1 on less than, 0 on equals, and 1 on greater than. */
 const compareNumbers = (value1: number, value2: number) => {
     return (value1 > value2 ? 1 : 0) - (value1 < value2 ? 1 : 0);
-    // if (value1 === value2) {
-    //     return 0;
-    // }
-    // if (value1 > value2) {
-    //     return 1;
-    // }
-    // // if (value1 < value2) {
-    // return -1;
-    // //}
 }
 /** Looks at the days, months, and years to compare two dates. */
 export const compareDaysMonthsAndYears = (date1: Date, date2: Date) => {

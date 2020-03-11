@@ -110,6 +110,10 @@ export function CalendarBody(
         if (cell.enabled) {
             const date = createDateFromSelectedCell(cell.value);
 
+            console.log("Cell selected: ");
+            console.log(cell);
+            console.log("hovered cell index: " + _cellHovered);
+
             if (date) {
                 // dispatch({
                 //     type: 'set-active-date', payload: date
@@ -147,31 +151,28 @@ export function CalendarBody(
         return beginDate && endDate && compare(date, beginDate) > 0 && compare(date, endDate) < 0;
     }
 
-    /** Returns true if date is within the range (hovered, baseDate), inclusive, where hovered is before baseDate. */
-    const _isBetweenHoveredAndDate = (date: Date, baseDate: Date | null, cellIndex?: number, baseCellIndex?: number) => {
-        const cellNumber = cellIndex ? cellIndex : dateToCellIndex(date);
-        const baseNumber = baseCellIndex ? baseCellIndex : dateToCellIndex(date);
+    /** Returns true if date is within range, inclusive. */
+    // const _isBetween = (date: Date, startDate: Date | null, endDate: Date | null) => {
+    //     const cellIndex = dateToCellIndex(date);
 
-        if (!_cellHovered || !rangeMode || !baseDate) {
-            return false;
-        } else {
-            return (_cellHovered < baseNumber)
-                ? compare(date, baseDate) <= 0 && cellNumber >= _cellHovered
-                : false;
-        }
-    }
-    /** Returns true if date is within the range (baseDate, hovered), inclusive, where baseDate is before hovered. */
-    const _isBetweenDateAndHovered = (date: Date, baseDate: Date | null, cellIndex?: number, baseCellIndex?: number) => {
-        const cellNumber = cellIndex ? cellIndex : dateToCellIndex(date);
-        const baseNumber = baseCellIndex ? baseCellIndex : dateToCellIndex(date);
+    //     if (!startDate || !endDate) {
+    //         return false;
+    //     }
+    //     const startIndex = dateToCellIndex(startDate);
+    //     const endIndex = dateToCellIndex(endDate);
 
-        if (!_cellHovered || !rangeMode || !baseDate) {
+    //     return (startIndex < endIndex)
+    //         ? compare(date, startDate) >= 0 && compare(date, endDate) <= 0
+    //         : false;
+    // }
+    /** Returns true if given index is between  the start and end indices, inclusive. */
+    const _isBetweenIndex = (index: number, startIndex: number | null, endIndex: number | null) => {
+        if (startIndex == null || endIndex == null) {
             return false;
-        } else {
-            return (_cellHovered > baseNumber)
-                ? compare(date, baseDate) >= 0 && cellNumber <= _cellHovered
-                : false;
         }
+        return (startIndex < endIndex)
+            ? index >= startIndex && index <= endIndex
+            : false;
     }
 
     /** When mouse enters hover zone for a cell */
@@ -179,14 +180,16 @@ export function CalendarBody(
         if (cell.enabled) {
             // console.log("on Hovered cell index: " + cell.cellIndex);
             // console.log("calculated cell index: " + dateToCellIndex(cell.value));
+            console.log("hovered cell change:");
+            console.log(cell);
             // these are correct here - is it not updated quickly enough?
-            _setCellHovered(cell.cellIndex);
+            _setCellHovered(cell.cellIndex ? cell.cellIndex : dateToCellIndex(cell.value));
         }
         return undefined;
     }
     /** When mouse exists hover zone for a cell */
     const _offHover = (cell: ICalendarCell) => {
-        if (_cellHovered === cell.cellIndex) {
+        if (_cellHovered === (cell.cellIndex ? cell.cellIndex : dateToCellIndex(cell.value))) {
             _setCellHovered(null);
         }
         return undefined;
@@ -194,7 +197,7 @@ export function CalendarBody(
     /** Handle when a cell is focused, such as through tabbing. */
     const _handleCellFocus = (cell: ICalendarCell) => {
         if (cell.enabled) {
-            activeCell = cell.cellIndex;
+            activeCell = (cell.cellIndex ? cell.cellIndex : dateToCellIndex(cell.value));
 
             dispatch({
                 type: 'set-active-date',
@@ -207,7 +210,7 @@ export function CalendarBody(
     const _handleCellKeypress = (event: React.KeyboardEvent<HTMLTableDataCellElement>, cell: ICalendarCell) => {
         const { charCode } = event;
         switch (charCode) {
-            case 13: {// Enter
+            case 13: { // Enter
                 _cellClicked(cell);
             }
         }
@@ -292,34 +295,31 @@ export function CalendarBody(
                 // is between beginDate and endDate
                 styles.push(withinRangeClass);
             }
-            if ((!beginDate && endDate && _isBetweenHoveredAndDate(cell.value, endDate)) || (beginDate && _isBetweenHoveredAndDate(cell.value, beginDate))) {
-                // if hovered is before beginDate and cell is between hovered and beginDate, or there is no beginDate, and it is between hovered and the endDate
+
+            const hovered = _cellHovered;
+            if ((!beginDate && endDate && _isBetweenIndex(dateToCellIndex(cell.value), _cellHovered, dateToCellIndex(endDate)))
+                || (beginDate && _isBetweenIndex(dateToCellIndex(cell.value), _cellHovered, dateToCellIndex(beginDate)))) {
+                // if there is no beginDate, and the cell is between the hovered cell and the endDate, or the hovered cell is before beginDate, and the cell is between hovered and beginDate.
                 styles.push(withinHoveredRangeClass);
 
-                if (dateToCellIndex(cell.value) === _cellHovered) {
+                if ((cell.cellIndex ? cell.cellIndex : dateToCellIndex(cell.value)) === hovered) {
                     // cell is currently hovered and therefore the beginning of this hovered range
                     styles.push(hoveredClass);
                     styles.push(beginHoveredRangeClass);
                 }
             }
             // else
-            if ((!endDate && beginDate && _isBetweenDateAndHovered(cell.value, beginDate)) || (endDate && _isBetweenDateAndHovered(cell.value, endDate))) {
+            if ((!endDate && beginDate && _isBetweenIndex(dateToCellIndex(cell.value), dateToCellIndex(beginDate), _cellHovered))
+                || (endDate && _isBetweenIndex(dateToCellIndex(cell.value), dateToCellIndex(endDate), _cellHovered))) {
                 // if hovered is after endDate and cell is between hovered and endDate, or there is no endDate, and it is between hovered and beginDate
                 styles.push(withinHoveredRangeClass);
 
-                if (dateToCellIndex(cell.value) === _cellHovered) {
+                if (dateToCellIndex(cell.value) === hovered) {
                     // cell is currently hovered and therefore the end of this hovered range
                     styles.push(hoveredClass);
                     styles.push(endHoveredRangeClass);
                 }
             }
-
-            // if (_cellHovered) {
-            //     console.log("cell date: " + formatDateDisplay(cell.value));
-            //     console.log(cell);
-            //     console.log("calculated cell index: " + dateToCellIndex(cell.value));
-            //     console.log("hovered: " + _cellHovered);
-            // }
         }
         return styles.join(' ');
     }

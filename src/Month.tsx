@@ -36,6 +36,19 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
     /** Weekday labels. */
     const [_weekdays, _setWeekdays] = useState(WEEKDAY_NAMES);
 
+    /** Convert a given date to a month cell index. */
+    const _dateToCellIndex = useCallback((date: Date) => {
+        // console.log("active date index: " + (getDay(activeDate) - 1));
+        // console.log("date: " + (getDay(date) - 1));
+        if (getYear(date) < getYear(activeDate) || getMonth(date) < getMonth(activeDate)) {
+            return -1;
+        }
+        if (getYear(date) > getYear(activeDate) || getMonth(date) > getMonth(activeDate)) {
+            return 32;
+        }
+        return getDay(date) - 1;
+    }, [activeDate]);
+
     /** Date filter for the month */
     const _shouldEnableDay = useCallback((date: Date) => {
         return !!date &&
@@ -54,13 +67,13 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
         // displayValue = dateNames[i];
 
         return {
-            cellIndex: day - 1,
+            cellIndex: _dateToCellIndex(date),
             value: date,
             displayValue: '' + day,
             ariaLabel: '' + day,
             enabled: _shouldEnableDay(date)
         } as ICalendarCell;
-    }, [_shouldEnableDay, activeDate]);
+    }, [_dateToCellIndex, _shouldEnableDay, activeDate]);
 
 
     /** Reloads days. */
@@ -103,20 +116,6 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
 
         _populateDays();
     }, [activeDate, _firstWeekOffset, formatMonthText, _populateDays]);
-
-    /** Convert a given date to a month cell index. */
-    const _dateToCellIndex = useCallback((date: Date) => {
-        // console.log("active date index: " + (getDay(activeDate) - 1));
-        // console.log("date: " + (getDay(date) - 1));
-
-        if (getYear(date) < getYear(activeDate) || getMonth(date) < getMonth(activeDate)) {
-            return -1;
-        }
-        if (getYear(date) > getYear(activeDate) || getMonth(date) > getMonth(activeDate)) {
-            return 32;
-        }
-        return getDay(date) - 1;
-    }, [activeDate]);
 
     /** Handles when a new day is selected. */
     const _dateSelected = useCallback((cellValue: Date) => {

@@ -13,8 +13,8 @@
     --on-neutral: white;
     --on-neutral-dark: white;
 
-    --th: var(--background);
-    --on-th: var(--neutral);
+    --weekday-row: var(--background);
+    --on-weekday-row: var(--neutral);
 
     --divider: var(--neutral-light);
     --label-text: var(--neutral-dark);
@@ -124,8 +124,8 @@
     font-size: .7em;
     font-weight: 400;
     /* color: var(--neutral); */
-    background: var(--th);
-    color: var(--on-th);
+    background: var(--weekday-row);
+    color: var(--on-weekday-row);
 }
 
 .calendar .divider {

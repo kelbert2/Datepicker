@@ -1,3 +1,5 @@
+import { DatepickerTheme } from "./DatepickerContext";
+
 export type VIEW = 'month' | 'year' | 'multiyear';
 
 export const DAYS_PER_WEEK = 7;
@@ -376,4 +378,15 @@ export const simpleUID = (prefix: string) => {
         gen4(),
         gen4()
     ].join(''))
+}
+
+// Themes
+export const makeDatepickerTheme = (themeObject: DatepickerTheme) => {
+    let array = [] as string[];
+    Object.keys(themeObject).forEach((key) => {
+        const value = (themeObject as any)[key];
+        array.push(key + ": " + value);
+    });
+
+    return array;
 }

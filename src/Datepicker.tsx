@@ -1,7 +1,7 @@
 import DatepickerContext, { DateData, IDatepickerContext, reducer, IDatepickerProps } from "./DatepickerContext";
 import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay } from "./CalendarUtils";
 import React, { useCallback, useLayoutEffect } from "react";
-import Input, { blueThemeArray } from "./Input";
+import Input, { tealThemeArray } from "./Input";
 import './Datepicker.css';
 
 function Datepicker({

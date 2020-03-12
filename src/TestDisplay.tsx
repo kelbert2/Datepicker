@@ -1,9 +1,9 @@
 import React, { useState, ChangeEvent, useRef } from "react";
 import { CalendarDisplay, DateData, DatepickerContextProvider, DatepickerTheme } from "./DatepickerContext";
-import { formatDateDisplay, parseStringAsDate } from "./CalendarUtils";
+import { formatDateDisplay, parseStringAsDate, makeDatepickerTheme } from "./CalendarUtils";
 import Datepicker from "./Datepicker";
 import DatepickerProvider from "./DatepickerProvider";
-import { blueThemeArray } from "./Input";
+import { tealThemeArray } from "./Input";
 
 function TestDisplay() {
 
@@ -34,19 +34,26 @@ function TestDisplay() {
     /** Timer to avoid on focus on max calendar datepicker respose not running because seen after on blur. */
     const maxTimer = useRef(null as NodeJS.Timeout | null);
 
-    const _theme = {
-        "--color": "blue",
-        "--color-light": "lightblue",
-        "--on-color": "rgb(0,150,250)",
-        "--on-color-light": "blue",
+    const _tealTheme = {
+        "--color": "rgba(0,220,230)",
+        "--color-light": "rgba(0,248,248,.6)",
+        "--on-color": "white",
+        "--on-color-light": "black",
 
-        "--background": "blue",
-        "--neutral-light": "blue",
-        "--neutral": "blue",
-        "--neutral-dark": "blue",
-        "--on-background": "rgb(0,150,250)"
+        "--background": "#cfd8dc",
+        "--neutral-light": "rgba(96, 125, 139, .1)",
+        "--neutral": "rgba(96, 125, 139, .4)",
+        "--neutral-dark": "rgba(96, 125, 139, .5)",
+        "--on-background": "black",
+        "--on-neutral-light": "black",
+        "--on-neutral": "black",
+        "--on-neutral-dark": "white",
+
+        "--button-background": "#78909c",
+        "--on-button": "white",
+        "--button-border": "rgb(96, 125, 139)"
     } as DatepickerTheme;
-
+    const _salmonTheme = {};
 
     const _onDateChange = (d: DateData) => {
         _setBeginDate(d.beginDate);
@@ -178,8 +185,8 @@ function TestDisplay() {
                     canCloseCalendar={_canCloseCalendar}
                     closeAfterSelection={_closeAfterSelection}
 
-                    theme={_theme}
-                    themeArray={blueThemeArray}
+                    theme={_tealTheme}
+                    themeArray={makeDatepickerTheme(_salmonTheme)}
                 ></Datepicker>
             </DatepickerContextProvider>
             <div>

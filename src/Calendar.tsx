@@ -4,7 +4,7 @@ import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
 import Year from './Year';
 import Month from './Month';
-import { compareDaysMonthsAndYears, VIEW, getCompareFromView, compareDates, formatDateDisplay } from './CalendarUtils';
+import { compareDaysMonthsAndYears, VIEW, getCompareFromView } from './CalendarUtils';
 
 /** Returns a calendar.
  *  @param onFinalDateSelection: Calls with selectedDate, beginDate, and endDate when selected in the most precise enabled view.
@@ -29,10 +29,6 @@ export function Calendar(
         onYearSelected,
         onMonthSelected,
         onDaySelected,
-
-        minDate,
-        maxDate,
-        dateFilter,
 
         startAt,
         startView,

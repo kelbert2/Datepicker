@@ -21,7 +21,28 @@ export interface DatepickerTheme {
     "--neutral-light"?: string,
     "--neutral"?: string,
     "--neutral-dark"?: string,
-    "--on-background"?: string
+    "--on-background"?: string,
+    "--on-neutral-light"?: string,
+    "--on-neutral"?: string,
+    "--on-neutral-dark"?: string,
+
+    "--weekday-row"?: string,
+    "--on-weekday-row"?: string,
+
+    "--divider"?: string,
+    "--label-text"?: string,
+
+    "--button-background"?: string,
+    "--on-button"?: string,
+    "--button-border"?: string,
+
+    "--hover"?: string,
+    "--on-hover"?: string,
+
+    "--today"?: string,
+
+    "--disabled"?: string,
+    "--on-disabled"?: string,
 }
 // as { [key: string]: string };
 

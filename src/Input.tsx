@@ -9,36 +9,36 @@ const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 const INPUT_CLASS_FILLED = 'filled';
 
-export const blueThemeArray = [
-    "--color: blue",
-    "--color-light: lightblue",
-    "--on-color: white",
-    "--on-color-light: white",
+export const tealThemeArray = [
+    "--color: #1de9b6",
+    "--color-light: #a7ffeb",
+    "--on-color: black",
+    "--on-color-light: black",
 
-    "--background: white",
-    "--neutral-light: lightgray",
-    "--neutral: gray",
-    "--neutral-dark: darkgray",
-    "--on-background: rgb(0,150,250)",
+    "--background: lightgray",
+    "--neutral-light: rgba(0, 0, 0, .1)",
+    "--neutral: rgba(0, 0, 0, .4)",
+    "--neutral-dark: rgba(0, 0, 0, .5)",
+    "--on-background: #004d40",
 
     "--on-neutral-light: black",
     "--on-neutral: white",
     "--on-neutral-dark: white",
 
     "--th: var(--background)",
-    "--on-th: var(--neutral)",
+    "--on-th: #004d40",
 
     "--divider: var(--neutral-light)",
     "--label-text: var(--neutral-dark)",
 
-    "--button-background: navy",
+    "--button-background: #a7ffeb",
     "--on-button: var(--neutral-dark)",
     "--button-border: none",
 
-    "--hover: var(--neutral-light)",
-    "--on-hover: var(--on-neutral-light)",
+    "--hover: rgba(128, 203, 196, .4)",
+    "--on-hover: white",
 
-    "--today: var(--neutral)",
+    "--today: rgb(128,203,196)",
 
     "--disabled: transparent",
     "--on-disabled: var(--neutral)"

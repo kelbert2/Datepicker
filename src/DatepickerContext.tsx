@@ -12,16 +12,16 @@ export interface DateData {
 }
 export type CalendarDisplay = 'popup' | 'popup-large' | 'inline';
 export interface DatepickerTheme {
-    "--color": string,
-    "--color-light": string,
-    "--on-color": string,
-    "--on-color-light": string,
+    "--color"?: string,
+    "--color-light"?: string,
+    "--on-color"?: string,
+    "--on-color-light"?: string,
 
-    "--background": string,
-    "--neutral-light": string,
-    "--neutral": string,
-    "--neutral-dark": string,
-    "--on-background": string
+    "--background"?: string,
+    "--neutral-light"?: string,
+    "--neutral"?: string,
+    "--neutral-dark"?: string,
+    "--on-background"?: string
 }
 // as { [key: string]: string };
 
@@ -93,6 +93,7 @@ export interface DatepickerTheme {
  * @param displayDateAsString: 
  * 
  * @param theme: Provides DatepickerTheme colors for styling purposes.
+ * @param themeArray: Provides DatepickerTheme colors for styling purposes.
  * 
  * @param dispatch: For React useReducer to modify context values.
  */
@@ -164,6 +165,7 @@ export interface IDatepickerContext {
     displayDateAsString: (date: Date) => string,
 
     theme: DatepickerTheme,
+    themeArray: string[],
 
     dispatch: React.Dispatch<IAction>,
 }
@@ -253,8 +255,19 @@ const datepickerContextDefaultValue = {
         "--neutral": "rgba(0, 0, 0, .4)",
         "--neutral-dark": "rgba(0, 0, 0, .5)",
         "--on-background": "black"
-    }
+    },
+    themeArray: [
+        "--color: salmon",
+        "--color-light: rgb(250, 186, 160)",
+        "--on-color: white",
+        "--on-color-light: black",
 
+        "--background: white",
+        "--neutral-light: rgba(0, 0, 0, .1)",
+        "--neutral: rgba(0, 0, 0, .4)",
+        "--neutral-dark: rgba(0, 0, 0, .5)",
+        "--on-background: black"
+    ]
 } as IDatepickerContext;
 const DatepickerContext = React.createContext(datepickerContextDefaultValue);
 // export default React.createContext(datepickerContextDefaultValue);
@@ -467,4 +480,5 @@ export interface IDatepickerProps {
     displayDateAsString?: (date: Date) => string,
 
     theme?: DatepickerTheme,
+    themeArray?: string[],
 }

@@ -1,6 +1,6 @@
 import DatepickerContext, { DateData, IDatepickerContext, reducer, IDatepickerProps, IAction } from "./DatepickerContext";
 import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay } from "./CalendarUtils";
-import React from "react";
+import React, { useLayoutEffect, useCallback } from "react";
 import './Datepicker.css';
 import DatepickerNoInput from "./DatepickerNoInput";
 
@@ -171,12 +171,29 @@ function DatepickerProvider({
     }
     // const DatepickerContextConsumer = DatepickerContext.Consumer;
 
-    const _applyTheme = () => {
-        for (let key in theme) {
-            const value = (theme as any)[key];
-            document.documentElement.style.setProperty(key, value);
-        }
-    };
+    // /** Replace styles with input. */
+    // const _applyTheme = useCallback(() => {
+    //     //for (let key in theme) {
+    //     Object.keys(theme).forEach(key => {
+    //         const value = (theme as any)[key];
+    //         document.documentElement.style.setProperty(key, value);
+    //     });
+    // }, [theme]);
+
+    // /** Set theme on mount. */
+    // useLayoutEffect(() => {
+    //     _applyTheme();
+    // });
+
+    // /** When style inputs change, update css. */
+    // useLayoutEffect(() => {
+    //     _applyTheme();
+    // }, [_applyTheme]);
+    // Object.keys(theme).forEach(key => {
+    //     const value = (theme as any)[key];
+    //     document.documentElement.style.setProperty(key, value);
+    // });
+    // }, [theme]);
 
     // TODO: May refactor to have Calendar be called here
     return (

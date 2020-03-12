@@ -9,12 +9,44 @@
     --neutral: rgba(0, 0, 0, .4);
     --neutral-dark: rgba(0, 0, 0, .5);
     --on-background: black;
+    --on-neutral-light: black;
+    --on-neutral: white;
+    --on-neutral-dark: white;
+
+    --th: var(--background);
+    --on-th: var(--neutral);
+
+    --divider: var(--neutral-light);
+    --label-text: var(--neutral-dark);
+
+    --button-background: transparent;
+    --on-button: var(--neutral-dark);
+    --button-border: none;
+
+    --hover: var(--neutral-light);
+    --on-hover: var(--on-neutral-light);
+
+    --today: var(--neutral);
+
+    --disabled: transparent;
+    --on-disabled: var(--neutral);
+    /* --th: white;
+    --on-th: rgba(0, 0, 0, .4);
+
+    --divider: rgba(0, 0, 0, .1);
+    --label-text: rgba(0, 0, 0, .5);
 
     --hover: rgba(0, 0, 0, .1);
     --on-hover: black;
 
-    --disabled: white;
-    --on-disabled: rgba(0, 0, 0, .4);
+    --button-background: transparent;
+    --on-button: rgba(0, 0, 0, .5);
+    --button-border: none;
+
+    --today: rgba(0, 0, 0, .4);
+
+    --disabled: transparent;
+    --on-disabled: rgba(0, 0, 0, .4); */
 
     --border-width: 1.5px;
 }
@@ -91,7 +123,9 @@
     padding: 0 0 .7em 0;
     font-size: .7em;
     font-weight: 400;
-    color: var(--neutral);
+    /* color: var(--neutral); */
+    background: var(--th);
+    color: var(--on-th);
 }
 
 .calendar .divider {
@@ -107,7 +141,8 @@
     right: -10em;
 
     height: 1px;
-    background: var(--neutral-light);
+    /* background: var(--neutral-light); */
+    background: var(--divider);
 }
 
 .calendar tbody {
@@ -115,7 +150,8 @@
 }
 
 .calendar .labelText {
-    color: var(--neutral-dark);
+    /* color: var(--neutral-dark); */
+    color: var(--label-text);
     font-size: 1.1em;
     font-weight: 500;
 }
@@ -255,17 +291,20 @@
     height: 2em;
 
     font-size: 1em;
-    background-color: transparent;
-    border: none;
+    /* background-color: transparent; */
+    background: var(--button-background);
+    /* border: none; */
+    border: var(--button-border);
 }
 
 .calendar button:not(:disabled) {
     cursor: pointer;
+    color: var(--on-button);
 }
 
 .calendar button:not(:disabled):focus,
 .calendar button:not(:disabled):hover {
-    background-color: var(--neutral-light);
+    background-color: var(--hover);
 }
 
 .calendar button.period {
@@ -283,7 +322,8 @@
 
     border-left: .32em solid transparent;
     border-right: .32em solid transparent;
-    border-top: .32em solid var(--neutral-dark);
+    /* border-top: .32em solid var(--neutral-dark); */
+    border-top: .32em solid var(--on-button);
 }
 
 .calendar button.left,
@@ -295,8 +335,10 @@
 
 .calendar button.left:not(:disabled)::after,
 .calendar button.right:not(:disabled)::after {
-    border-right: .2em solid var(--neutral-dark);
-    border-bottom: .2em solid var(--neutral-dark);
+    /* border-right: .2em solid var(--neutral-dark);
+    border-bottom: .2em solid var(--neutral-dark); */
+    border-right: .2em solid var(--on-button);
+    border-bottom: .2em solid var(--on-button);
 
     transform-origin: center center;
 }
@@ -311,7 +353,6 @@
 
     width: .5em;
     height: .5em;
-
 }
 
 .calendar button.left::after {

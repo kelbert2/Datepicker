@@ -1,8 +1,9 @@
 import React, { useState, ChangeEvent, useRef } from "react";
-import { CalendarDisplay, DateData, DatepickerContextProvider } from "./DatepickerContext";
+import { CalendarDisplay, DateData, DatepickerContextProvider, DatepickerTheme } from "./DatepickerContext";
 import { formatDateDisplay, parseStringAsDate } from "./CalendarUtils";
 import Datepicker from "./Datepicker";
 import DatepickerProvider from "./DatepickerProvider";
+import { blueThemeArray } from "./Input";
 
 function TestDisplay() {
 
@@ -32,6 +33,19 @@ function TestDisplay() {
     const [_openMaxCalendar, _setOpenMaxCalendar] = useState(false);
     /** Timer to avoid on focus on max calendar datepicker respose not running because seen after on blur. */
     const maxTimer = useRef(null as NodeJS.Timeout | null);
+
+    const _theme = {
+        "--color": "blue",
+        "--color-light": "lightblue",
+        "--on-color": "rgb(0,150,250)",
+        "--on-color-light": "blue",
+
+        "--background": "blue",
+        "--neutral-light": "blue",
+        "--neutral": "blue",
+        "--neutral-dark": "blue",
+        "--on-background": "rgb(0,150,250)"
+    } as DatepickerTheme;
 
 
     const _onDateChange = (d: DateData) => {
@@ -163,6 +177,9 @@ function TestDisplay() {
                     calendarOpenDisplay={_calendarOpenDisplay}
                     canCloseCalendar={_canCloseCalendar}
                     closeAfterSelection={_closeAfterSelection}
+
+                    theme={_theme}
+                    themeArray={blueThemeArray}
                 ></Datepicker>
             </DatepickerContextProvider>
             <div>

@@ -1,5 +1,5 @@
 import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
-import DatepickerContext, { DateData, CalendarDisplay } from './DatepickerContext';
+import DatepickerContext, { DateData, CalendarDisplay, DatepickerTheme } from './DatepickerContext';
 import Calendar from './Calendar';
 import { compareDaysMonthsAndYears, simpleUID, compareDates, formatDateDisplay } from './CalendarUtils';
 
@@ -8,6 +8,54 @@ const CALENDAR_CLASS_INLINE = 'inline';
 const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 const INPUT_CLASS_FILLED = 'filled';
+
+export const blueThemeArray = [
+    "--color: blue",
+    "--color-light: lightblue",
+    "--on-color: white",
+    "--on-color-light: white",
+
+    "--background: white",
+    "--neutral-light: lightgray",
+    "--neutral: gray",
+    "--neutral-dark: darkgray",
+    "--on-background: rgb(0,150,250)",
+
+    "--on-neutral-light: black",
+    "--on-neutral: white",
+    "--on-neutral-dark: white",
+
+    "--th: var(--background)",
+    "--on-th: var(--neutral)",
+
+    "--divider: var(--neutral-light)",
+    "--label-text: var(--neutral-dark)",
+
+    "--button-background: navy",
+    "--on-button: var(--neutral-dark)",
+    "--button-border: none",
+
+    "--hover: var(--neutral-light)",
+    "--on-hover: var(--on-neutral-light)",
+
+    "--today: var(--neutral)",
+
+    "--disabled: transparent",
+    "--on-disabled: var(--neutral)"
+]
+
+export const blueThemeObject = {
+    "--color": "blue",
+    "--color-light": "lightblue",
+    "--on-color": "rgb(0,150,250)",
+    "--on-color-light": "blue",
+
+    "--background": "blue",
+    "--neutral-light": "blue",
+    "--neutral": "blue",
+    "--neutral-dark": "blue",
+    "--on-background": "rgb(0,150,250)"
+}
 
 // TODO: When input is deleted, set dates as null
 function Input() {
@@ -41,8 +89,8 @@ function Input() {
         parseStringToDate,
         displayDateAsString,
 
-        dispatch }
-        = useContext(DatepickerContext);
+        dispatch
+    } = useContext(DatepickerContext);
 
     /** Holds open state of the Calendar. */
     const [_calendarDisplay, _setCalendarDisplay] = useState((canCloseCalendar ? 'close' : 'inline') as OPEN_STATES);
@@ -105,10 +153,7 @@ function Input() {
     //TODO: move these or get it to update input quicker
     /** On minDate change, check if any values are too low as to be invalid. */
     useEffect(() => {
-        console.log("minDate: " + (minDate ? formatDateDisplay(minDate) : "null"));
-        console.log("Previous: " + (_prevMinDate.current ? formatDateDisplay(_prevMinDate.current) : "null"))
         if (minDate !== _prevMinDate.current) {
-            console.log("min date change!");
             if (minDate) {
                 if (selectedDate && compareDates(selectedDate, minDate) < 0) {
                     // Selected date is before minDate
@@ -140,7 +185,6 @@ function Input() {
     /** On maxDate change, check if any values are too high as to be invalid. */
     useEffect(() => {
         if (maxDate !== _prevMaxDate.current) {
-            console.log("maxDate change!");
             if (maxDate) {
                 if (selectedDate && compareDates(selectedDate, maxDate) > 0) {
                     // Selected date is before minDate
@@ -417,6 +461,37 @@ function Input() {
         }
     }
 
+    /** Replace styles with input. */
+    // const _applyTheme = useCallback(() => {
+    //     for (let key in theme) {
+    //         const value = (theme as any)[key];
+    //         document.documentElement.style.setProperty(key, value);
+    //     }
+    // }, [theme]);
+
+    // const _applyThemeGlobal = (theme: string[]) => {
+    //     const root = document.getElementsByTagName('html')[0];
+    //     root.style.cssText = theme.join(';');
+    // }
+
+    // /** When style inputs change, update css. */
+    // // useLayoutEffect(() => {
+    //     //     _applyTheme();
+    //     // }, [_applyTheme]);
+    //     // Object.keys(theme).forEach(key => {
+    //     //     const value = (theme as any)[key];
+    //     //     document.documentElement.style.setProperty(key, value);
+    //     // });
+    //     // _applyThemeGlobal(blueThemeArray);
+    // // });
+    // useLayoutEffect(() => {
+    //     // Object.keys(theme).forEach(key => {
+    //     //     const value = (theme as any)[key];
+    //     //     document.documentElement.style.setProperty(key, value);
+    //     // });
+    //     _applyThemeGlobal(blueThemeArray);
+    // }, [theme]);
+
     /** Renders second text input field. */
     const _renderEndInput = () => {
         return (
@@ -443,6 +518,9 @@ function Input() {
             onFocus={_onFocusHandler}
             className="datepicker"
         >
+            {/* <button
+                onClick={() => _applyTheme()}
+            >Theme</button> */}
             <div
                 role="button"
                 tabIndex={0}
@@ -469,7 +547,9 @@ function Input() {
                 {!rangeMode ? '' : _renderEndInput()}
                 <button
                     aria-label="Open calendar"
-                    className="fields-button"><span></span></button>
+                    className="fields-button">
+                    <span></span>
+                </button>
             </div>
             {
                 _calendarDisplay !== 'close' ?

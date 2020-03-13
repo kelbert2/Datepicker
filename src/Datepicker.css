@@ -294,7 +294,7 @@
     /* background-color: transparent; */
     background: var(--button-background);
     /* border: none; */
-    border: var(--button-border);
+    border: var(--border-width) solid var(--button-border);
 }
 
 .calendar button:not(:disabled) {
@@ -309,7 +309,7 @@
 
 .calendar button.period {
     padding: 0 2.5em;
-    border-radius: .125em;
+    border-radius: .25em;
 }
 
 .calendar button.period:not(:disabled)::after {

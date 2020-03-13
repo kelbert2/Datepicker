@@ -35,23 +35,25 @@ function TestDisplay() {
     const maxTimer = useRef(null as NodeJS.Timeout | null);
 
     const _tealTheme = {
-        "--color": "rgba(0,220,230)",
-        "--color-light": "rgba(0,248,248,.6)",
-        "--on-color": "white",
+        "--color": "rgb(145, 186, 214)",
+        "--color-light": "rgba(115, 165, 198, .9)",
+        "--on-color": "black",
         "--on-color-light": "black",
 
-        "--background": "#cfd8dc",
-        "--neutral-light": "rgba(96, 125, 139, .1)",
-        "--neutral": "rgba(96, 125, 139, .4)",
-        "--neutral-dark": "rgba(96, 125, 139, .5)",
-        "--on-background": "black",
-        "--on-neutral-light": "black",
+        "--background": "#36393b",
+        "--neutral-light": "rgba(188, 210, 232, .1)",
+        "--neutral": "rgba(188, 210, 232, .4)",
+        "--neutral-dark": "rgba(188, 210, 232, .5)",
+        "--on-background": "#bcd2e8",
+        "--on-neutral-light": "white",
         "--on-neutral": "black",
-        "--on-neutral-dark": "white",
+        "--on-neutral-dark": "black",
 
-        "--button-background": "#78909c",
-        "--on-button": "white",
-        "--button-border": "rgb(96, 125, 139)"
+        "--hover": "rgba(115, 165, 198, .6)",
+
+        "--button-background": "rgb(145, 186, 214)",
+        "--on-button": "black",
+        "--button-border": "#528aae"
     } as DatepickerTheme;
     const _salmonTheme = {};
 
@@ -186,7 +188,7 @@ function TestDisplay() {
                     closeAfterSelection={_closeAfterSelection}
 
                     theme={_tealTheme}
-                    themeArray={makeDatepickerTheme(_salmonTheme)}
+                    themeArray={makeDatepickerTheme(_tealTheme)}
                 ></Datepicker>
             </DatepickerContextProvider>
             <div>

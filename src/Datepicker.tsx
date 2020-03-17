@@ -1,8 +1,82 @@
-import DatepickerContext, { DateData, IDatepickerContext, reducer, IDatepickerProps } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay } from "./CalendarUtils";
-import React, { useCallback, useLayoutEffect } from "react";
-import Input, { tealThemeArray } from "./Input";
+import DatepickerContext, { DateData, IDatepickerContext, reducer, IDatepickerProps, DatepickerTheme } from "./DatepickerContext";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, makeDatepickerThemeArray } from "./CalendarUtils";
+import React, { useCallback, useLayoutEffect, useEffect } from "react";
+import Input from "./Input";
 import './Datepicker.css';
+
+export const DEFAULT_THEME = {
+    "--color": "salmon",
+    "--color-light": "rgb(250, 186, 160)",
+    "--on-color": "var(--background)",
+    "--on-color-light": "var(--background)",
+
+    "--background": "white",
+    "--neutral-light": "rgba(0, 0, 0, .2)",
+    "--neutral": "rgba(0, 0, 0, .3)",
+    "--neutral-dark": "rgba(0, 0, 0, .4)",
+    "--on-background": "black",
+    "--on-neutral-light": "var(--on-background)",
+    "--on-neutral": "var(--background)",
+
+    "--weekday-row": "var(--background)",
+    "--on-weekday-row": "var(--neutral)",
+
+    "--divider": "var(--neutral-light)",
+    "--label-text": "var(--neutral - dark)",
+
+    "--button-background": "transparent",
+    "--on-button": "var(--neutral - dark)",
+    "--button-border": "none",
+
+    "--hover": "var(--neutral)",
+    "--on-hover": "var(--on-neutral)",
+    "--hover-range": "var(--neutral-light)",
+    "--on-hover-range": "var(--on-neutral-light)",
+
+    "--today": "var(--neutral)",
+
+    "--disabled": "transparent",
+    "--on-disabled": "var(--neutral)"
+} as DatepickerTheme;
+
+
+const resetTheme = (theme: DatepickerTheme) => {
+    let retTheme = {} as DatepickerTheme;
+    retTheme["--color"] = theme["--color"] ? theme["--color"] : DEFAULT_THEME["--color"];
+    retTheme["--color-light"] = theme["--color-light"] ? theme["--color-light"] : DEFAULT_THEME["--color-light"];
+    retTheme["--on-color"] = theme["--on-color"] ? theme["--on-color"] : DEFAULT_THEME["--on-color"];
+    retTheme["--on-color-light"] = theme["--on-color-light"] ? theme["--on-color-light"] : DEFAULT_THEME["--on-color-light"];
+
+    retTheme["--background"] = theme["--background"] ? theme["--background"] : DEFAULT_THEME["--background"];
+    retTheme["--neutral-light"] = theme["--neutral-light"] ? theme["--neutral-light"] : DEFAULT_THEME["--neutral-light"];
+    retTheme["--neutral"] = theme["--neutral"] ? theme["--neutral"] : DEFAULT_THEME["--neutral"];
+    retTheme["--neutral-dark"] = theme["--neutral-dark"] ? theme["--neutral-dark"] : DEFAULT_THEME["--neutral-dark"];
+    retTheme["--on-background"] = theme["--on-background"] ? theme["--on-background"] : DEFAULT_THEME["--on-background"];
+    retTheme["--on-neutral-light"] = theme["--on-neutral-light"] ? theme["--on-neutral-light"] : DEFAULT_THEME["--on-neutral-light"];
+    retTheme["--on-neutral"] = theme["--on-neutral"] ? theme["--on-neutral"] : DEFAULT_THEME["--on-neutral"];
+
+    retTheme["--weekday-row"] = theme["--weekday-row"] ? theme["--weekday-row"] : DEFAULT_THEME["--weekday-row"];
+    retTheme["--on-weekday-row"] = theme["--on-weekday-row"] ? theme["--on-weekday-row"] : DEFAULT_THEME["--on-weekday-row"];
+
+    retTheme["--divider"] = theme["--divider"] ? theme["--divider"] : DEFAULT_THEME["--divider"];
+    retTheme["--label-text"] = theme["--label-text"] ? theme["--label-text"] : DEFAULT_THEME["--label-text"];
+
+    retTheme["--button-background"] = theme["--button-background"] ? theme["--button-background"] : DEFAULT_THEME["--button-background"];
+    retTheme["--on-button"] = theme["--on-button"] ? theme["--on-button"] : DEFAULT_THEME["--on-button"];
+    retTheme["--button-border"] = theme["--button-border"] ? theme["--button-border"] : DEFAULT_THEME["--button-border"];
+
+    retTheme["--hover"] = theme["--hover"] ? theme["--hover"] : DEFAULT_THEME["--hover"];
+    retTheme["--on-hover"] = theme["--on-hover"] ? theme["--on-hover"] : DEFAULT_THEME["--on-hover"];
+    retTheme["--hover-range"] = theme["--hover-range"] ? theme["--hover-range"] : DEFAULT_THEME["--hover-range"];
+    retTheme["--on-hover-range"] = theme["--on-hover-range"] ? theme["--on-hover-range"] : DEFAULT_THEME["--on-hover-range"];
+
+    retTheme["--today"] = theme["--today"] ? theme["--today"] : DEFAULT_THEME["--today"];
+
+    retTheme["--disabled"] = theme["--disabled"] ? theme["--disabled"] : DEFAULT_THEME["--disabled"];
+    retTheme["--on-disabled"] = theme["--on-disabled"] ? theme["--on-disabled"] : DEFAULT_THEME["--on-disabled"];
+
+    return retTheme;
+}
 
 function Datepicker({
     selectedDate = null as Date | null,
@@ -78,31 +152,8 @@ function Datepicker({
     parseStringToDate = (input: string) => parseStringAsDate(input),
     displayDateAsString = (date: Date) => formatDateDisplay(date),
 
-    theme = {
-        "--color": "salmon",
-        "--color-light": "rgb(250, 186, 160)",
-        "--on-color": "white",
-        "--on-color-light": "black",
-
-        "--background": "white",
-        "--neutral-light": "rgba(0, 0, 0, .1)",
-        "--neutral": "rgba(0, 0, 0, .4)",
-        "--neutral-dark": "rgba(0, 0, 0, .5)",
-        "--on-background": "black"
-    },
-    themeArray = []
+    theme = DEFAULT_THEME
 }: IDatepickerProps) {
-    // "--color: salmon",
-    // "--color-light: rgb(250, 186, 160)",
-    // "--on-color: white",
-    // "--on-color-light: black",
-
-    // "--background: white",
-    // "--neutral-light: rgba(0, 0, 0, .1)",
-    // "--neutral: rgba(0, 0, 0, .4)",
-    // "--neutral-dark: rgba(0, 0, 0, .5)",
-    // "--on-background: black"
-
     const props = {
         selectedDate,
         todayDate,
@@ -170,8 +221,7 @@ function Datepicker({
         parseStringToDate,
         displayDateAsString,
 
-        theme,
-        themeArray
+        theme
     } as IDatepickerContext;
 
     const DatepickerContextProvider = ({ children }: { children: any }) => {
@@ -199,12 +249,14 @@ function Datepicker({
     // useLayoutEffect(() => {
     //     _applyTheme();
     // }, [_applyTheme]);
-    const _applyThemeGlobal = useCallback((theme: string[]) => {
+
+    const _applyThemeGlobal = useCallback((theme: DatepickerTheme) => {
         // TODO: Shouldn't have to check for empty string, but it seems to be re-rendering with default value
-        if (theme.length > 0) {
-            const root = document.getElementsByTagName('html')[0];
-            root.style.cssText = theme.join(';');
-        }
+        // was doing that because it was resetting the css for Minimum date in Test Display
+        // if (theme.length > 0) {
+
+        const root = document.getElementsByTagName('html')[0];
+        root.style.cssText = makeDatepickerThemeArray(resetTheme(theme)).join(';');
     }, []);
 
     /** When style inputs change, update css. */
@@ -223,14 +275,21 @@ function Datepicker({
     //     console.log(themeArray);
     //     _applyThemeGlobal(themeArray);
     // });
+    useEffect(() => {
+        console.log("running on mount");
+    }, []);
+    useEffect(() => {
+        console.log("running on change");
+    })
+
     useLayoutEffect(() => {
         // Object.keys(theme).forEach(key => {
         //     const value = (theme as any)[key];
         //     document.documentElement.style.setProperty(key, value);
         // });
-        console.log("theme array prop:");
-        console.log(themeArray);
-        _applyThemeGlobal(themeArray);
+        console.log("theme prop:");
+        console.log(theme);
+        _applyThemeGlobal(theme);
 
         // _applyThemeGlobal(Object.keys(theme).map((key) => {
         //     const value = (theme as any)[key];
@@ -250,7 +309,7 @@ function Datepicker({
         //     return key + ": " + value;
         // })).join(';');
 
-    }, [_applyThemeGlobal, themeArray]);
+    }, [_applyThemeGlobal, theme]);
 
     const makeArray = () => {
         let array = [] as string[];

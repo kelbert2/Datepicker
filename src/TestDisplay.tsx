@@ -35,24 +35,28 @@ function TestDisplay() {
     const maxTimer = useRef(null as NodeJS.Timeout | null);
 
     type THEMES = 'salmon' | 'blue' | 'green';
-    const _salmonTheme = {};
+    const _salmonTheme = ({});
     const _greenTheme = makeDatepickerTheme({
         "--color": "rgb(152, 232, 139)",
         "--on-color": "rgb(0,0,0)",
         "--background": "white",
         "--on-neutral": "black",
-        "--hover": "rgba(255,200,240, .4)"
+        "--hover": "rgba(255,200,240, .4)",
+        "--hover-range": "rgba(240,240, 100, .25)",
+        "--button-border": "var(--hover)",
+        "--button-background": "rgba(255,200,240, .2)"
     });
-    const _blueTheme = makeDatepickerTheme({
+    const _blueTheme = (makeDatepickerTheme({
         "--color": "hsl(186, 90%, 61%)",
         "--background": "rgb(27, 46, 48)",
         "--on-background": "rgb(215,245,255)"
-    });
+    }));
 
 
-    const [_themeColor, _setThemeColor] = useState('salmon' as THEMES);
+    const [_themeColor, _setThemeColor] = useState('blue' as THEMES);
 
     const getTheme = (theme: THEMES) => {
+        console.log("theme: " + theme);
         switch (theme) {
             case 'blue':
                 return _blueTheme;
@@ -147,7 +151,7 @@ function TestDisplay() {
     const _handleKeydownMaxInput = (event: React.KeyboardEvent<HTMLDivElement>) => {
         const { keyCode } = event;
         switch (keyCode) {
-            case 13: {// Enter
+            case 13: { // Enter
                 if (_openMaxCalendar === false) {
                     if (!_disable || !_disableCalendar) {
                         _setOpenMaxCalendar(true)
@@ -176,7 +180,7 @@ function TestDisplay() {
 
                     minDate={_minDate}
                     maxDate={_maxDate}
-                    dateFilter={_dateFilter}
+                    dateFilter={(d) => _dateFilter(d)}
 
                     rangeMode={_rangeMode}
                     beginDate={_beginDate}
@@ -192,7 +196,7 @@ function TestDisplay() {
                     calendarOpenDisplay={_calendarOpenDisplay}
                     canCloseCalendar={_canCloseCalendar}
 
-                    themeArray={makeDatepickerThemeArray(getTheme(_themeColor))}
+                    theme={getTheme(_themeColor)}
                 ></Datepicker>
             </DatepickerContextProvider>
             <div>
@@ -237,6 +241,8 @@ function TestDisplay() {
                         calendarOpenDisplay={_calendarOpenDisplay}
                         canCloseCalendar={true}
                         closeAfterSelection={_closeAfterSelection}
+
+                        theme={getTheme(_themeColor)}
                     ></Datepicker>
                 </p>
                 <div
@@ -283,6 +289,8 @@ function TestDisplay() {
                             canCloseCalendar={true}
                             closeAfterSelection={_closeAfterSelection}
                             setCalendarOpen={_openMaxCalendar}
+
+                            theme={getTheme(_themeColor)}
                         ></DatepickerProvider>
                     </label>
                 </div>

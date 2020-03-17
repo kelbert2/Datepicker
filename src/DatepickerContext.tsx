@@ -1,5 +1,6 @@
 import React from 'react';
 import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear, formatDateDisplay, parseStringAsDate } from './CalendarUtils';
+import { DEFAULT_THEME } from './Datepicker';
 
 // Based on: https://github.com/SaturnTeam/saturn-datepicker/tree/master/saturn-datepicker/src/datepicker
 // All IDatepickerContext values will be public and updateable outside except for dispatch
@@ -24,7 +25,6 @@ export interface DatepickerTheme {
     "--on-background"?: string,
     "--on-neutral-light"?: string,
     "--on-neutral"?: string,
-    "--on-neutral-dark"?: string,
 
     "--weekday-row"?: string,
     "--on-weekday-row"?: string,
@@ -38,6 +38,8 @@ export interface DatepickerTheme {
 
     "--hover"?: string,
     "--on-hover"?: string,
+    "--hover-range"?: string,
+    "--on-hover-range"?: string,
 
     "--today"?: string,
 
@@ -114,7 +116,6 @@ export interface DatepickerTheme {
  * @param displayDateAsString: 
  * 
  * @param theme: Provides DatepickerTheme colors for styling purposes.
- * @param themeArray: Provides DatepickerTheme colors for styling purposes.
  * 
  * @param dispatch: For React useReducer to modify context values.
  */
@@ -186,7 +187,6 @@ export interface IDatepickerContext {
     displayDateAsString: (date: Date) => string,
 
     theme: DatepickerTheme,
-    themeArray: string[],
 
     dispatch: React.Dispatch<IAction>,
 }
@@ -265,30 +265,7 @@ const datepickerContextDefaultValue = {
     parseStringToDate: (input: string) => parseStringAsDate(input),
     displayDateAsString: (date: Date) => formatDateDisplay(date),
 
-    theme: {
-        "--color": "salmon",
-        "--color-light": "rgb(250, 186, 160)",
-        "--on-color": "white",
-        "--on-color-light": "black",
-
-        "--background": "white",
-        "--neutral-light": "rgba(0, 0, 0, .1)",
-        "--neutral": "rgba(0, 0, 0, .4)",
-        "--neutral-dark": "rgba(0, 0, 0, .5)",
-        "--on-background": "black"
-    },
-    themeArray: [
-        "--color: salmon",
-        "--color-light: rgb(250, 186, 160)",
-        "--on-color: white",
-        "--on-color-light: black",
-
-        "--background: white",
-        "--neutral-light: rgba(0, 0, 0, .1)",
-        "--neutral: rgba(0, 0, 0, .4)",
-        "--neutral-dark: rgba(0, 0, 0, .5)",
-        "--on-background: black"
-    ]
+    theme: DEFAULT_THEME,
 } as IDatepickerContext;
 const DatepickerContext = React.createContext(datepickerContextDefaultValue);
 // export default React.createContext(datepickerContextDefaultValue);
@@ -501,5 +478,4 @@ export interface IDatepickerProps {
     displayDateAsString?: (date: Date) => string,
 
     theme?: DatepickerTheme,
-    themeArray?: string[],
 }

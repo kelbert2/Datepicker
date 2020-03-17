@@ -5,10 +5,11 @@
     --on-color-light: var(--background);
 
     --background: white;
-    --neutral-light: rgba(0, 0, 0, .1);
-    --neutral: rgba(0, 0, 0, .4);
-    --neutral-dark: rgba(0, 0, 0, .5);
+    --neutral-light: rgba(0, 0, 0, .2);
+    --neutral: rgba(0, 0, 0, .3);
+    --neutral-dark: rgba(0, 0, 0, .4);
     --on-background: black;
+    --on-neutral-light: var(--on-background);
     --on-neutral: var(--background);
 
     --weekday-row: var(--background);
@@ -23,6 +24,8 @@
 
     --hover: var(--neutral);
     --on-hover: var(--on-neutral);
+    --hover-range: var(--neutral-light);
+    --on-hover-range: var(--on-neutral-light);
 
     --today: var(--neutral);
 
@@ -215,10 +218,16 @@
     border-bottom-right-radius: 999px;
 }
 
+.calendar td.withinHoveredRange {
+    background-color: var(--hover-range);
+    color: var(--on-hover-range);
+}
+
 .calendar td:not(.disabled):hover div,
 .calendar td:not(.disabled):focus div,
 .calendar td.hovered div,
-.calendar td.withinHoveredRange {
+.calendar td.beginHoveredRange div,
+.calendar td.endHoveredRange div {
     background-color: var(--hover);
     color: var(--on-hover);
 }
@@ -226,29 +235,27 @@
 .calendar td.beginRange.withinHoveredRange:not(.beginHoveredRange) {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    background: linear-gradient(to left, var(--color-light), var(--hover));
+    background: linear-gradient(to left, var(--color-light), var(--hover-range));
 }
 
 .calendar td.endRange.withinHoveredRange:not(.endHoveredRange) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    background: linear-gradient(to right, var(--color-light), var(--hover));
+    background: linear-gradient(to right, var(--color-light), var(--hover-range));
 }
 
 .calendar td.beginRange.beginHoveredRange,
 .calendar td.endRange.beginHoveredRange {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-
-    background: linear-gradient(to right, var(--color-light), var(--hover));
+    background: linear-gradient(to right, var(--color-light), var(--hover-range));
 }
 
 .calendar td.beginRange.endHoveredRange:not(.hovered),
 .calendar td.endRange.endHoveredRange:not(.hovered) {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-
-    background: linear-gradient(to left, var(--color-light), var(--hover));
+    background: linear-gradient(to left, var(--color-light), var(--hover-range));
 }
 
 .calendar td.beginRange,

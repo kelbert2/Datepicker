@@ -1,4 +1,5 @@
 import { DatepickerTheme } from "./DatepickerContext";
+import { SSL_OP_TLS_ROLLBACK_BUG } from "constants";
 
 export type VIEW = 'month' | 'year' | 'multiyear';
 
@@ -381,7 +382,7 @@ export const simpleUID = (prefix: string) => {
 }
 
 // Themes
-export const makeDatepickerTheme = (themeObject: DatepickerTheme) => {
+export const makeDatepickerThemeArray = (themeObject: DatepickerTheme) => {
     let array = [] as string[];
     Object.keys(themeObject).forEach((key) => {
         const value = (themeObject as any)[key];
@@ -389,4 +390,56 @@ export const makeDatepickerTheme = (themeObject: DatepickerTheme) => {
     });
 
     return array;
+}
+
+const addAlpha = (color: string | undefined, alpha = .5) => {
+    if (color == null) return null;
+    let array = color.split(/[\s,()]+/);
+    if (array.length > 2) {
+        let prefix: string;
+        if (array[0].length < 4) {
+            prefix = array[0] + "a(";
+        } else {
+            prefix = array[0] + "(";
+        }
+        return prefix + array[1] + "," + array[2] + "," + array[3] + "," + alpha + ")";
+    }
+    return null;
+}
+/** Creates a datepicker theme around --color and --on-background in hsl() or rgb() or anything that can take an alpha when converted to type+a(). Default theme assumes --background and --color have sufficient (legible) contrast with each other and --neutral and --background have sufficient contrast. */
+export const makeDatepickerTheme = (themeObject: DatepickerTheme) => {
+    let retTheme = themeObject;
+    if (themeObject["--color"] && !(themeObject["--color-light"])) {
+        const lightColor = addAlpha(themeObject["--color"], .5);
+        if (lightColor) {
+            retTheme["--color-light"] = lightColor;
+        }
+    }
+    if ("--on-color" in themeObject && !("--on-color-light" in themeObject)) {
+        retTheme["--on-color-light"] = themeObject["--on-color"];
+    }
+
+    if ("--on-background" in themeObject) {
+        if (!("--neutral" in themeObject)) {
+            const neutral = addAlpha(themeObject["--on-background"], .7);
+            if (neutral) {
+                retTheme["--neutral"] = neutral;
+            }
+        }
+        if ("--neutral" in retTheme) {
+            if (!("--neutral-light" in themeObject)) {
+                const neutralLight = addAlpha(retTheme["--neutral"], .5);
+                if (neutralLight) {
+                    retTheme["--neutral-light"] = neutralLight;
+                }
+            }
+            if (!("--neutral-dark" in themeObject)) {
+                const neutralDark = addAlpha(retTheme["--neutral"], .8);
+                if (neutralDark) {
+                    retTheme["--neutral-dark"] = neutralDark;
+                }
+            }
+        }
+    }
+    return retTheme;
 }

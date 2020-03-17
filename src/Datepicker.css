@@ -1,17 +1,15 @@
 :root {
     --color: salmon;
     --color-light: rgb(250, 186, 160);
-    --on-color: white;
-    --on-color-light: black;
+    --on-color: var(--background);
+    --on-color-light: var(--background);
 
     --background: white;
     --neutral-light: rgba(0, 0, 0, .1);
     --neutral: rgba(0, 0, 0, .4);
     --neutral-dark: rgba(0, 0, 0, .5);
     --on-background: black;
-    --on-neutral-light: black;
-    --on-neutral: white;
-    --on-neutral-dark: white;
+    --on-neutral: var(--background);
 
     --weekday-row: var(--background);
     --on-weekday-row: var(--neutral);
@@ -23,8 +21,8 @@
     --on-button: var(--neutral-dark);
     --button-border: none;
 
-    --hover: var(--neutral-light);
-    --on-hover: var(--on-neutral-light);
+    --hover: var(--neutral);
+    --on-hover: var(--on-neutral);
 
     --today: var(--neutral);
 

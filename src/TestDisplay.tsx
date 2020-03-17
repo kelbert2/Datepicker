@@ -1,6 +1,6 @@
-import React, { useState, ChangeEvent, useRef } from "react";
+import React, { useState, ChangeEvent, useRef, useEffect } from "react";
 import { CalendarDisplay, DateData, DatepickerContextProvider, DatepickerTheme } from "./DatepickerContext";
-import { formatDateDisplay, parseStringAsDate, makeDatepickerTheme } from "./CalendarUtils";
+import { formatDateDisplay, parseStringAsDate, makeDatepickerThemeArray, makeDatepickerTheme } from "./CalendarUtils";
 import Datepicker from "./Datepicker";
 import DatepickerProvider from "./DatepickerProvider";
 import { tealThemeArray } from "./Input";
@@ -26,36 +26,42 @@ function TestDisplay() {
     const [_disable, _setDisable] = useState(false);
     const [_disableCalendar, _setDisableCalendar] = useState(false);
     const [_disableInput, _setDisableInput] = useState(false);
-    const [_calendarOpenDisplay, _setCalendarOpenDisplay] = useState('popup' as CalendarDisplay);
-    const [_canCloseCalendar, _setCanCloseCalendar] = useState(true);
+    const [_calendarOpenDisplay, _setCalendarOpenDisplay] = useState('inline' as CalendarDisplay);
+    const [_canCloseCalendar, _setCanCloseCalendar] = useState(false);
     const [_closeAfterSelection, _setCloseAfterSelection] = useState(true);
 
     const [_openMaxCalendar, _setOpenMaxCalendar] = useState(false);
     /** Timer to avoid on focus on max calendar datepicker respose not running because seen after on blur. */
     const maxTimer = useRef(null as NodeJS.Timeout | null);
 
-    const _tealTheme = {
-        "--color": "rgb(145, 186, 214)",
-        "--color-light": "rgba(115, 165, 198, .9)",
-        "--on-color": "black",
-        "--on-color-light": "black",
-
-        "--background": "#36393b",
-        "--neutral-light": "rgba(188, 210, 232, .1)",
-        "--neutral": "rgba(188, 210, 232, .4)",
-        "--neutral-dark": "rgba(188, 210, 232, .5)",
-        "--on-background": "#bcd2e8",
-        "--on-neutral-light": "white",
-        "--on-neutral": "black",
-        "--on-neutral-dark": "black",
-
-        "--hover": "rgba(115, 165, 198, .6)",
-
-        "--button-background": "rgb(145, 186, 214)",
-        "--on-button": "black",
-        "--button-border": "#528aae"
-    } as DatepickerTheme;
+    type THEMES = 'salmon' | 'blue' | 'green';
     const _salmonTheme = {};
+    const _greenTheme = makeDatepickerTheme({
+        "--color": "rgb(152, 232, 139)",
+        "--on-color": "rgb(0,0,0)",
+        "--background": "white",
+        "--on-neutral": "black",
+        "--hover": "rgba(255,200,240, .4)"
+    });
+    const _blueTheme = makeDatepickerTheme({
+        "--color": "hsl(186, 90%, 61%)",
+        "--background": "rgb(27, 46, 48)",
+        "--on-background": "rgb(215,245,255)"
+    });
+
+
+    const [_themeColor, _setThemeColor] = useState('salmon' as THEMES);
+
+    const getTheme = (theme: THEMES) => {
+        switch (theme) {
+            case 'blue':
+                return _blueTheme;
+            case 'green':
+                return _greenTheme;
+            default:
+                return _salmonTheme;
+        }
+    }
 
     const _onDateChange = (d: DateData) => {
         _setBeginDate(d.beginDate);
@@ -185,10 +191,8 @@ function TestDisplay() {
                     disableInput={_disableInput}
                     calendarOpenDisplay={_calendarOpenDisplay}
                     canCloseCalendar={_canCloseCalendar}
-                    closeAfterSelection={_closeAfterSelection}
 
-                    theme={_tealTheme}
-                    themeArray={makeDatepickerTheme(_tealTheme)}
+                    themeArray={makeDatepickerThemeArray(getTheme(_themeColor))}
                 ></Datepicker>
             </DatepickerContextProvider>
             <div>
@@ -309,10 +313,36 @@ function TestDisplay() {
                     <label htmlFor="multiyear-view-checkbox">Multiyear</label>
                 </p>
             </div>
-            <div>
+            <div><p>Calendar Theme Color</p>
+                <p>
+                    <div className="radio">
+                        <input type="radio"
+                            id="radio-calendar-salmon"
+                            name="calendar-theme-color"
+                            onClick={() => { _setThemeColor('salmon') }}
+                            checked={_themeColor === 'salmon'} />
+                        <label htmlFor="radio-calendar-salmon">Salmon</label>
+                    </div>
+                    <div className="radio">
+                        <input type="radio"
+                            id="radio-calendar-green"
+                            name="calendar-theme-color"
+                            onClick={() => { _setThemeColor('green') }}
+                            checked={_themeColor === 'green'} />
+                        <label htmlFor="radio-calendar-green">Green</label>
+                    </div>
+                    <div className="radio">
+                        <input type="radio"
+                            id="radio-calendar-blue"
+                            name="calendar-theme-color"
+                            onClick={() => { _setThemeColor('blue') }}
+                            checked={_themeColor === 'blue'} />
+                        <label htmlFor="radio-calendar-blue">Blue</label>
+                    </div>
+                </p>
                 <p>Calendar Display:</p>
                 <p>
-                    <div className="radio" >
+                    <div className="radio">
                         <input type="radio"
                             id="radio-calendar-popup"
                             name="calendar-display"
@@ -321,7 +351,7 @@ function TestDisplay() {
                         <label htmlFor="radio-calendar-popup">Popup</label>
                     </div>
 
-                    <div className="radio" >
+                    <div className="radio">
                         <input type="radio"
                             id="radio-calendar-popup-large"
                             name="calendar-display"

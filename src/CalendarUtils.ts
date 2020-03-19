@@ -1,5 +1,4 @@
-import { DatepickerTheme } from "./DatepickerContext";
-import { SSL_OP_TLS_ROLLBACK_BUG } from "constants";
+import { DatepickerThemeStrings, DatepickerTheme } from "./theming";
 
 export type VIEW = 'month' | 'year' | 'multiyear';
 
@@ -382,7 +381,20 @@ export const simpleUID = (prefix: string) => {
 }
 
 // Themes
+const getCssVariable = (key: string) => {
+    return "--" + key.replace(/[A-Z]/g, letter => "-" + letter.toLowerCase());
+}
+
 export const makeDatepickerThemeArray = (themeObject: DatepickerTheme) => {
+    let array = [] as string[];
+    Object.keys(themeObject).forEach((key) => {
+        const value = (themeObject as any)[key];
+        array.push(getCssVariable(key) + ": " + value);
+    });
+    return array;
+}
+
+export const makeDatepickerThemeArrayFromStrings = (themeObject: DatepickerThemeStrings) => {
     let array = [] as string[];
     Object.keys(themeObject).forEach((key) => {
         const value = (themeObject as any)[key];
@@ -407,7 +419,7 @@ const addAlpha = (color: string | undefined, alpha = .5) => {
     return null;
 }
 /** Creates a datepicker theme around --color, --hover, and --on-background in hsl() or rgb() or anything that can take an alpha when converted to type+a(). Default theme assumes --background and --color have sufficient (legible) contrast with each other and --neutral and --background have sufficient contrast. */
-export const makeDatepickerTheme = (themeObject: DatepickerTheme) => {
+export const makeDatepickerTheme = (themeObject: DatepickerThemeStrings) => {
     let retTheme = themeObject;
     if (themeObject["--color"] && !(themeObject["--color-light"])) {
         const lightColor = addAlpha(themeObject["--color"], .5);

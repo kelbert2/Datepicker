@@ -1,9 +1,8 @@
-import React, { useState, ChangeEvent, useRef, useEffect } from "react";
-import { CalendarDisplay, DateData, DatepickerContextProvider, DatepickerTheme } from "./DatepickerContext";
-import { formatDateDisplay, parseStringAsDate, makeDatepickerThemeArray, makeDatepickerTheme } from "./CalendarUtils";
+import React, { useState, ChangeEvent, useRef } from "react";
+import { CalendarDisplay, DateData, DatepickerContextProvider } from "./DatepickerContext";
+import { formatDateDisplay, parseStringAsDate, makeDatepickerTheme } from "./CalendarUtils";
 import Datepicker from "./Datepicker";
 import DatepickerProvider from "./DatepickerProvider";
-import { tealThemeArray } from "./Input";
 
 function TestDisplay() {
 
@@ -51,7 +50,6 @@ function TestDisplay() {
         "--background": "rgb(27, 46, 48)",
         "--on-background": "rgb(215,245,255)"
     }));
-
 
     const [_themeColor, _setThemeColor] = useState('blue' as THEMES);
 

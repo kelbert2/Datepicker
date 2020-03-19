@@ -1,6 +1,6 @@
 import React from 'react';
 import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear, formatDateDisplay, parseStringAsDate } from './CalendarUtils';
-import { DEFAULT_THEME } from './Datepicker';
+import { DatepickerThemeStrings, DEFAULT_THEME_STRINGS } from './theming';
 
 // Based on: https://github.com/SaturnTeam/saturn-datepicker/tree/master/saturn-datepicker/src/datepicker
 // All IDatepickerContext values will be public and updateable outside except for dispatch
@@ -12,41 +12,6 @@ export interface DateData {
     activeDate?: Date | null
 }
 export type CalendarDisplay = 'popup' | 'popup-large' | 'inline';
-export interface DatepickerTheme {
-    "--color"?: string,
-    "--color-light"?: string,
-    "--on-color"?: string,
-    "--on-color-light"?: string,
-
-    "--background"?: string,
-    "--neutral-light"?: string,
-    "--neutral"?: string,
-    "--neutral-dark"?: string,
-    "--on-background"?: string,
-    "--on-neutral-light"?: string,
-    "--on-neutral"?: string,
-
-    "--weekday-row"?: string,
-    "--on-weekday-row"?: string,
-
-    "--divider"?: string,
-    "--label-text"?: string,
-
-    "--button-background"?: string,
-    "--on-button"?: string,
-    "--button-border"?: string,
-
-    "--hover"?: string,
-    "--on-hover"?: string,
-    "--hover-range"?: string,
-    "--on-hover-range"?: string,
-
-    "--today"?: string,
-
-    "--disabled"?: string,
-    "--on-disabled"?: string,
-}
-// as { [key: string]: string };
 
 /** Context for Datepicker.
  * @param selectedDate: Most recently clicked or otherwise selected date.
@@ -186,7 +151,7 @@ export interface IDatepickerContext {
     parseStringToDate: (input: string) => Date | null,
     displayDateAsString: (date: Date) => string,
 
-    theme: DatepickerTheme,
+    theme: DatepickerThemeStrings,
 
     dispatch: React.Dispatch<IAction>,
 }
@@ -265,7 +230,7 @@ const datepickerContextDefaultValue = {
     parseStringToDate: (input: string) => parseStringAsDate(input),
     displayDateAsString: (date: Date) => formatDateDisplay(date),
 
-    theme: DEFAULT_THEME,
+    theme: DEFAULT_THEME_STRINGS,
 } as IDatepickerContext;
 const DatepickerContext = React.createContext(datepickerContextDefaultValue);
 // export default React.createContext(datepickerContextDefaultValue);
@@ -477,5 +442,5 @@ export interface IDatepickerProps {
     parseStringToDate?: (input: string) => Date | null,
     displayDateAsString?: (date: Date) => string,
 
-    theme?: DatepickerTheme,
+    theme?: DatepickerThemeStrings,
 }

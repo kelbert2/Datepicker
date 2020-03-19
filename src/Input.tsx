@@ -1,7 +1,7 @@
-import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
-import DatepickerContext, { DateData, CalendarDisplay, DatepickerTheme } from './DatepickerContext';
+import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef } from 'react';
+import DatepickerContext, { DateData, CalendarDisplay } from './DatepickerContext';
 import Calendar from './Calendar';
-import { compareDaysMonthsAndYears, simpleUID, compareDates, formatDateDisplay } from './CalendarUtils';
+import { compareDaysMonthsAndYears, simpleUID, compareDates } from './CalendarUtils';
 
 export type OPEN_STATES = CalendarDisplay | 'close';
 const CALENDAR_CLASS_INLINE = 'inline';
@@ -61,7 +61,6 @@ export const blueThemeObject = {
 function Input() {
     const {
         selectedDate,
-        activeDate,
 
         rangeMode,
         beginDate,

@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
-import DatepickerContext from './DatepickerContext';
-import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
+import DatepickerContext, { DAYS_PER_WEEK } from './DatepickerContext';
+import { WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 
 function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {
@@ -182,7 +182,6 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
         }
         // TODO: check if should be Greater Than or just any nonzero when compared
         if (compareDates(_prevActiveDate.current, activeDate) > 0) {
-            // activeDateChange(activeDate);
             _prevActiveDate.current = activeDate;
         }
 

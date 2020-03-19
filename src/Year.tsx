@@ -1,7 +1,7 @@
-import DatepickerContext from './DatepickerContext';
+import DatepickerContext, { MONTHS_PER_ROW } from './DatepickerContext';
 import React, { useContext, useState, useCallback, useEffect, useRef } from 'react';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
-import { getYear, createDate, addCalendarMonths, getMonth, addCalendarYears, compareDates, getYearName, MONTH_NAMES, addCalendarDays, MONTHS_PER_ROW, compareMonthsAndYears } from './CalendarUtils';
+import { getYear, createDate, addCalendarMonths, getMonth, addCalendarYears, compareDates, getYearName, MONTH_NAMES, addCalendarDays, compareMonthsAndYears } from './CalendarUtils';
 
 
 function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {

@@ -1,67 +1,22 @@
-import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
-import DatepickerContext, { DateData, CalendarDisplay, DatepickerTheme } from './DatepickerContext';
+import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef } from 'react';
+import { DateData, OPEN_STATES } from './DatepickerContext';
 import Calendar from './Calendar';
-import { compareDaysMonthsAndYears, simpleUID, compareDates, formatDateDisplay } from './CalendarUtils';
+import { compareDaysMonthsAndYears, simpleUID, compareDates } from './CalendarUtils';
+import DatepickerInputContext from './DatepickerInputContext';
 
-export type OPEN_STATES = CalendarDisplay | 'close';
 const CALENDAR_CLASS_INLINE = 'inline';
 const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 const INPUT_CLASS_FILLED = 'filled';
 
-export const tealThemeArray = [
-    "--color: #1de9b6",
-    "--color-light: #a7ffeb",
-    "--on-color: black",
-    "--on-color-light: black",
-
-    "--background: lightgray",
-    "--neutral-light: rgba(0, 0, 0, .1)",
-    "--neutral: rgba(0, 0, 0, .4)",
-    "--neutral-dark: rgba(0, 0, 0, .5)",
-    "--on-background: #004d40",
-
-    "--on-neutral-light: black",
-    "--on-neutral: white",
-    "--on-neutral-dark: white",
-
-    "--th: var(--background)",
-    "--on-th: #004d40",
-
-    "--divider: var(--neutral-light)",
-    "--label-text: var(--neutral-dark)",
-
-    "--button-background: #a7ffeb",
-    "--on-button: var(--neutral-dark)",
-    "--button-border: none",
-
-    "--hover: rgba(128, 203, 196, .4)",
-    "--on-hover: white",
-
-    "--today: rgb(128,203,196)",
-
-    "--disabled: transparent",
-    "--on-disabled: var(--neutral)"
-]
-
-export const blueThemeObject = {
-    "--color": "blue",
-    "--color-light": "lightblue",
-    "--on-color": "rgb(0,150,250)",
-    "--on-color-light": "blue",
-
-    "--background": "blue",
-    "--neutral-light": "blue",
-    "--neutral": "blue",
-    "--neutral-dark": "blue",
-    "--on-background": "rgb(0,150,250)"
-}
-
 // TODO: When input is deleted, set dates as null
-function Input() {
+function Input(
+    {
+        className = ''
+    }
+) {
     const {
         selectedDate,
-        activeDate,
 
         rangeMode,
         beginDate,
@@ -72,6 +27,7 @@ function Input() {
         dateFilter,
 
         onDateChange,
+        onCalendarDateChange,
         onInputDateChange,
 
         disable,
@@ -90,7 +46,7 @@ function Input() {
         displayDateAsString,
 
         dispatch
-    } = useContext(DatepickerContext);
+    } = useContext(DatepickerInputContext);
 
     /** Holds open state of the Calendar. */
     const [_calendarDisplay, _setCalendarDisplay] = useState((canCloseCalendar ? 'close' : 'inline') as OPEN_STATES);
@@ -156,7 +112,6 @@ function Input() {
         if (minDate !== _prevMinDate.current) {
             if (minDate) {
                 if (selectedDate && compareDates(selectedDate, minDate) < 0) {
-                    // Selected date is before minDate
                     dispatch({
                         type: 'set-selected-date',
                         payload: minDate
@@ -187,7 +142,6 @@ function Input() {
         if (maxDate !== _prevMaxDate.current) {
             if (maxDate) {
                 if (selectedDate && compareDates(selectedDate, maxDate) > 0) {
-                    // Selected date is before minDate
                     dispatch({
                         type: 'set-selected-date',
                         payload: maxDate
@@ -218,7 +172,6 @@ function Input() {
         if (dateFilter !== _prevDateFilter.current) {
             console.log("date filter change!");
             if (!dateFilter(selectedDate)) {
-                // Selected date is before minDate
                 dispatch({
                     type: 'set-selected-date',
                     payload: null
@@ -438,6 +391,8 @@ function Input() {
         //     type: 'set-start-at',
         //     payload: selectedDate
         // });
+        onDateChange(data);
+        onCalendarDateChange(data);
 
         if (closeAfterSelection && canCloseCalendar) {
             _setCalendarDisplay('close');
@@ -516,15 +471,16 @@ function Input() {
         <div
             onBlur={() => _onBlurAll()}
             onFocus={_onFocusHandler}
-            className="datepicker"
+            className={`datepicker ${className}`}
         >
             {/* <button
                 onClick={() => _applyTheme()}
             >Theme</button> */}
-            <div
+            < div
                 role="button"
                 tabIndex={0}
-                onClick={() => _handleNonCalendarClick()}
+                onClick={() => _handleNonCalendarClick()
+                }
                 onKeyDown={(e) => _handleKeyDownOverFields(e)}
                 className="fields"
             >
@@ -550,7 +506,7 @@ function Input() {
                     className="fields-button">
                     <span></span>
                 </button>
-            </div>
+            </div >
             {
                 _calendarDisplay !== 'close' ?
                     <Calendar
@@ -566,7 +522,7 @@ function Input() {
                         className="overlay"></div>
                     : ''
             }
-        </div>
+        </div >
     );
 }
 

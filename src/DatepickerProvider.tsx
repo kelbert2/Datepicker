@@ -1,17 +1,16 @@
-import DatepickerContext, { DateData, IDatepickerContext, reducer, IDatepickerProps, IAction } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay } from "./CalendarUtils";
-import React, { useLayoutEffect, useCallback } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
+import { getMonthNames, getMonth, getYear, parseStringAsDate, formatDateDisplay } from "./CalendarUtils";
 import './Datepicker.css';
 import DatepickerNoInput from "./DatepickerNoInput";
+import DatepickerContext, { DateData, VIEW, YEARS_PER_PAGE, IDatepickerProps, IDatepickerContext, datepickerReducer } from "./DatepickerContext";
+import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme } from "./theming";
 
+/** Creates a datepicker without an input component. */
 function DatepickerProvider({
     selectedDate = null as Date | null,
     todayDate = new Date() as Date | null,
-    activeDate = new Date() as Date,
 
     onDateChange = (d: DateData) => { },
-    onCalendarDateChange = (d: DateData) => { },
-    onInputDateChange = (d: DateData) => { },
     onDaySelected = (d: DateData) => { },
     onMonthSelected = (d: DateData) => { },
     onYearSelected = (d: DateData) => { },
@@ -78,29 +77,15 @@ function DatepickerProvider({
     parseStringToDate = (input: string) => parseStringAsDate(input),
     displayDateAsString = (date: Date) => formatDateDisplay(date),
 
-    theme = {
-        "--color": "salmon",
-        "--color-light": "rgb(250, 186, 160)",
-        "--on-color": "white",
-        "--on-color-light": "black",
-
-        "--background": "white",
-        "--neutral-light": "rgba(0, 0, 0, .1)",
-        "--neutral": "rgba(0, 0, 0, .4)",
-        "--neutral-dark": "rgba(0, 0, 0, .5)",
-        "--on-background": "black"
-    }
-
+    theme = DEFAULT_THEME_STRINGS
 }: IDatepickerProps) {
 
     const props = {
         selectedDate,
         todayDate,
-        activeDate,
+        activeDate: startAt ? startAt : new Date(),
 
         onDateChange,
-        onCalendarDateChange,
-        onInputDateChange,
         onDaySelected,
         onMonthSelected,
         onYearSelected,
@@ -163,42 +148,41 @@ function DatepickerProvider({
         theme
     } as IDatepickerContext;
 
+    /** Provide access to context for children with input values. */
     const DatepickerContextProvider = ({ children }: { children: any }) => {
-        let [state, dispatch] = React.useReducer(reducer, props);
+        let [state, dispatch] = React.useReducer(datepickerReducer, props);
         return (
             <DatepickerContext.Provider value={{ ...state, dispatch }}> {children} </DatepickerContext.Provider>
         );
     }
-    // const DatepickerContextConsumer = DatepickerContext.Consumer;
 
-    // /** Replace styles with input. */
-    // const _applyTheme = useCallback(() => {
-    //     //for (let key in theme) {
-    //     Object.keys(theme).forEach(key => {
-    //         const value = (theme as any)[key];
-    //         document.documentElement.style.setProperty(key, value);
-    //     });
-    // }, [theme]);
+    /** Replace element's styles with input. */
+    const _applyThemeLocal = useCallback((theme: DatepickerThemeStrings) => {
+        // TODO: May pass in an id instead so can only target this specific datepicker
+        const datepickers = (document.getElementsByClassName('datepicker-container') as HTMLCollectionOf<HTMLElement>);
 
-    // /** Set theme on mount. */
-    // useLayoutEffect(() => {
-    //     _applyTheme();
-    // });
+        const cleanTheme = resetTheme(theme);
 
-    // /** When style inputs change, update css. */
-    // useLayoutEffect(() => {
-    //     _applyTheme();
-    // }, [_applyTheme]);
-    // Object.keys(theme).forEach(key => {
-    //     const value = (theme as any)[key];
-    //     document.documentElement.style.setProperty(key, value);
-    // });
-    // }, [theme]);
+        Object.keys(cleanTheme).map(key => {
+            const value = cleanTheme[key];
+            for (let i = 0; i < datepickers.length; i++) {
+                datepickers[i].style.setProperty(key, value);
+            }
+            return key;
+        });
+    }, []);
+
+    /** When style inputs change, update css. */
+    useLayoutEffect(() => {
+        _applyThemeLocal(theme);
+    }, [_applyThemeLocal, theme]);
 
     // TODO: May refactor to have Calendar be called here
     return (
         <DatepickerContextProvider>
-            <DatepickerNoInput></DatepickerNoInput>
+            <DatepickerNoInput
+                className='datepicker-container'
+            ></DatepickerNoInput>
         </DatepickerContextProvider>
     )
 }

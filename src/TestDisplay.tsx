@@ -1,9 +1,8 @@
-import React, { useState, ChangeEvent, useRef, useEffect } from "react";
-import { CalendarDisplay, DateData, DatepickerContextProvider, DatepickerTheme } from "./DatepickerContext";
-import { formatDateDisplay, parseStringAsDate, makeDatepickerThemeArray, makeDatepickerTheme } from "./CalendarUtils";
+import React, { useState, ChangeEvent, useRef, useCallback } from "react";
+import { CalendarDisplay, DateData } from "./DatepickerContext";
+import { formatDateDisplay, parseStringAsDate, makeDatepickerTheme } from "./CalendarUtils";
 import Datepicker from "./Datepicker";
 import DatepickerProvider from "./DatepickerProvider";
-import { tealThemeArray } from "./Input";
 
 function TestDisplay() {
 
@@ -55,8 +54,7 @@ function TestDisplay() {
 
     const [_themeColor, _setThemeColor] = useState('blue' as THEMES);
 
-    const getTheme = (theme: THEMES) => {
-        console.log("theme: " + theme);
+    const getTheme = useCallback((theme: THEMES) => {
         switch (theme) {
             case 'blue':
                 return _blueTheme;
@@ -65,7 +63,17 @@ function TestDisplay() {
             default:
                 return _salmonTheme;
         }
-    }
+    }, [_blueTheme, _greenTheme, _salmonTheme]);
+
+    // const _applyThemeGlobal = useCallback((theme: DatepickerTheme) => {
+    //     const root = document.getElementsByTagName('html')[0];
+    //     root.style.cssText = makeDatepickerThemeArray(resetTheme(theme)).join(';');
+    // }, []);
+
+    // useLayoutEffect(() => {
+    //     _applyThemeGlobal(getTheme(_themeColor));
+    // }, [_applyThemeGlobal, _themeColor, getTheme]);
+
 
     const _onDateChange = (d: DateData) => {
         _setBeginDate(d.beginDate);
@@ -164,41 +172,42 @@ function TestDisplay() {
     }
 
     return (
-        <div role="main"
+        <div
             className="test">
             <h1>Datepicker</h1>
-            <DatepickerContextProvider>
-                <Datepicker
-                    selectedDate={_selectedDate}
+            {/* <DatepickerContextProvider> */}
+            <Datepicker
+                selectedDate={_selectedDate}
 
-                    onDateChange={(d) => _onDateChange(d)}
-                    onCalendarDateChange={(d) => _onCalendarDateChange(d)}
-                    onInputDateChange={(d) => _onInputDateChange(d)}
-                    onDaySelected={(d) => _onDaySelected(d)}
-                    onMonthSelected={(d) => _onMonthSelected(d)}
-                    onYearSelected={(d) => _onYearSelected(d)}
+                onDateChange={(d) => _onDateChange(d)}
+                onCalendarDateChange={(d) => _onCalendarDateChange(d)}
+                onInputDateChange={(d) => _onInputDateChange(d)}
+                onDaySelected={(d) => _onDaySelected(d)}
+                onMonthSelected={(d) => _onMonthSelected(d)}
+                onYearSelected={(d) => _onYearSelected(d)}
 
-                    minDate={_minDate}
-                    maxDate={_maxDate}
-                    dateFilter={(d) => _dateFilter(d)}
+                minDate={_minDate}
+                maxDate={_maxDate}
+                dateFilter={(d) => _dateFilter(d)}
 
-                    rangeMode={_rangeMode}
-                    beginDate={_beginDate}
-                    endDate={_endDate}
+                rangeMode={_rangeMode}
+                beginDate={_beginDate}
+                endDate={_endDate}
 
-                    disableMonth={_disableMonth}
-                    disableYear={_disableYear}
-                    disableMultiyear={_disableMultiyear}
+                disableMonth={_disableMonth}
+                disableYear={_disableYear}
+                disableMultiyear={_disableMultiyear}
 
-                    disable={_disable}
-                    disableCalendar={_disableCalendar}
-                    disableInput={_disableInput}
-                    calendarOpenDisplay={_calendarOpenDisplay}
-                    canCloseCalendar={_canCloseCalendar}
+                disable={_disable}
+                disableCalendar={_disableCalendar}
+                disableInput={_disableInput}
+                calendarOpenDisplay={_calendarOpenDisplay}
+                canCloseCalendar={_canCloseCalendar}
+                closeAfterSelection={_closeAfterSelection}
 
-                    theme={getTheme(_themeColor)}
-                ></Datepicker>
-            </DatepickerContextProvider>
+                theme={getTheme(_themeColor)}
+            ></Datepicker>
+            {/* </DatepickerContextProvider> */}
             <div>
                 <p className="toggle">
                     <input type="checkbox"
@@ -213,7 +222,7 @@ function TestDisplay() {
             </div>
             <div>
                 <p>Minimum date:
-                <Datepicker
+                {/* <Datepicker
                         selectedDate={_minDate}
 
                         onDateChange={(d) => _onMinDateChange(d)}
@@ -243,7 +252,7 @@ function TestDisplay() {
                         closeAfterSelection={_closeAfterSelection}
 
                         theme={getTheme(_themeColor)}
-                    ></Datepicker>
+                    ></Datepicker> */}
                 </p>
                 <div
                     role="button"
@@ -263,9 +272,8 @@ function TestDisplay() {
                         <DatepickerProvider
                             selectedDate={_maxDate}
 
+                            onFinalDateChange={(d) => { _onMaxDateChange(d) }}
                             onDateChange={(d) => { _onMaxDateChange(d) }}
-                            onCalendarDateChange={(d) => _onMaxDateChange(d)}
-                            onInputDateChange={(d) => _onMaxDateInput(d)}
                             onDaySelected={(d) => _onDaySelected(d)}
                             onMonthSelected={(d) => _onMonthSelected(d)}
                             onYearSelected={(d) => _onYearSelected(d)}

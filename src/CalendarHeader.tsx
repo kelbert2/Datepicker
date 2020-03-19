@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import DatepickerContext from './DatepickerContext';
-import { getYear, VIEW, addCalendarMonths, addCalendarYears, getActiveOffset, YEARS_PER_PAGE, getStartingYear, compareMonthsAndYears, compareYears, getMonth, formatDateDisplay } from './CalendarUtils';
+import DatepickerContext, { VIEW, YEARS_PER_PAGE } from './DatepickerContext';
+import { getYear, addCalendarMonths, addCalendarYears, getActiveOffset, getStartingYear, compareMonthsAndYears, compareYears } from './CalendarUtils';
 
 interface CalenderHeaderProps {
     currentView: VIEW,

@@ -1,6 +1,6 @@
-import DatepickerContext from './DatepickerContext';
+import DatepickerContext, { YEARS_PER_PAGE } from './DatepickerContext';
 import React, { useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { YEARS_PER_PAGE, getYear, createDate, addCalendarYears, addCalendarDays, getYearName, getActiveOffset, getStartingYear, compareYears } from './CalendarUtils';
+import { getYear, createDate, addCalendarYears, addCalendarDays, getYearName, getActiveOffset, getStartingYear, compareYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 
 export const YEARS_PER_ROW = 4;

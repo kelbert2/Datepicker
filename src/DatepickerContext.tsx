@@ -93,7 +93,6 @@ export interface IDatepickerContext {
     onFinalDateChange: (d: DateData) => {} | void,
     onDateChange: (d: DateData) => {} | void,
     onCalendarDateChange: (d: DateData) => {} | void,
-    onInputDateChange: (d: DateData) => {} | void,
     onDaySelected: (d: DateData) => {} | void,
     onMonthSelected: (d: DateData) => {} | void,
     onYearSelected: (d: DateData) => {} | void,
@@ -116,7 +115,6 @@ export interface IDatepickerContext {
 
     disable: boolean,
     disableCalendar: boolean,
-    disableInput: boolean,
     calendarOpenDisplay: CalendarDisplay,
     canCloseCalendar: boolean,
     closeAfterSelection: boolean,
@@ -146,16 +144,25 @@ export interface IDatepickerContext {
     switchToYearViewLabel: string,
     switchToMultiyearViewLabel: string,
 
+    theme: DatepickerThemeStrings,
+
+    dispatch: React.Dispatch<IAction>,
+}
+
+export interface IInputContext {
+    onInputDateChange: (d: DateData) => {} | void,
+
+    disableInput: boolean,
+
     singleInputLabel: string,
     beginInputLabel: string,
     endInputLabel: string,
 
     parseStringToDate: (input: string) => Date | null,
     displayDateAsString: (date: Date) => string,
+}
 
-    theme: DatepickerThemeStrings,
-
-    dispatch: React.Dispatch<IAction>,
+export interface IDatepickerInputContext extends IDatepickerContext, IInputContext {
 }
 
 const datepickerContextDefault = {
@@ -166,7 +173,6 @@ const datepickerContextDefault = {
     onFinalDateChange: (d: DateData) => { },
     onDateChange: (d: DateData) => { },
     onCalendarDateChange: (d: DateData) => { },
-    onInputDateChange: (d: DateData) => { },
     onDaySelected: (d: DateData) => { },
     onMonthSelected: (d: DateData) => { },
     onYearSelected: (d: DateData) => { },
@@ -189,7 +195,6 @@ const datepickerContextDefault = {
 
     disable: false,
     disableCalendar: false,
-    disableInput: false,
     calendarOpenDisplay: 'popup',
     canCloseCalendar: true,
     closeAfterSelection: true,
@@ -226,28 +231,36 @@ const datepickerContextDefault = {
     switchToYearViewLabel: 'Switch to year view',
     switchToMultiyearViewLabel: 'Switch to multi-year view',
 
+    theme: DEFAULT_THEME_STRINGS,
+} as IDatepickerContext;
+
+// TODO: add onCalendarDateChange, disableCalendar
+const inputContextDefault = {
+    onInputDateChange: (d: DateData) => { },
+
+    disableInput: false,
+
     singleInputLabel: "Choose a date",
     beginInputLabel: "Choose a start date",
     endInputLabel: "end date",
 
     parseStringToDate: (input: string) => parseStringAsDate(input),
     displayDateAsString: (date: Date) => formatDateDisplay(date),
+} as IInputContext;
 
-    theme: DEFAULT_THEME_STRINGS,
-} as IDatepickerContext;
-
-const DatepickerContext = React.createContext(datepickerContextDefault);
+const DatepickerInputContext = React.createContext({ ...datepickerContextDefault, ...inputContextDefault } as IDatepickerInputContext);
 // export default React.createContext(datepickerContextDefaultValue);
-
+export const DatepickerContext = React.createContext(datepickerContextDefault);
+export const InputContext = React.createContext(inputContextDefault);
 
 export interface IAction {
     type: string,
     payload: any
 }
-export const reducer = (state: IDatepickerContext, action: IAction) => {
+export const datepickerInputReducer = (state: IDatepickerContext & IInputContext, action: IAction): IDatepickerContext & IInputContext => {
     switch (action.type) {
-        case "reset":
-            return datepickerContextDefault;
+        // case "reset":
+        //     return datepickerContextDefault;
         case "set-selected-date":
             return { ...state, selectedDate: action.payload };
         case "set-today-date":
@@ -256,15 +269,15 @@ export const reducer = (state: IDatepickerContext, action: IAction) => {
             return { ...state, activeDate: action.payload };
 
         case "set-date-change":
-            return { ...state, dateChange: action.payload };
+            return { ...state, onDateChange: action.payload };
         case "set-date-input":
-            return { ...state, dateInput: action.payload };
+            return { ...state, onInputDateChange: action.payload };
         case "set-year-selected":
-            return { ...state, yearSelected: action.payload };
+            return { ...state, onYearSelected: action.payload };
         case "set-month-selected":
-            return { ...state, monthSelected: action.payload };
+            return { ...state, onMonthSelected: action.payload };
         case "set-day-selected":
-            return { ...state, daySelected: action.payload };
+            return { ...state, onDaySelected: action.payload };
 
         case "set-start-at":
             return { ...state, startAt: action.payload };
@@ -365,16 +378,141 @@ export const reducer = (state: IDatepickerContext, action: IAction) => {
     }
 }
 
-export function DatepickerContextProvider({ children }: { children: any }) {
-    let [state, dispatch] = React.useReducer(reducer, datepickerContextDefault);
+export const datepickerReducer = (state: IDatepickerContext, action: IAction): IDatepickerContext => {
+    switch (action.type) {
+        // case "reset":
+        //     return datepickerContextDefault;
+        case "set-selected-date":
+            return { ...state, selectedDate: action.payload };
+        case "set-today-date":
+            return { ...state, todayDate: action.payload };
+        case "set-active-date":
+            return { ...state, activeDate: action.payload };
+
+        case "set-date-change":
+            return { ...state, onDateChange: action.payload };
+        case "set-year-selected":
+            return { ...state, onYearSelected: action.payload };
+        case "set-month-selected":
+            return { ...state, onMonthSelected: action.payload };
+        case "set-day-selected":
+            return { ...state, onDaySelected: action.payload };
+
+        case "set-start-at":
+            return { ...state, startAt: action.payload };
+        case "set-start-view":
+            return { ...state, startView: action.payload };
+        case "set-first-day-of-week":
+            return { ...state, firstDayOfWeek: action.payload };
+
+        case "set-min-date":
+            return { ...state, minDate: action.payload };
+        case "set-max-date":
+            return { ...state, maxDate: action.payload };
+        case "set-date-filter":
+            return { ...state, dateFilter: action.payload };
+
+        case "set-range-mode":
+            return { ...state, rangeMode: action.payload };
+        case "set-begin-date":
+            return { ...state, beginDate: action.payload };
+        case "set-end-date":
+            return { ...state, endDate: action.payload };
+
+        case "set-disable-month":
+            return { ...state, disableMonth: action.payload };
+        case "set-disable-year":
+            return { ...state, disableYear: action.payload };
+        case "set-disable-multiyear":
+            return { ...state, disableMultiyear: action.payload };
+
+        case "set-disable":
+            return { ...state, disable: action.payload };
+        case "set-disable-calendar":
+            return { ...state, disableCalendar: action.payload };
+        case "set-calendar-display":
+            return { ...state, calendarOpenDisplay: action.payload };
+        case "set-can-close-calendar":
+            return { ...state, canCloseCalendar: action.payload };
+        case "set-close-after-selection":
+            return { ...state, closeAfterSelection: action.payload };
+
+        case "set-format-month-label":
+            return { ...state, formatMonthLabel: action.payload };
+        case "set-format-month-text":
+            return { ...state, formatMonthText: action.payload };
+
+        case "set-format-year-label":
+            return { ...state, formatYearLabel: action.payload };
+        case "set-format-year-text":
+            return { ...state, formatYearText: action.payload };
+
+        case "set-format-multiyear-label":
+            return { ...state, formatMultiyearLabel: action.payload };
+        case "set-format-multiyear-text":
+            return { ...state, formatMultiyearText: action.payload };
+
+        case "set-calendar-label":
+            return { ...state, calendarLabel: action.payload };
+        case "set-open-calendar-label":
+            return { ...state, openCalendarLabel: action.payload };
+
+        case "set-next-month-label":
+            return { ...state, nextMonthLabel: action.payload };
+        case "set-year-label":
+            return { ...state, nextYearLabel: action.payload };
+        case "set-next-multiyear-label":
+            return { ...state, nextMultiyearLabel: action.payload };
+
+        case "set-prev-month-label":
+            return { ...state, prevMonthLabel: action.payload };
+        case "set-prev-year-label":
+            return { ...state, prevYearLabel: action.payload };
+        case "set-prev-multiyear-label":
+            return { ...state, prevMultiyearLabel: action.payload };
+
+        case "set-switch-to-month-view-label":
+            return { ...state, switchToMonthViewLabel: action.payload };
+        case "set-switch-to-year-view-label":
+            return { ...state, switchToYearViewLabel: action.payload };
+        case "set-switch-to-multiyear-view-label":
+            return { ...state, switchToMultiyearViewLabel: action.payload };
+
+        default:
+            return state;
+    }
+}
+
+// export const inputReducer = (state: IInputContext, action: IAction): IInputContext => {
+//     switch (action.type) {
+//         // case "reset":
+//         //     return datepickerContextDefault;
+//         default:
+//             return state;
+//     }
+// }
+
+export function DatepickerInputContextProvider({ children }: { children: any }) {
+    let [state, dispatch] = React.useReducer(datepickerInputReducer, { ...datepickerContextDefault, ...inputContextDefault });
     return (
-        <DatepickerContext.Provider value={{ ...state, dispatch }}> {children} </DatepickerContext.Provider>
+        <DatepickerInputContext.Provider value={{ ...state, dispatch }}> {children} </DatepickerInputContext.Provider>
     );
 }
 
-export const DatepickerContextConsumer = DatepickerContext.Consumer;
+export function DatepickerContextProvider({ children }: { children: any }) {
+    let [state, dispatch] = React.useReducer(datepickerReducer, datepickerContextDefault);
+    return (
+        <DatepickerContext.Provider value={{ ...state, dispatch }}>{children}</DatepickerContext.Provider>
+    );
+}
 
-export default DatepickerContext;
+export function InputContextProvider({ children }: { children: any }) {
+    return <InputContext.Provider value={inputContextDefault}></InputContext.Provider>
+}
+
+// export const DatepickerContextConsumer = DatepickerContext.Consumer;
+
+export default DatepickerInputContext;
 
 // TODO: add custom className applied for dates like holidays
 // TODO: refactor all the popup/disable/inline etc. logic to some specific type to avoid any conflicting values
@@ -386,7 +524,6 @@ export interface IDatepickerProps {
     onFinalDateChange?: (d: DateData) => {} | void,
     onDateChange?: (d: DateData) => {} | void,
     onCalendarDateChange?: (d: DateData) => {} | void,
-    onInputDateChange?: (d: DateData) => {} | void,
     onDaySelected?: (d: DateData) => {} | void,
     onMonthSelected?: (d: DateData) => {} | void,
     onYearSelected?: (d: DateData) => {} | void,
@@ -409,7 +546,6 @@ export interface IDatepickerProps {
 
     disable?: boolean,
     disableCalendar?: boolean,
-    disableInput?: boolean,
     calendarOpenDisplay?: CalendarDisplay,
     canCloseCalendar?: boolean,
     closeAfterSelection?: boolean,
@@ -439,12 +575,21 @@ export interface IDatepickerProps {
     switchToYearViewLabel?: string,
     switchToMultiyearViewLabel?: string,
 
+    theme?: DatepickerThemeStrings,
+}
+
+export interface IInputProps {
+    onInputDateChange?: (d: DateData) => {} | void,
+    disableInput?: boolean,
+
+    switchToMonthViewLabel?: string,
+    switchToYearViewLabel?: string,
+    switchToMultiyearViewLabel?: string,
+
     singleInputLabel?: string,
     beginInputLabel?: string,
     endInputLabel?: string,
 
     parseStringToDate?: (input: string) => Date | null,
     displayDateAsString?: (date: Date) => string,
-
-    theme?: DatepickerThemeStrings,
 }

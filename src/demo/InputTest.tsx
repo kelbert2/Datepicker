@@ -1,9 +1,9 @@
 import React, { useState, ChangeEvent, useRef, useLayoutEffect } from "react";
-import { CalendarDisplay, DateData, DatepickerContextProvider } from "./DatepickerContext";
-import { formatDateDisplay, parseStringAsDate, compareDaysMonthsAndYears } from "./CalendarUtils";
-import Datepicker from "./Datepicker";
-import DatepickerProvider from "./DatepickerProvider";
-import { OPEN_STATES } from "./Input";
+import { CalendarDisplay, DateData, DatepickerInputContextProvider } from "../DatepickerContext";
+import { formatDateDisplay, parseStringAsDate, compareDaysMonthsAndYears } from "../CalendarUtils";
+import DatepickerInput from "../DatepickerInput";
+import Datepicker from "../Datepicker";
+import { OPEN_STATES } from "../Input";
 
 function InputTest() {
     const _rangeMode = true;
@@ -11,7 +11,7 @@ function InputTest() {
     const _disableCalendar = false;
     const _disableInput = false;
     const _calendarOpenDisplay = 'inline';
-    const _canCloseCalendar = false;
+    const _canCloseCalendar = true;
     const _closeAfterSelection = true;
     const _setCalendarOpen = false;
 
@@ -154,9 +154,11 @@ function InputTest() {
 
         if (!_open) {
             if (!_disable && !_disableCalendar) {
+                console.log("opening calendar");
                 _setOpen(true);
             }
         } else if (_canCloseCalendar) {
+            console.log("closing calendar");
             _setOpen(false);
         }
     }
@@ -174,7 +176,7 @@ function InputTest() {
 
     /** If a child receives focus, do not close the calendar. */
     const _onFocusHandler = () => {
-        // console.log("recieved focus from child.");
+        // console.log("received focus from child.");
         if (timer.current) {
             clearTimeout(timer.current);
         }
@@ -194,13 +196,14 @@ function InputTest() {
     const _handleDateSelectionFromCalendar = (data: DateData) => {
         // TODO: make sure startAt dates are being reset in Calendar
 
-        console.log("recieved date from calendar.");
+        console.log("received date from calendar.");
 
         _setSelectedDate(data.selectedDate);
         _setBeginDate(data.beginDate);
         _setEndDate(data.endDate);
 
-        console.log("-- selected date: " + (data.selectedDate));
+        console.log(data);
+        // console.log("-- selected date: " + (data.selectedDate));
         // console.log("-- begin date: " + (data.beginDate));
         // console.log("-- end date: " + (data.endDate));
 
@@ -252,7 +255,7 @@ function InputTest() {
                         : ''
                 }
             </div>
-            <DatepickerProvider
+            <Datepicker
                 selectedDate={_selectedDate}
 
                 onDateChange={(d) => _handleDateSelectionFromCalendar(d)}
@@ -263,12 +266,11 @@ function InputTest() {
 
                 disable={_disable}
                 disableCalendar={_disableCalendar}
-                disableInput={_disableInput}
                 calendarOpenDisplay={_calendarOpenDisplay}
                 canCloseCalendar={_canCloseCalendar}
                 closeAfterSelection={_closeAfterSelection}
                 setCalendarOpen={_open}
-            ></DatepickerProvider>
+            ></Datepicker>
         </div>
     );
 }

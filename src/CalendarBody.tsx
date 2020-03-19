@@ -1,5 +1,5 @@
 import React, { useState, useContext, useLayoutEffect, useCallback, useEffect } from 'react';
-import DatepickerContext, { DateData } from './DatepickerContext';
+import DatepickerInputContext, { DateData, DatepickerContext } from './DatepickerContext';
 import { sameDate, dateToMonthCellIndex, compareDates } from './CalendarUtils';
 
 export interface ICalendarCell {

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import DatepickerContext, { DateData } from './DatepickerContext';
+import DatepickerInputContext, { DateData, IDatepickerProps, IDatepickerContext, IInputContext, IDatepickerInputContext, DatepickerContext } from './DatepickerContext';
 import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
 import Year from './Year';
@@ -13,10 +13,12 @@ import { compareDaysMonthsAndYears, VIEW, getCompareFromView } from './CalendarU
 export function Calendar(
     {
         onFinalDateSelection = (date: DateData) => { },
-        classNames = ''
+        classNames = '',
+        // context = NIDatepickerContext
     }: {
         onFinalDateSelection: (data: DateData) => {} | void,
-        classNames: string
+        classNames: string,
+        // context: React.Context<IDatepickerContext>
     }) {
 
     const {
@@ -42,7 +44,7 @@ export function Calendar(
         disableMultiyear,
 
         dispatch
-    } = useContext(DatepickerContext);
+    }: IDatepickerContext = useContext(DatepickerContext);
 
     const [_currentView, _setCurrentView] = useState(startView);
 
@@ -174,7 +176,7 @@ export function Calendar(
         }
     }
     const _finalDateSelection = (data: DateData) => {
-        // console.log("recieved final date selection");
+        // console.log("received final date selection");
         // TODO: see if this worked
         dispatch({
             type: 'set-start-at',

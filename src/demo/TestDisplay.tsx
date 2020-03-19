@@ -1,9 +1,11 @@
-import React, { useState, ChangeEvent, useRef } from "react";
-import { CalendarDisplay, DateData, DatepickerContextProvider } from "./DatepickerContext";
-import { formatDateDisplay, parseStringAsDate, makeDatepickerTheme } from "./CalendarUtils";
-import Datepicker from "./Datepicker";
-import DatepickerProvider from "./DatepickerProvider";
+import React, { useState, ChangeEvent, useRef, useLayoutEffect } from "react";
+import { CalendarDisplay, DateData } from "../DatepickerContext";
+import { formatDateDisplay, parseStringAsDate, makeDatepickerTheme } from "../CalendarUtils";
+import DatepickerInput from "../DatepickerInput";
+import Datepicker from "../Datepicker";
 
+// TODO: Figure out why max date isn't working as Datepicker, but InputTest's Datepickers are
+// TODO: deleting min date doesn't add back in the previous month button
 function TestDisplay() {
 
     const [_selectedDate, _setSelectedDate] = useState(null as Date | null);
@@ -25,13 +27,15 @@ function TestDisplay() {
     const [_disable, _setDisable] = useState(false);
     const [_disableCalendar, _setDisableCalendar] = useState(false);
     const [_disableInput, _setDisableInput] = useState(false);
-    const [_calendarOpenDisplay, _setCalendarOpenDisplay] = useState('inline' as CalendarDisplay);
-    const [_canCloseCalendar, _setCanCloseCalendar] = useState(false);
+    const [_calendarOpenDisplay, _setCalendarOpenDisplay] = useState('popup' as CalendarDisplay);
+    const [_canCloseCalendar, _setCanCloseCalendar] = useState(true);
     const [_closeAfterSelection, _setCloseAfterSelection] = useState(true);
 
     const [_openMaxCalendar, _setOpenMaxCalendar] = useState(false);
     /** Timer to avoid on focus on max calendar datepicker respose not running because seen after on blur. */
     const maxTimer = useRef(null as NodeJS.Timeout | null);
+    const [_maxInput, _setMaxInput] = useState('');
+
 
     type THEMES = 'salmon' | 'blue' | 'green';
     const _salmonTheme = ({});
@@ -54,7 +58,6 @@ function TestDisplay() {
     const [_themeColor, _setThemeColor] = useState('blue' as THEMES);
 
     const getTheme = (theme: THEMES) => {
-        console.log("theme: " + theme);
         switch (theme) {
             case 'blue':
                 return _blueTheme;
@@ -71,13 +74,15 @@ function TestDisplay() {
         _setSelectedDate(d.selectedDate);
     }
     const _onCalendarDateChange = (d: DateData) => {
-        console.log("date change in calendar");
+        console.log("date change in calendar:");
+        console.log(d);
         // _setBeginDate(d.beginDate);
         // _setEndDate(d.endDate);
         // _setSelectedDate(d.selectedDate);
     }
     const _onInputDateChange = (d: DateData) => {
-        console.log("date change in input");
+        console.log("date change in input:");
+        console.log(d);
         // todo: ensure that all input and calendar date changes also fire ondatechange
         // _setBeginDate(d.beginDate);
         // _setEndDate(d.endDate);
@@ -90,13 +95,16 @@ function TestDisplay() {
         _setMinDate(d.selectedDate);
     }
     const _onMaxDateChange = (d: DateData) => {
+        console.log("max date change");
+        // TODO: can't seem to update max date after one selection
         _setMaxDate(d.selectedDate);
     }
     const _onMaxDateInput = (d: DateData) => {
         _setMaxDate(d.selectedDate);
     }
     const _onDaySelected = (_d: DateData) => {
-        // console.log("day selected in month view");
+        console.log("day selected in month view");
+        console.log(_d);
     }
     const _onMonthSelected = (_d: DateData) => {
         // console.log("month selected in year view");
@@ -126,6 +134,17 @@ function TestDisplay() {
     }
 
     const _onMaxInputBlur = (event: ChangeEvent<HTMLInputElement>) => {
+        if (_maxInput !== '') {
+            const date = parseStringAsDate(_maxInput);
+            if (date != null) {
+                _setMaxDate(date);
+            } else {
+                _setMaxInput(_maxDate ? formatDateDisplay(_maxDate) : '');
+            }
+        } else {
+            _setMaxDate(null);
+        }
+
         _setMaxDate((event.target.value && (event.target.value.length) > 0) ? parseStringAsDate(event.target.value) : null);
     }
     /** If a child receives focus, do not close the calendar. */
@@ -160,43 +179,49 @@ function TestDisplay() {
             }
         }
     }
+    useLayoutEffect(() => {
+        _setMaxInput(_maxDate ? formatDateDisplay(_maxDate) : '');
+    }, [_maxDate]);
+    const _handleMaxInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        _setMaxInput((event.target.value.length > 0) ? event.target.value : '');
+    }
 
     return (
         <div role="main"
             className="test">
             <h1>Datepicker</h1>
-            <DatepickerContextProvider>
-                <Datepicker
-                    selectedDate={_selectedDate}
+            {/* <DatepickerInputContextProvider> */}
+            <DatepickerInput
+                selectedDate={_selectedDate}
 
-                    onDateChange={(d) => _onDateChange(d)}
-                    onCalendarDateChange={(d) => _onCalendarDateChange(d)}
-                    onInputDateChange={(d) => _onInputDateChange(d)}
-                    onDaySelected={(d) => _onDaySelected(d)}
-                    onMonthSelected={(d) => _onMonthSelected(d)}
-                    onYearSelected={(d) => _onYearSelected(d)}
+                onDateChange={(d) => _onDateChange(d)}
+                onCalendarDateChange={(d) => _onCalendarDateChange(d)}
+                onInputDateChange={(d) => _onInputDateChange(d)}
+                onDaySelected={(d) => _onDaySelected(d)}
+                onMonthSelected={(d) => _onMonthSelected(d)}
+                onYearSelected={(d) => _onYearSelected(d)}
 
-                    minDate={_minDate}
-                    maxDate={_maxDate}
-                    dateFilter={(d) => _dateFilter(d)}
+                minDate={_minDate}
+                maxDate={_maxDate}
+                dateFilter={(d) => _dateFilter(d)}
 
-                    rangeMode={_rangeMode}
-                    beginDate={_beginDate}
-                    endDate={_endDate}
+                rangeMode={_rangeMode}
+                beginDate={_beginDate}
+                endDate={_endDate}
 
-                    disableMonth={_disableMonth}
-                    disableYear={_disableYear}
-                    disableMultiyear={_disableMultiyear}
+                disableMonth={_disableMonth}
+                disableYear={_disableYear}
+                disableMultiyear={_disableMultiyear}
 
-                    disable={_disable}
-                    disableCalendar={_disableCalendar}
-                    disableInput={_disableInput}
-                    calendarOpenDisplay={_calendarOpenDisplay}
-                    canCloseCalendar={_canCloseCalendar}
+                disable={_disable}
+                disableCalendar={_disableCalendar}
+                disableInput={_disableInput}
+                calendarOpenDisplay={_calendarOpenDisplay}
+                canCloseCalendar={_canCloseCalendar}
 
-                    theme={getTheme(_themeColor)}
-                ></Datepicker>
-            </DatepickerContextProvider>
+                theme={getTheme(_themeColor)}
+            ></DatepickerInput>
+            {/* </DatepickerInputContextProvider> */}
             <div>
                 <p className="toggle">
                     <input type="checkbox"
@@ -211,7 +236,7 @@ function TestDisplay() {
             </div>
             <div>
                 <p>Minimum date:
-                <Datepicker
+                <DatepickerInput
                         selectedDate={_minDate}
 
                         onDateChange={(d) => _onMinDateChange(d)}
@@ -241,11 +266,11 @@ function TestDisplay() {
                         closeAfterSelection={_closeAfterSelection}
 
                         theme={getTheme(_themeColor)}
-                    ></Datepicker>
+                    ></DatepickerInput>
                 </p>
                 <div
                     role="button"
-                    tabIndex={-1}
+                    tabIndex={0}
                     onBlur={(e) => _onClickOffMaxCalendarInput(e)}
                     onFocus={_onFocusHandler}
                     onClick={() => _openMaxCalendarOnInput()}
@@ -254,16 +279,15 @@ function TestDisplay() {
                     <label
                         htmlFor="test-input-max-date">Maximum date:
                         <input
+                            onChange={(e) => _handleMaxInputChange(e)}
                             onBlur={(e) => { _onMaxInputBlur(e) }}
                             value={_maxDate ? formatDateDisplay(_maxDate) : undefined}
                             id="test-input-max-date"
                         ></input>
-                        <DatepickerProvider
+                        <Datepicker
                             selectedDate={_maxDate}
 
                             onDateChange={(d) => { _onMaxDateChange(d) }}
-                            onCalendarDateChange={(d) => _onMaxDateChange(d)}
-                            onInputDateChange={(d) => _onMaxDateInput(d)}
                             onDaySelected={(d) => _onDaySelected(d)}
                             onMonthSelected={(d) => _onMonthSelected(d)}
                             onYearSelected={(d) => _onYearSelected(d)}
@@ -282,14 +306,13 @@ function TestDisplay() {
 
                             disable={_disable}
                             disableCalendar={_disableCalendar}
-                            disableInput={_disableInput}
                             calendarOpenDisplay={_calendarOpenDisplay}
                             canCloseCalendar={true}
                             closeAfterSelection={_closeAfterSelection}
                             setCalendarOpen={_openMaxCalendar}
 
                             theme={getTheme(_themeColor)}
-                        ></DatepickerProvider>
+                        ></Datepicker>
                     </label>
                 </div>
             </div>

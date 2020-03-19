@@ -1,10 +1,11 @@
-import DatepickerContext, { DateData, IDatepickerContext, reducer, IDatepickerProps, IAction } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay } from "./CalendarUtils";
-import React from "react";
+import DatepickerInputContext, { DateData, IDatepickerContext, datepickerInputReducer, IDatepickerProps, IInputProps, IInputContext, datepickerReducer, DatepickerContext, InputContext } from "./DatepickerContext";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, makeDatepickerThemeArrayFromStrings } from "./CalendarUtils";
+import React, { useCallback, useLayoutEffect, useEffect } from "react";
+import Input from "./Input";
 import './Datepicker.css';
-import DatepickerNoInput from "./DatepickerNoInput";
+import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme } from "./theming";
 
-function DatepickerProvider({
+function DatepickerInput({
     selectedDate = null as Date | null,
     todayDate = new Date() as Date | null,
 
@@ -78,21 +79,8 @@ function DatepickerProvider({
     parseStringToDate = (input: string) => parseStringAsDate(input),
     displayDateAsString = (date: Date) => formatDateDisplay(date),
 
-    theme = {
-        "--color": "salmon",
-        "--color-light": "rgb(250, 186, 160)",
-        "--on-color": "white",
-        "--on-color-light": "black",
-
-        "--background": "white",
-        "--neutral-light": "rgba(0, 0, 0, .1)",
-        "--neutral": "rgba(0, 0, 0, .4)",
-        "--neutral-dark": "rgba(0, 0, 0, .5)",
-        "--on-background": "black"
-    }
-
-}: IDatepickerProps) {
-
+    theme = DEFAULT_THEME_STRINGS
+}: IDatepickerProps & IInputProps) {
     const props = {
         selectedDate,
         todayDate,
@@ -101,7 +89,6 @@ function DatepickerProvider({
         onFinalDateChange,
         onDateChange,
         onCalendarDateChange,
-        onInputDateChange,
         onDaySelected,
         onMonthSelected,
         onYearSelected,
@@ -124,8 +111,7 @@ function DatepickerProvider({
 
         disable,
         disableCalendar,
-        disableInput,
-        calendarOpenDisplay,
+        calendarOpenDisplay: calendarOpenDisplay,
         canCloseCalendar,
         closeAfterSelection,
         setCalendarOpen,
@@ -154,24 +140,33 @@ function DatepickerProvider({
         switchToYearViewLabel,
         switchToMultiyearViewLabel,
 
+        theme
+    } as IDatepickerContext;
+
+    const inputProps = {
+        onInputDateChange,
+
+        disableInput,
+
         singleInputLabel,
         beginInputLabel,
         endInputLabel,
 
         parseStringToDate,
         displayDateAsString,
-
-        theme
-    } as IDatepickerContext;
+    } as IInputContext;
 
     const DatepickerContextProvider = ({ children }: { children: any }) => {
-        let [state, dispatch] = React.useReducer(reducer, props);
+        let [state, dispatch] = React.useReducer(datepickerReducer, props);
         return (
-            <DatepickerContext.Provider value={{ ...state, dispatch }}> {children} </DatepickerContext.Provider>
+            <DatepickerContext.Provider value={{ ...state, dispatch }}>
+                <InputContext.Provider value={inputProps}>
+                    {children}
+                </InputContext.Provider>
+            </DatepickerContext.Provider>
         );
     }
     // const DatepickerContextConsumer = DatepickerContext.Consumer;
-
     // /** Replace styles with input. */
     // const _applyTheme = useCallback(() => {
     //     //for (let key in theme) {
@@ -184,9 +179,20 @@ function DatepickerProvider({
     // /** Set theme on mount. */
     // useLayoutEffect(() => {
     //     _applyTheme();
-    // });
+    // }, []);
 
     // /** When style inputs change, update css. */
+    // useLayoutEffect(() => {
+    //     _applyTheme();
+    // }, [_applyTheme]);
+
+    // TODO: reference by ID so can keep it just to this specific datepicker
+    const _applyThemeGlobal = useCallback((theme: DatepickerThemeStrings) => {
+        const root = document.getElementsByTagName('html')[0];
+        root.style.cssText = makeDatepickerThemeArrayFromStrings(resetTheme(theme)).join(';');
+    }, []);
+
+    /** When style inputs change, update css. */
     // useLayoutEffect(() => {
     //     _applyTheme();
     // }, [_applyTheme]);
@@ -194,14 +200,60 @@ function DatepickerProvider({
     //     const value = (theme as any)[key];
     //     document.documentElement.style.setProperty(key, value);
     // });
-    // }, [theme]);
+    // _applyThemeGlobal(blueThemeArray);
+    // });
+
+    // useLayoutEffect(() => {
+    //     console.log("theme array prop on mount:");
+    //     console.log(themeArray);
+    //     _applyThemeGlobal(themeArray);
+    // });
+
+    useLayoutEffect(() => {
+        // Object.keys(theme).forEach(key => {
+        //     const value = (theme as any)[key];
+        //     document.documentElement.style.setProperty(key, value);
+        // });
+        _applyThemeGlobal(theme);
+
+        // _applyThemeGlobal(Object.keys(theme).map((key) => {
+        //     const value = (theme as any)[key];
+        //     // console.log(key + ": " + value);
+        //     return key + ": " + value;
+        // }));
+
+        // const root = document.getElementsByTagName('html')[0];
+        // root.style.cssText = (blueThemeArray).join(";");
+        // console.log((blueThemeArray).map((item) => {
+        //     return item + ";";
+        // }).join());
+        // console.log(blueThemeArray.join(";"));
+        // root.style.cssText = (Object.keys(theme).map((key) => {
+        //     const value = (theme as any)[key];
+        //     console.log(key + ": " + value);
+        //     return key + ": " + value;
+        // })).join(';');
+
+    }, [_applyThemeGlobal, theme]);
+
+    // const makeArray = () => {
+    //     let array = [] as string[];
+    //     Object.keys(theme).forEach(key => {
+    //         const value = (theme as any)[key];
+    //         array.push(key + ": " + value);
+    //     });
+    //     return array;
+    // }
 
     // TODO: May refactor to have Calendar be called here
     return (
         <DatepickerContextProvider>
-            <DatepickerNoInput></DatepickerNoInput>
-        </DatepickerContextProvider>
+            {/* <button
+                onClick={() => _applyTheme()}
+            >Theme</button> */}
+            <Input></Input>
+        </DatepickerContextProvider >
     )
 }
 
-export default DatepickerProvider;
+export default DatepickerInput;

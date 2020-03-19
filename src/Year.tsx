@@ -1,4 +1,4 @@
-import DatepickerContext from './DatepickerContext';
+import DatepickerInputContext, { DatepickerContext } from './DatepickerContext';
 import React, { useContext, useState, useCallback, useEffect, useRef } from 'react';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 import { getYear, createDate, addCalendarMonths, getMonth, addCalendarYears, compareDates, getYearName, MONTH_NAMES, addCalendarDays, MONTHS_PER_ROW, compareMonthsAndYears } from './CalendarUtils';

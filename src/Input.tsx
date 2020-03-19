@@ -1,5 +1,5 @@
 import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef } from 'react';
-import DatepickerContext, { DateData, CalendarDisplay } from './DatepickerContext';
+import DatepickerInputContext, { DateData, CalendarDisplay, DatepickerContext, InputContext } from './DatepickerContext';
 import Calendar from './Calendar';
 import { compareDaysMonthsAndYears, simpleUID, compareDates } from './CalendarUtils';
 
@@ -71,15 +71,20 @@ function Input() {
         dateFilter,
 
         onDateChange,
-        onInputDateChange,
 
         disable,
         disableCalendar,
-        disableInput,
         calendarOpenDisplay,
         canCloseCalendar,
         closeAfterSelection,
         setCalendarOpen,
+
+        dispatch
+    } = useContext(DatepickerContext);
+
+    const {
+        onInputDateChange,
+        disableInput,
 
         singleInputLabel,
         beginInputLabel,
@@ -87,9 +92,7 @@ function Input() {
 
         parseStringToDate,
         displayDateAsString,
-
-        dispatch
-    } = useContext(DatepickerContext);
+    } = useContext(InputContext);
 
     /** Holds open state of the Calendar. */
     const [_calendarDisplay, _setCalendarDisplay] = useState((canCloseCalendar ? 'close' : 'inline') as OPEN_STATES);
@@ -114,7 +117,7 @@ function Input() {
     useEffect(() => {
         if ((disable || disableCalendar) && canCloseCalendar) {
             _setCalendarDisplay('close');
-        } else if (_calendarDisplay !== 'close') {
+        } else if (_calendarDisplay !== 'close' || setCalendarOpen) {
             _setCalendarDisplay(calendarOpenDisplay);
         }
     }, [_calendarDisplay, calendarOpenDisplay, canCloseCalendar, disable, disableCalendar, setCalendarOpen]);
@@ -122,17 +125,20 @@ function Input() {
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
         if (rangeMode !== _prevRangeMode.current) {
+            let select = selectedDate, begin = beginDate, end = endDate;
             if (rangeMode && !beginDate) {
                 dispatch({
                     type: 'set-begin-date',
                     payload: selectedDate
                 });
+                begin = selectedDate;
             } else {
                 if (beginDate) {
                     dispatch({
                         type: 'set-selected-date',
                         payload: beginDate
                     });
+                    select = begin;
                 }
                 dispatch({
                     type: 'set-begin-date',
@@ -142,41 +148,55 @@ function Input() {
                     type: 'set-end-date',
                     payload: null
                 });
+                begin = null;
+                end = null;
             }
             _prevRangeMode.current = rangeMode;
 
-            onInputDateChange({ selectedDate, beginDate, endDate });
-            onDateChange({ selectedDate, beginDate, endDate });
+            // onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+            // onDateChange({ selectedDate, beginDate, endDate });          onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+            onInputDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+            onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
         }
     }, [rangeMode, beginDate, dispatch, endDate, onDateChange, onInputDateChange, selectedDate]);
     //TODO: move these or get it to update input quicker
     /** On minDate change, check if any values are too low as to be invalid. */
     useEffect(() => {
-        if (minDate !== _prevMinDate.current) {
-            if (minDate) {
-                if (selectedDate && compareDates(selectedDate, minDate) < 0) {
-                    // Selected date is before minDate
+        if (minDate !== _prevMinDate.current && minDate) {
+            let select = null, begin = null, end = null;
+
+            if (selectedDate && compareDates(selectedDate, minDate) < 0) {
+                // Selected date is before minDate
+                dispatch({
+                    type: 'set-selected-date',
+                    payload: minDate
+                });
+                //   onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                // onDateChange({ selectedDate, beginDate, endDate });
+                select = minDate;
+            }
+            if (rangeMode) {
+                if (beginDate && compareDates(beginDate, minDate) < 0) {
                     dispatch({
-                        type: 'set-selected-date',
+                        type: 'set-begin-date',
                         payload: minDate
                     });
+                    //   onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                    // onDateChange({ selectedDate, beginDate, endDate });
+                    begin = minDate;
                 }
-                if (rangeMode) {
-                    if (beginDate && compareDates(beginDate, minDate) < 0) {
-                        dispatch({
-                            type: 'set-begin-date',
-                            payload: minDate
-                        });
-                    }
-                    if (endDate && compareDates(endDate, minDate) < 0) {
-                        dispatch({
-                            type: 'set-end-date',
-                            payload: minDate
-                        });
-                    }
+                if (endDate && compareDates(endDate, minDate) < 0) {
+                    dispatch({
+                        type: 'set-end-date',
+                        payload: minDate
+                    });
+                    //   onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                    // onDateChange({ selectedDate, beginDate, endDate });
+                    end = minDate;
                 }
-                onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
-                onDateChange({ selectedDate, beginDate, endDate });
+            }
+            if (select || begin || end) {
+                onDateChange({ selectedDate: select ? select : selectedDate, beginDate: begin ? begin : beginDate, endDate: end ? end : endDate });
             }
             _prevMinDate.current = minDate;
         }
@@ -215,13 +235,16 @@ function Input() {
     /** On date filter change, check if any values are invalid. */
     useEffect(() => {
         if (dateFilter !== _prevDateFilter.current) {
-            console.log("date filter change!");
+            let select = selectedDate as Date | null, begin = beginDate as Date | null, end = endDate as Date | null;
             if (!dateFilter(selectedDate)) {
                 // Selected date is before minDate
                 dispatch({
                     type: 'set-selected-date',
                     payload: null
                 });
+                //  onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                // onDateChange({ selectedDate, beginDate, endDate });
+                select = null;
             }
             if (rangeMode) {
                 if (!dateFilter(beginDate)) {
@@ -229,21 +252,27 @@ function Input() {
                         type: 'set-begin-date',
                         payload: null
                     });
+                    //  onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                    // onDateChange({ selectedDate, beginDate, endDate });
+                    begin = null;
                 }
                 if (!dateFilter(endDate)) {
                     dispatch({
                         type: 'set-end-date',
                         payload: null
                     });
+                    //    onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                    // onDateChange({ selectedDate, beginDate, endDate });
+                    end = null;
                 }
             }
             _prevDateFilter.current = dateFilter;
 
-            onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
-            onDateChange({ selectedDate, beginDate, endDate });
+            if (!selectedDate || !begin || !end) {
+                onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+            }
         }
     }, [dateFilter, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
-
 
     /** Update first text input display with selected date changes. */
     useLayoutEffect(() => {

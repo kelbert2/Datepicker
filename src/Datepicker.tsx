@@ -8,8 +8,8 @@ import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme } from "./the
 function Datepicker({
     selectedDate = null as Date | null,
     todayDate = new Date() as Date | null,
-    activeDate = new Date() as Date,
 
+    onFinalDateChange = (d: DateData) => { },
     onDateChange = (d: DateData) => { },
     onCalendarDateChange = (d: DateData) => { },
     onInputDateChange = (d: DateData) => { },
@@ -84,8 +84,9 @@ function Datepicker({
     const props = {
         selectedDate,
         todayDate,
-        activeDate,
+        activeDate: startAt ? startAt : new Date(),
 
+        onFinalDateChange,
         onDateChange,
         onCalendarDateChange,
         onInputDateChange,

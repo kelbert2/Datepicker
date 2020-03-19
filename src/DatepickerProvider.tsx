@@ -1,14 +1,14 @@
 import DatepickerContext, { DateData, IDatepickerContext, reducer, IDatepickerProps, IAction } from "./DatepickerContext";
 import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay } from "./CalendarUtils";
-import React, { useLayoutEffect, useCallback } from "react";
+import React from "react";
 import './Datepicker.css';
 import DatepickerNoInput from "./DatepickerNoInput";
 
 function DatepickerProvider({
     selectedDate = null as Date | null,
     todayDate = new Date() as Date | null,
-    activeDate = new Date() as Date,
 
+    onFinalDateChange = (d: DateData) => { },
     onDateChange = (d: DateData) => { },
     onCalendarDateChange = (d: DateData) => { },
     onInputDateChange = (d: DateData) => { },
@@ -96,8 +96,9 @@ function DatepickerProvider({
     const props = {
         selectedDate,
         todayDate,
-        activeDate,
+        activeDate: startAt ? startAt : new Date(),
 
+        onFinalDateChange,
         onDateChange,
         onCalendarDateChange,
         onInputDateChange,

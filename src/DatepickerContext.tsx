@@ -18,12 +18,13 @@ export type CalendarDisplay = 'popup' | 'popup-large' | 'inline';
  * @param todayDate: Today's date.
  * @param activeDate: Active date for tab navigation.
  *
- * @param onDateChange: Function that returns date, beginDate, and endDate upon selection.
- * @param onCalendarDateChange: Function that returns date, beginDate, and endDate upon Calendar selection.
- * @param onInputDateChange: Function that returns date, beginDate, and endDate upon Text Input.
- * @param onDaySelected: Function that returns date data upon selection in the 'month' view.
- * @param onMonthSelected: Function that returns date data upon selection in the 'year' view.
- * @param onYearSelected: Function that returns date data upon selection in the 'multiyear' view.
+ * @param onFinalDateChange: Function that takes most recently selected date, beginDate, and endDate upon completed selection process.
+ * @param onDateChange: Function that takes selected date, beginDate, and endDate upon selection.
+ * @param onCalendarDateChange: Function that takes selected date, beginDate, and endDate upon Calendar selection.
+ * @param onInputDateChange: Function that takes selected date, beginDate, and endDate upon Text Input.
+ * @param onDaySelected: Function that takes date data upon selection in the 'month' view.
+ * @param onMonthSelected: Function that takes date data upon selection in the 'year' view.
+ * @param onYearSelected: Function that takes date data upon selection in the 'multiyear' view.
  *
  * @param startAt: Starting date to display, such as today.
  * @param startView: Starting view to display upon Calendar opening.
@@ -89,6 +90,7 @@ export interface IDatepickerContext {
     todayDate: Date | null,
     activeDate: Date,
 
+    onFinalDateChange: (d: DateData) => {} | void,
     onDateChange: (d: DateData) => {} | void,
     onCalendarDateChange: (d: DateData) => {} | void,
     onInputDateChange: (d: DateData) => {} | void,
@@ -156,11 +158,12 @@ export interface IDatepickerContext {
     dispatch: React.Dispatch<IAction>,
 }
 
-const datepickerContextDefaultValue = {
+const datepickerContextDefault = {
     selectedDate: null as Date | null,
     todayDate: new Date() as Date | null,
     activeDate: new Date() as Date,
 
+    onFinalDateChange: (d: DateData) => { },
     onDateChange: (d: DateData) => { },
     onCalendarDateChange: (d: DateData) => { },
     onInputDateChange: (d: DateData) => { },
@@ -232,7 +235,8 @@ const datepickerContextDefaultValue = {
 
     theme: DEFAULT_THEME_STRINGS,
 } as IDatepickerContext;
-const DatepickerContext = React.createContext(datepickerContextDefaultValue);
+
+const DatepickerContext = React.createContext(datepickerContextDefault);
 // export default React.createContext(datepickerContextDefaultValue);
 
 
@@ -243,7 +247,7 @@ export interface IAction {
 export const reducer = (state: IDatepickerContext, action: IAction) => {
     switch (action.type) {
         case "reset":
-            return datepickerContextDefaultValue;
+            return datepickerContextDefault;
         case "set-selected-date":
             return { ...state, selectedDate: action.payload };
         case "set-today-date":
@@ -362,7 +366,7 @@ export const reducer = (state: IDatepickerContext, action: IAction) => {
 }
 
 export function DatepickerContextProvider({ children }: { children: any }) {
-    let [state, dispatch] = React.useReducer(reducer, datepickerContextDefaultValue);
+    let [state, dispatch] = React.useReducer(reducer, datepickerContextDefault);
     return (
         <DatepickerContext.Provider value={{ ...state, dispatch }}> {children} </DatepickerContext.Provider>
     );
@@ -378,9 +382,9 @@ export default DatepickerContext;
 export interface IDatepickerProps {
     selectedDate?: Date | null,
     todayDate?: Date | null,
-    activeDate?: Date,
 
-    onDateChange: (d: DateData) => {} | void,
+    onFinalDateChange?: (d: DateData) => {} | void,
+    onDateChange?: (d: DateData) => {} | void,
     onCalendarDateChange?: (d: DateData) => {} | void,
     onInputDateChange?: (d: DateData) => {} | void,
     onDaySelected?: (d: DateData) => {} | void,

@@ -1,8 +1,8 @@
 :root {
   --color: salmon;
   --color-light: rgb(250, 186, 160);
-  --on-color: white;
-  --on-color-light: black;
+  --on-color: var(--background);
+  --on-color-light: var(--on-background);
 
   --background: white;
   --neutral-light: rgba(0, 0, 0, .1);
@@ -14,6 +14,11 @@
 
   --fields-button-height: 2.4em;
   --fields-button-width: 2em;
+}
+
+html {
+  color: var(--on-background);
+  background: var(--background);
 }
 
 /*  TODO: Make another surrounding class to increase specificity and ensure styling in here will override any in Datepicker.css. */
@@ -47,9 +52,11 @@
   display: inline-block;
   position: relative;
   padding: .5em .25em;
+
 }
 
-.field input {
+.field input,
+.text-field input {
   width: calc(100% - .5em);
   text-align: left;
 
@@ -58,6 +65,7 @@
   font-size: 1em;
   line-height: 1em;
 
+  color: var(--on-background);
   background: transparent;
   border: none;
 }
@@ -73,7 +81,11 @@
 .field:focus label,
 .field:active label,
 .field:focus-within label,
-.field input.filled+label {
+.field input.filled+label,
+.text-field:focus label,
+.text-field:active label,
+.text-field:focus-within label,
+.text-field input.filled+label {
   bottom: 2.5em;
   font-size: .75em;
   font-weight: bold;
@@ -164,7 +176,8 @@
 
 .toggle input,
 .checkbox input,
-.radio input {
+.radio input,
+.radio-weekday input {
   opacity: 0;
   width: 0%;
   margin: 0;
@@ -256,7 +269,17 @@
   transform: rotate(45deg);
 }
 
-.radio {
+.checkbox input:disabled+label::before {
+  border-color: var(--neutral);
+  background: var(--neutral);
+}
+
+.checkbox input:disabled+label {
+  color: var(--neutral);
+}
+
+.radio,
+.radio-weekday {
   display: inline;
   position: relative;
   margin: 0 .5em;
@@ -296,12 +319,77 @@
   background: var(--background);
 }
 
+.radio-weekday label {
+  cursor: pointer;
+}
+
+.radio-weekday label {
+  position: relative;
+  padding: .5em;
+  border-radius: 1em;
+  z-index: 2;
+}
+
+.radio-weekday label::before {
+  display: inline-block;
+  content: '';
+  position: absolute;
+  z-index: -1;
+  height: 2em;
+  width: 2em;
+  top: 50%;
+  left: 50%;
+
+  border-radius: 1em;
+  /* background: var(--color-light); */
+  transform: translate(-50%, -50%);
+
+  transition: .3s;
+}
+
+.radio-weekday:hover label::before {
+  background: var(--neutral-light);
+}
+
+.radio-weekday input:checked+label {
+  color: var(--on-color);
+}
+
+.radio-weekday input:checked+label::before {
+  background: var(--color);
+}
+
+.text-field {
+  display: inline-block;
+  position: relative;
+  margin: .5em;
+  padding: 1.25em .75em .5em;
+
+  width: calc(50% - 2.5em);
+
+  border-radius: .25em;
+  background: var(--neutral-light);
+  box-shadow: .02em .02em .125em var(--neutral-dark);
+}
+
+.text-field label {
+  position: absolute;
+  left: 1em;
+  bottom: .5em;
+
+  transition: all .3s;
+}
+
+
 .test>div,
 .test {
   padding: .5em;
   margin: 1em;
   border-radius: .5em;
   box-shadow: .02em .02em .125em var(--neutral-dark);
+
+  color: var(--on-background);
+  background: var(--background);
 }
 
 .test>div {

@@ -3,6 +3,7 @@ import { VIEW, makeDatepickerTheme, getMonthNames, getMonth, getYear, YEARS_PER_
 import { CalendarDisplay, DateData } from "../DatepickerContext";
 import DatepickerInput from "../DatepickerInput";
 
+// TODO: dates not updating when change first day of week
 function Display() {
     const INPUT_CLASS_FILLED = 'filled';
 
@@ -69,7 +70,8 @@ function Display() {
     const _blueTheme = (makeDatepickerTheme({
         "--color": "hsl(186, 90%, 61%)",
         "--background": "rgb(27, 46, 48)",
-        "--on-background": "rgb(215,245,255)"
+        "--on-background": "rgb(215,245,255)",
+        "--neutral-dark": "#aaa"
     }));
 
     const [_themeColor, _setThemeColor] = useState('blue' as THEMES);
@@ -159,10 +161,12 @@ function Display() {
         _setDisable(disable);
     }
     const _getDisable = () => {
-        return _disable || (_disableCalendar && _disableInput);
+        return _disable;
+        // return _disable || (_disableCalendar && _disableInput);
     }
     const _getDisableCalendar = () => {
-        return _disable || _disableCalendar;
+        // return _disable || _disableCalendar;
+        return _disableCalendar;
         // const disable = !_disableCalendar;
         // if (disable && _disableInput) {
         //     _setDisable(disable);
@@ -170,7 +174,8 @@ function Display() {
         // _setDisableCalendar(disable);
     }
     const _getDisableInput = () => {
-        return _disable || _disableInput;
+        // return _disable || _disableInput;
+        return _disableInput;
         // const disable = !_disableInput;
         // if (disable && _disableCalendar) {
         //     _setDisable(disable);
@@ -333,11 +338,68 @@ function Display() {
                     ></DatepickerInput>
                 </p>
             </div>
-            <p>Date filter</p>
-            <p>None only weekdays only weekends</p>
-            <p>First Day of Week</p>
-            <p>Su M T W Th F S </p>
             <div>
+                <p>Date filter</p>
+                <p>None only weekdays only weekends</p>
+                <p>First Day of Week</p>
+                <p>
+                    <div className="radio-weekday">
+                        <input type="radio"
+                            id="radio-weekday-0"
+                            name="radio-weekday"
+                            onClick={() => { _setFirstDayOfWeek(0) }}
+                            checked={_firstDayOfWeek === 0} />
+                        <label htmlFor="radio-weekday-0">Su</label>
+                    </div>
+                    <div className="radio-weekday">
+                        <input type="radio"
+                            id="radio-weekday-1"
+                            name="radio-weekday"
+                            onClick={() => { _setFirstDayOfWeek(1) }}
+                            checked={_firstDayOfWeek === 1} />
+                        <label htmlFor="radio-weekday-1">M</label>
+                    </div>
+                    <div className="radio-weekday">
+                        <input type="radio"
+                            id="radio-weekday-2"
+                            name="radio-weekday"
+                            onClick={() => { _setFirstDayOfWeek(2) }}
+                            checked={_firstDayOfWeek === 2} />
+                        <label htmlFor="radio-weekday-2">T</label>
+                    </div>
+                    <div className="radio-weekday">
+                        <input type="radio"
+                            id="radio-weekday-3"
+                            name="radio-weekday"
+                            onClick={() => { _setFirstDayOfWeek(3) }}
+                            checked={_firstDayOfWeek === 3} />
+                        <label htmlFor="radio-weekday-3">W</label>
+                    </div>
+                    <div className="radio-weekday">
+                        <input type="radio"
+                            id="radio-weekday-4"
+                            name="radio-weekday"
+                            onClick={() => { _setFirstDayOfWeek(4) }}
+                            checked={_firstDayOfWeek === 4} />
+                        <label htmlFor="radio-weekday-4">Th</label>
+                    </div>
+                    <div className="radio-weekday">
+                        <input type="radio"
+                            id="radio-weekday-5"
+                            name="radio-weekday"
+                            onClick={() => { _setFirstDayOfWeek(5) }}
+                            checked={_firstDayOfWeek === 5} />
+                        <label htmlFor="radio-weekday-5">F</label>
+                    </div>
+                    <div className="radio-weekday">
+                        <input type="radio"
+                            id="radio-weekday-6"
+                            name="radio-weekday"
+                            onClick={() => { _setFirstDayOfWeek(6) }}
+                            checked={_firstDayOfWeek === 6} />
+                        <label htmlFor="radio-weekday-6">S</label>
+                    </div>
+                </p>
                 <p>Start View:</p>
                 <p>month year multiyear disable when view disabled</p>
                 <p>Enable Views:</p>
@@ -468,7 +530,7 @@ function Display() {
             <div>
                 <p>Text and Labels:</p>
                 <p>
-                    <p className="field">
+                    <p className="text-field">
                         <input
                             type="text"
                             id="calendar-label-input"
@@ -480,7 +542,7 @@ function Display() {
                             htmlFor="calendar-label-input"
                         >Calendar Label:</label>
                     </p>
-                    <p className="field">
+                    <p className="text-field">
                         <input
                             type="text"
                             id="open-calendar-label-input"
@@ -493,7 +555,7 @@ function Display() {
                         >Open Calendar Label:</label>
                     </p>
                     <div>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="next-month-label-input"
@@ -505,7 +567,7 @@ function Display() {
                                 htmlFor="next-month-label-input"
                             >Next Month Label:</label>
                         </p>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="next-year-label-input"
@@ -517,7 +579,7 @@ function Display() {
                                 htmlFor="next-year-label-input"
                             >Next Year Label:</label>
                         </p>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="next-multiyear-label-input"
@@ -531,7 +593,7 @@ function Display() {
                         </p>
                     </div>
                     <div>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="prev-month-label-input"
@@ -543,7 +605,7 @@ function Display() {
                                 htmlFor="prev-month-label-input"
                             >Previous Month Label:</label>
                         </p>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="prev-year-label-input"
@@ -555,7 +617,7 @@ function Display() {
                                 htmlFor="prev-year-label-input"
                             >Previous Year Label:</label>
                         </p>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="prev-multiyear-label-input"
@@ -569,7 +631,7 @@ function Display() {
                         </p>
                     </div>
                     <div>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="switch-month-label-input"
@@ -581,7 +643,7 @@ function Display() {
                                 htmlFor="switch-month-label-input"
                             >Switch to Month View Label:</label>
                         </p>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="switch-year-label-input"
@@ -593,7 +655,7 @@ function Display() {
                                 htmlFor="switch-year-label-input"
                             >Switch to Year View Label:</label>
                         </p>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="switch-multiyear-label-input"
@@ -607,7 +669,7 @@ function Display() {
                         </p>
                     </div>
                     <div>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="single-input-label-input"
@@ -619,7 +681,7 @@ function Display() {
                                 htmlFor="single-input-label-input"
                             >Single Input Label:</label>
                         </p>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="begin-input-label-input"
@@ -631,7 +693,7 @@ function Display() {
                                 htmlFor="begin-input-label-input"
                             >Begin Input Label:</label>
                         </p>
-                        <p className="field">
+                        <p className="text-field">
                             <input
                                 type="text"
                                 id="end-input-label-input"

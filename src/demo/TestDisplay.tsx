@@ -187,7 +187,7 @@ function TestDisplay() {
     }
 
     return (
-        <div role="main"
+        <div
             className="test">
             <h1>Datepicker</h1>
             {/* <DatepickerInputContextProvider> */}
@@ -342,7 +342,8 @@ function TestDisplay() {
                     <label htmlFor="multiyear-view-checkbox">Multiyear</label>
                 </p>
             </div>
-            <div><p>Calendar Theme Color</p>
+            <div>
+                <p>Calendar Theme Color</p>
                 <p>
                     <div className="radio">
                         <input type="radio"

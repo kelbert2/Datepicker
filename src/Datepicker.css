@@ -302,6 +302,10 @@
     border: var(--border-width) solid var(--button-border);
 }
 
+.calendar button:disabled {
+    color: var(--on-disabled);
+}
+
 .calendar button:not(:disabled) {
     cursor: pointer;
     color: var(--on-button);

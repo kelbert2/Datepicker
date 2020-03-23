@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import DatepickerInputContext, { DatepickerContext } from './DatepickerContext';
+import { DatepickerContext } from './DatepickerContext';
 import { getYear, VIEW, addCalendarMonths, addCalendarYears, getActiveOffset, YEARS_PER_PAGE, getStartingYear, compareMonthsAndYears, compareYears, getMonth, formatDateDisplay } from './CalendarUtils';
 
 interface CalenderHeaderProps {
@@ -57,6 +57,7 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
 
     /** Handles clicks on the period label. */
     const _currentPeriodClicked = () => {
+        console.log("Current period clicked!");
         switch (currentView) {
             case 'month':
                 if (!disableMultiyear) {

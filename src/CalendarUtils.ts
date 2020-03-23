@@ -195,7 +195,13 @@ const convert = (date: any) => {
                             : NaN
     );
 }
-export const getCompareFromView = (view: VIEW, date1: Date, date2: Date) => {
+export const getCompareFromView = (view: VIEW, date1: Date | null, date2: Date | null) => {
+    if (date1 == null) {
+        return date2 == null;
+    }
+    if (date2 == null) {
+        return false;
+    }
     switch (view) {
         case 'multiyear':
             return compareYears(date1, date2);

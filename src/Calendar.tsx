@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
+import React, { useContext, useEffect, useState, useCallback, useLayoutEffect, useRef } from 'react';
 import DatepickerInputContext, { DateData, IDatepickerProps, IDatepickerContext, IInputContext, IDatepickerInputContext, DatepickerContext } from './DatepickerContext';
 import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
 import Year from './Year';
 import Month from './Month';
-import { compareDaysMonthsAndYears, VIEW, getCompareFromView } from './CalendarUtils';
+import { compareDaysMonthsAndYears, VIEW, getCompareFromView, simpleUID } from './CalendarUtils';
 
 /** Returns a calendar.
  *  @param onFinalDateSelection: Calls with selectedDate, beginDate, and endDate when selected in the most precise enabled view.
@@ -47,10 +47,89 @@ export function Calendar(
     }: IDatepickerContext = useContext(DatepickerContext);
 
     const [_currentView, _setCurrentView] = useState(startView);
+    const [_UID] = useState(simpleUID("calendar-datepicker-"));
+
+    const prevStartView = useRef(startView);
+    const prevDisableMonth = useRef(disableMonth);
+    const prevDisableYear = useRef(disableYear);
+    const prevDisableMultiyear = useRef(disableMultiyear);
+    const prevSelectedDate = useRef(selectedDate);
+
 
     // const _prevSelectedDate = useRef(selectedDate as Date);
     // const _prevEndDate = useRef(endDate as Date);
     // const [beginDateSelected, setBeginDateSelected] = useState(false);
+
+    useEffect(() => {
+        console.log("on mount, view: " + _currentView);
+        console.log("for " + _UID);
+    });
+
+    /** Update current view on startView change to an allowed view. */
+    useLayoutEffect(() => {
+        console.log("start view: " + startView);
+        console.log("for " + _UID);
+        if (startView !== prevStartView.current) {
+            switch (startView) {
+                case 'multiyear':
+                    if (!disableMultiyear) {
+                        _setCurrentView('multiyear');
+                    }
+                    break;
+                case 'year':
+                    if (!disableYear) {
+                        _setCurrentView('year');
+                    }
+                    break;
+                default:
+                    if (!disableMonth) {
+                        _setCurrentView('month');
+                    }
+            }
+            prevStartView.current = startView;
+        }
+    }, [startView, _UID, disableMultiyear, disableYear, disableMonth]);
+
+    /** On disableMonth change, make sure the current view is set to one that can be displayed. */
+    useLayoutEffect(() => {
+        if (disableMonth && !prevDisableMonth.current && _currentView === 'month') {
+            _setCurrentView(current => !disableMultiyear
+                ? 'multiyear'
+                : !disableYear
+                    ? 'year'
+                    : current);
+            prevDisableMonth.current = disableMonth;
+        }
+    }, [disableMonth, _currentView, disableYear, disableMultiyear]);
+    /** On disableYear change, make sure the current view is set to one that can be displayed. */
+    useLayoutEffect(() => {
+        if (disableYear && !prevDisableYear.current && _currentView === 'year') {
+            _setCurrentView(current => !disableMonth
+                ? 'month'
+                : !disableMultiyear
+                    ? 'multiyear'
+                    : current);
+            prevDisableYear.current = disableYear;
+        }
+    }, [disableYear, _currentView, disableMonth, disableMultiyear]);
+
+    /** On disableMultiyear change, make sure the current view is set to one that can be displayed. */
+    useLayoutEffect(() => {
+        if (disableMultiyear && !prevDisableMultiyear.current && _currentView === 'multiyear') {
+            _setCurrentView(current => !disableYear
+                ? 'year'
+                : !disableMonth
+                    ? 'month'
+                    : current);
+            prevDisableMultiyear.current = disableMultiyear;
+        }
+    }, [disableMultiyear, _currentView, disableYear, disableMonth]);
+
+
+    useEffect(() => {
+        console.log("on change: " + _currentView);
+        console.log("for " + _UID);
+    });
 
     /** Run on mount: set active date and view changes. */
     useEffect(() => {
@@ -131,12 +210,30 @@ export function Calendar(
 
     /** On selectedDate change, check if view should be updated. */
     useEffect(() => {
-        _setCurrentView(current =>
-            (current === 'year' && !disableMonth)
-                ? 'month'
-                : (current === 'multiyear' && !disableYear)
-                    ? 'year'
-                    : current);
+        if (selectedDate) {
+            _setCurrentView(current => {
+                if ((prevSelectedDate.current == null) || (getCompareFromView(current, selectedDate, prevSelectedDate.current))) {
+                    console.log("selectedDate change!");
+                    prevSelectedDate.current = selectedDate;
+                    return (current === 'year' && !disableMonth)
+                        ? 'month'
+                        : (current === 'multiyear' && !disableYear)
+                            ? 'year'
+                            : current;
+                }
+                return current;
+            });
+        }
+        //     if (prevSelectedDate == null || getCompareFromView(_currentView, selectedDate, prevSelectedDate)) {
+        //         console.log("selected date change!");
+        //         _setCurrentView(current =>
+        //             (current === 'year' && !disableMonth)
+        //                 ? 'month'
+        //                 : (current === 'multiyear' && !disableYear)
+        //                     ? 'year'
+        //                     : current);
+        //     }
+        // }
     }, [selectedDate, disableMonth, disableYear]);
 
     /**  */
@@ -330,6 +427,7 @@ export function Calendar(
 
     /** Renders the current view. */
     const renderView = () => {
+        console.log("rendering view: " + _currentView);
         switch (_currentView) {
             case 'multiyear':
                 if (!disableMultiyear) {

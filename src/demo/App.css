@@ -269,15 +269,6 @@ html {
   transform: rotate(45deg);
 }
 
-.checkbox input:disabled+label::before {
-  border-color: var(--neutral);
-  background: var(--neutral);
-}
-
-.checkbox input:disabled+label {
-  color: var(--neutral);
-}
-
 .radio,
 .radio-weekday {
   display: inline;
@@ -286,6 +277,11 @@ html {
 
   cursor: pointer;
   /* TODO: double check cursor on all elements */
+}
+
+.radio input,
+.radio label {
+  cursor: pointer;
 }
 
 .radio label::after,
@@ -357,6 +353,20 @@ html {
 
 .radio-weekday input:checked+label::before {
   background: var(--color);
+}
+
+.toggle input:disabled+label::after,
+.toggle input:disabled+label::before,
+.radio input:disabled+label::before,
+.checkbox input:disabled+label::before {
+  border-color: var(--neutral);
+  background: var(--neutral);
+}
+
+.toggle input:disabled+label,
+.radio input:disabled+label,
+.checkbox input:disabled+label {
+  color: var(--neutral);
 }
 
 .text-field {

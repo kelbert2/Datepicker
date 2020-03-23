@@ -11,7 +11,7 @@ function Display() {
 
     const dummyDate = new Date();
     const [_startAt, _setStartAt] = useState(new Date(dummyDate.setDate(dummyDate.getDate() - 1)));
-    const [_startView, _setStartView] = useState('month' as VIEW);
+    const [_startView, _setStartView] = useState('year' as VIEW);
     const [_firstDayOfWeek, _setFirstDayOfWeek] = useState(0 as 0 | 1 | 2 | 3 | 4 | 5 | 6);
 
     const [_minDate, _setMinDate] = useState(null as Date | null);
@@ -31,8 +31,8 @@ function Display() {
     const [_disable, _setDisable] = useState(false);
     const [_disableCalendar, _setDisableCalendar] = useState(false);
     const [_disableInput, _setDisableInput] = useState(false);
-    const [_calendarOpenDisplay, _setCalendarOpenDisplay] = useState('popup' as CalendarDisplay);
-    const [_canCloseCalendar, _setCanCloseCalendar] = useState(true);
+    const [_calendarOpenDisplay, _setCalendarOpenDisplay] = useState('inline' as CalendarDisplay);
+    const [_canCloseCalendar, _setCanCloseCalendar] = useState(false);
     const [_closeAfterSelection, _setCloseAfterSelection] = useState(true);
     // const [_open, _setOpen ] = useState(false);
 
@@ -181,6 +181,10 @@ function Display() {
         //     _setDisable(disable);
         // }
         // _setDisableInput(disable);
+    }
+    const _setStartingView = (view: VIEW) => {
+        console.log("received click from: " + view);
+        _setStartView(view);
     }
 
     return (
@@ -402,6 +406,38 @@ function Display() {
                 </p>
                 <p>Start View:</p>
                 <p>month year multiyear disable when view disabled</p>
+                <p>
+                    <div className="radio">
+                        <input type="radio"
+                            id="month-start-view-radio"
+                            name="start-view-radio"
+                            // onClick={() => { _setStartView('month') }}
+                            onClick={() => _setStartingView('month')}
+                            checked={_startView === 'month'}
+                            disabled={_disableMonth} />
+                        <label htmlFor="month-start-view-radio">Month</label>
+                    </div>
+                    <div className="radio">
+                        <input type="radio"
+                            id="year-start-view-radio"
+                            name="start-view-radio"
+                            // onClick={() => { _setStartView('year') }}
+                            onClick={() => _setStartingView('year')}
+                            checked={_startView === 'year'}
+                            disabled={_disableYear} />
+                        <label htmlFor="year-start-view-radio">Year</label>
+                    </div>
+                    <div className="radio">
+                        <input type="radio"
+                            id="multiyear-start-view-radio"
+                            name="start-view-radio"
+                            // onClick={() => { _setStartView('multiyear') }}
+                            onClick={() => _setStartingView('multiyear')}
+                            checked={_startView === 'multiyear'}
+                            disabled={_disableMultiyear} />
+                        <label htmlFor="multiyear-start-view-radio">Multiyear</label>
+                    </div>
+                </p>
                 <p>Enable Views:</p>
                 <p>
                     <p className="checkbox">
@@ -523,7 +559,8 @@ function Display() {
                     <input type="checkbox"
                         id="close-after-selection-toggle"
                         onClick={() => { _setCloseAfterSelection(can => !can) }}
-                        checked={_closeAfterSelection} />
+                        checked={_closeAfterSelection}
+                        disabled={!_canCloseCalendar} />
                     <label htmlFor="close-after-selection-toggle">Close after selection</label>
                 </p>
             </div>

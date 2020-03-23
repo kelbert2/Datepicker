@@ -15,9 +15,11 @@ export function Calendar(
         onFinalDateSelection = (date: DateData) => { },
         classNames = '',
         // context = NIDatepickerContext
+        disableCalendar = false
     }: {
         onFinalDateSelection: (data: DateData) => {} | void,
         classNames: string,
+        disableCalendar: boolean
         // context: React.Context<IDatepickerContext>
     }) {
 
@@ -422,7 +424,7 @@ export function Calendar(
 
     /** Return styling for surrounding Calendar div. */
     const _getCalendarClasses = () => {
-        return "calendar " + classNames;
+        return "calendar " + classNames + (disableCalendar ? ' disabled' : '');
     }
 
     /** Renders the current view. */
@@ -431,8 +433,12 @@ export function Calendar(
         switch (_currentView) {
             case 'multiyear':
                 if (!disableMultiyear) {
-                    return <Multiyear
-                        dateSelected={_handleDateChange}></Multiyear>;
+                    return (
+                        <Multiyear
+                            dateSelected={_handleDateChange}
+                            disableAll={disableCalendar}
+                        ></Multiyear>
+                    );
                 }
                 if (!disableYear) {
                     _setCurrentView('year');
@@ -442,8 +448,12 @@ export function Calendar(
                 break;
             case 'year':
                 if (!disableYear) {
-                    return <Year
-                        dateSelected={_handleDateChange}></Year>;
+                    return (
+                        <Year
+                            dateSelected={_handleDateChange}
+                            disableAll={disableCalendar}
+                        ></Year>
+                    );
                 }
                 if (!disableMonth) {
                     _setCurrentView('month');
@@ -453,8 +463,12 @@ export function Calendar(
                 break;
             default:
                 if (!disableMonth) {
-                    return <Month
-                        dateSelected={_handleDateChange}></Month>;
+                    return (
+                        <Month
+                            dateSelected={_handleDateChange}
+                            disableAll={disableCalendar}
+                        ></Month>
+                    );
                 }
                 if (!disableMultiyear) {
                     _setCurrentView('multiyear');
@@ -472,6 +486,7 @@ export function Calendar(
             <CalendarHeader
                 currentView={_currentView}
                 setCurrentView={_setCurrentView}
+                disableAll={disableCalendar}
             ></CalendarHeader>
             {renderView()}
         </div>

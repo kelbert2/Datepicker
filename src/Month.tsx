@@ -1,9 +1,15 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
-import DatepickerInputContext, { DatepickerContext } from './DatepickerContext';
+import { DatepickerContext } from './DatepickerContext';
 import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 
-function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {
+function Month({
+    dateSelected = (date: Date) => { },
+    disableAll = false
+}: {
+    dateSelected: (date: Date) => {} | void,
+    disableAll: boolean
+}) {
     const {
         activeDate,
 
@@ -24,9 +30,6 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
         dispatch
     } = useContext(DatepickerContext);
 
-    const getFirstDayOfWeek = () => {
-        return firstDayOfWeek;
-    }
     /** Grid of ICalendarCells representing days. */
     const [_days, _setDays] = useState([] as ICalendarCell[][]);
     /** The text label for this year (e.g. "FEB"). */
@@ -38,15 +41,15 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
     /** Weekday labels. */
     const [_weekdays, _setWeekdays] = useState(WEEKDAY_NAMES);
 
-    /** Date filter for the month */
+    /** Date filter for the month. */
     const _shouldEnableDay = useCallback((date: Date) => {
-        return !!date &&
+        return !!date && !disableAll &&
             (!dateFilter || dateFilter(date)) &&
             (!minDate || compareDates(date, minDate) >= 0) &&
             (!maxDate || compareDates(date, maxDate) <= 0);
-    }, [dateFilter, maxDate, minDate]);
+    }, [dateFilter, maxDate, minDate, disableAll]);
 
-    /** Creates an ICalendarCell for a given day (one-based, not zero-based) */
+    /** Creates an ICalendarCell for a given day (one-based, not zero-based). */
     const _createCellForDay = useCallback((day: number) => {
         const date = createDate(getYear(activeDate), getMonth(activeDate), day);
         // const ariaLabel = this._dateAdapter.format(

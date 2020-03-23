@@ -8,7 +8,7 @@ const CALENDAR_CLASS_INLINE = 'inline';
 const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 const INPUT_CLASS_FILLED = 'filled';
-
+// TODO: blurring or keydowning enter while in end input isn't taking a date
 export const tealThemeArray = [
     "--color: #1de9b6",
     "--color-light: #a7ffeb",
@@ -365,6 +365,9 @@ function Input() {
     const _onBlurEndInput = () => {
         if (_endInput !== '') {
             const date = parseStringToDate(_endInput);
+            console.log("parsed date: ");
+            console.log(date);
+
             if (date != null) {
                 if (selectedDate == null || compareDaysMonthsAndYears(selectedDate, date) !== 0) {
                     dispatch({
@@ -584,6 +587,7 @@ function Input() {
                     <Calendar
                         onFinalDateSelection={_handleDateSelectionFromCalendar}
                         classNames={_setCalendarClass()}
+                        disableCalendar={disable || disableCalendar}
                     ></Calendar>
                     : ''
             }

@@ -1,10 +1,15 @@
-import DatepickerInputContext, { DatepickerContext } from './DatepickerContext';
+import { DatepickerContext } from './DatepickerContext';
 import React, { useContext, useState, useCallback, useEffect, useRef } from 'react';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 import { getYear, createDate, addCalendarMonths, getMonth, addCalendarYears, compareDates, getYearName, MONTH_NAMES, addCalendarDays, MONTHS_PER_ROW, compareMonthsAndYears } from './CalendarUtils';
 
-
-function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {
+function Year({
+    dateSelected = (date: Date) => { },
+    disableAll = false,
+}: {
+    dateSelected: (date: Date) => {} | void,
+    disableAll: boolean
+}) {
     const {
         activeDate,
 
@@ -55,7 +60,7 @@ function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Dat
     const _shouldEnableMonth = useCallback((month: number) => {
         const activeYear = getYear(activeDate);
 
-        if (month == null ||
+        if (month == null || disableAll ||
             _isYearAndMonthAfterMaxDate(activeYear, month) ||
             _isYearAndMonthBeforeMinDate(activeYear, month)) {
             return false;
@@ -73,7 +78,7 @@ function Year({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Dat
             }
         }
         return false;
-    }, [_isYearAndMonthAfterMaxDate, _isYearAndMonthBeforeMinDate, activeDate, dateFilter]);
+    }, [_isYearAndMonthAfterMaxDate, _isYearAndMonthBeforeMinDate, activeDate, dateFilter, disableAll]);
 
     /** Creates an ICalendarCell for the given month, zero-based. */
     const _createCellForMonth = useCallback((month: number, monthName: string): ICalendarCell => {

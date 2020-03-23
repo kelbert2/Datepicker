@@ -270,6 +270,7 @@ function DatepickerHandler() {
                     <Calendar
                         onFinalDateSelection={_handleDateSelectionFromCalendar}
                         classNames={_setCalendarClass()}
+                        disableCalendar={disable}
                     ></Calendar>
                     : ''
             }

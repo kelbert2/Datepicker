@@ -1,4 +1,4 @@
-import DatepickerInputContext, { DatepickerContext } from './DatepickerContext';
+import { DatepickerContext } from './DatepickerContext';
 import React, { useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { YEARS_PER_PAGE, getYear, createDate, addCalendarYears, addCalendarDays, getYearName, getActiveOffset, getStartingYear, compareYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
@@ -6,7 +6,13 @@ import CalendarBody, { ICalendarCell } from './CalendarBody';
 export const YEARS_PER_ROW = 4;
 export const isRtl = true; // language locale
 
-function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {
+function Multiyear({
+    dateSelected = (date: Date) => { },
+    disableAll = false
+}: {
+    dateSelected: (date: Date) => {} | void,
+    disableAll: boolean
+}) {
     const {
         activeDate,
 
@@ -35,7 +41,7 @@ function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date
     /** Whether the given year is enabled. */
     const _shouldEnableYear = useCallback((year: number) => {
         // disable if the year is greater than maxDate lower than minDate
-        if (year == null ||
+        if (year == null || disableAll ||
             (maxDate && year > getYear(maxDate)) ||
             (minDate && year < getYear(minDate))) {
             return false;
@@ -54,7 +60,7 @@ function Multiyear({ dateSelected = (date: Date) => { } }: { dateSelected: (date
             }
         }
         return false;
-    }, [dateFilter, maxDate, minDate]);
+    }, [dateFilter, maxDate, minDate, disableAll]);
 
     /** Creates an ICalendarCell for the given year. */
     const _createCellForYear = useCallback((year: number): ICalendarCell => {

@@ -72,6 +72,11 @@
     overflow: hidden;
 }
 
+.calendar.disabled {
+    background: var(--disabled);
+    color: var(--on-disabled);
+}
+
 .calendar.inline {
     display: inline-block;
 }

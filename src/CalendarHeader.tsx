@@ -2,11 +2,15 @@ import React, { useContext } from 'react';
 import { DatepickerContext } from './DatepickerContext';
 import { getYear, VIEW, addCalendarMonths, addCalendarYears, getActiveOffset, YEARS_PER_PAGE, getStartingYear, compareMonthsAndYears, compareYears, getMonth, formatDateDisplay } from './CalendarUtils';
 
-interface CalenderHeaderProps {
+function CalendarHeader({
+    currentView,
+    setCurrentView,
+    disableAll = false
+}: {
     currentView: VIEW,
-    setCurrentView: (view: VIEW) => {} | void
-}
-function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
+    setCurrentView: (view: VIEW) => {} | void,
+    disableAll: boolean
+}) {
     let {
         activeDate,
 
@@ -182,6 +186,7 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
 
     /** Whether the period button is enabled. */
     const _periodEnabled = () => {
+        if (disableAll) return false;
         switch (currentView) {
             case 'month':
                 return !disableYear || !disableMultiyear;
@@ -196,14 +201,14 @@ function CalendarHeader({ currentView, setCurrentView }: CalenderHeaderProps) {
 
     /** Whether the previous period button is enabled. */
     const _previousEnabled = () => {
-        return !minDate ||
-            _isSameView(activeDate, minDate) < 0;
+        return !disableAll && (!minDate ||
+            _isSameView(activeDate, minDate) < 0);
     }
 
     /** Whether the next period button is enabled. */
     const _nextEnabled = () => {
-        return !maxDate ||
-            _isSameView(activeDate, maxDate) > 0;
+        return !disableAll && (!maxDate ||
+            _isSameView(activeDate, maxDate) > 0);
     }
 
     return (

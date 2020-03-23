@@ -78,17 +78,17 @@ export const getDayOfWeekNames = (length: 'short' | 'long') => {
 }
 
 // get month, 0-based
-export const getFirstDayOfWeek = () => {
-    return 0;
-}
+// export const getFirstDayOfWeek = () => {
+//     return 0;
+// }
 export const getFirstDateOfMonthByDate = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 export const getFirstDateOfMonth = (month = CURRENT_MONTH, year = CURRENT_YEAR) => {
     return new Date(year, month, 1);
 }
-export const getFirstWeekOffset = (firstOfMonth: Date) => {
-    return (DAYS_PER_WEEK + getDayOfWeek(firstOfMonth) - getFirstDayOfWeek()) % DAYS_PER_WEEK;
+export const getFirstWeekOffset = (firstOfMonth: Date, firstDayOfWeek = 0 as 0 | 1 | 2 | 3 | 4 | 5 | 6) => {
+    return (DAYS_PER_WEEK + getDayOfWeek(firstOfMonth) - firstDayOfWeek) % DAYS_PER_WEEK;
 }
 export const getPrevMonth = (month: number, year: number) => {
     return { month: (month - 1) % 12, year: (month > 0) ? year - 1 : year };

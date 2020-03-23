@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import DatepickerInputContext, { DatepickerContext } from './DatepickerContext';
-import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, getFirstDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
+import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
 
 function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Date) => {} | void }) {
@@ -24,6 +24,9 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
         dispatch
     } = useContext(DatepickerContext);
 
+    const getFirstDayOfWeek = () => {
+        return firstDayOfWeek;
+    }
     /** Grid of ICalendarCells representing days. */
     const [_days, _setDays] = useState([] as ICalendarCell[][]);
     /** The text label for this year (e.g. "FEB"). */
@@ -65,7 +68,7 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
     const _populateDays = useCallback(() => {
         const daysInMonth = getDaysPerMonth(getMonth(activeDate));
         let firstOfMonth = createDate(getYear(activeDate), getMonth(activeDate), 1);
-        _setFirstWeekOffset((DAYS_PER_WEEK + getDayOfWeek(firstOfMonth) - getFirstDayOfWeek()) % DAYS_PER_WEEK);
+        _setFirstWeekOffset((DAYS_PER_WEEK + getDayOfWeek(firstOfMonth) - firstDayOfWeek) % DAYS_PER_WEEK);
 
         let days = [[]] as ICalendarCell[][];
         for (let i = 0, cell = _firstWeekOffset; i < daysInMonth; i++ , cell++) {
@@ -76,7 +79,7 @@ function Month({ dateSelected = (date: Date) => { } }: { dateSelected: (date: Da
             days[days.length - 1].push(_createCellForDay(i + 1));
         }
         _setDays(days);
-    }, [_createCellForDay, _firstWeekOffset, activeDate]);
+    }, [_createCellForDay, _firstWeekOffset, activeDate, firstDayOfWeek]);
 
     /** Runs setup on mount. */
     useEffect(() => {

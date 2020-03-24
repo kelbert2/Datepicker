@@ -56,6 +56,7 @@ export function CalendarBody(
     }) {
 
     const {
+        activeDate,
         selectedDate,
         todayDate,
 
@@ -84,7 +85,9 @@ export function CalendarBody(
     useLayoutEffect(() => {
         _setCellHovered(activeCell);
     }, [activeCell]);
-
+    // useLayoutEffect(() => {
+    //     _setCellHovered(dateToCellIndex(activeDate));
+    // }, [activeDate, _setCellHovered, dateToCellIndex]);
     /** On cellAspectRatio or numCols change, update the cell padding. */
     useLayoutEffect(() => {
         _setCellPadding(`${50 * cellAspectRatio / numCols}%`);
@@ -100,9 +103,9 @@ export function CalendarBody(
         if (cell.enabled) {
             const date = createDateFromSelectedCell(cell.value);
             if (date) {
-                // dispatch({
-                //     type: 'set-active-date', payload: date
-                // });
+                dispatch({
+                    type: 'set-active-date', payload: date
+                });
                 selectedValueChange(date);
             }
         }
@@ -120,6 +123,7 @@ export function CalendarBody(
     // }
     const _isActiveCell = (cell: ICalendarCell) => {
         return dateToCellIndex(cell.value) === activeCell;
+        // return compare(cell.value, activeDate) === 0;
     }
 
     /** Whether to mark as between begin and end dates in the selected range, exclusive. */
@@ -177,7 +181,7 @@ export function CalendarBody(
     /** Handle when a cell is focused, such as through tabbing. */
     const _handleCellFocus = (cell: ICalendarCell) => {
         if (cell.enabled) {
-            activeCell = dateToCellIndex(cell.value);
+            // activeCell = dateToCellIndex(cell.value);
 
             dispatch({
                 type: 'set-active-date',
@@ -369,7 +373,7 @@ export function CalendarBody(
                             aria-label={item.ariaLabel}
                             aria-disabled={!item.enabled || undefined}
                             aria-selected={sameDate(selectedDate, item.value)}
-                            key={'' + item.value}
+                            key={'cal-cell-' + item.value}
                         >
                             <div aria-label={item.ariaLabel}>{item.displayValue}</div>
                         </td>
@@ -378,7 +382,7 @@ export function CalendarBody(
                 }
             }
             renderedRows.push(
-                <tr role="row" key={'' + rows[rowIndex][0].value}>
+                <tr role="row" key={'cal-row-' + rows[rowIndex][0].value}>
                     {renderedCells}
                 </tr>
             );

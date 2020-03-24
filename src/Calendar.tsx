@@ -54,7 +54,7 @@ export function Calendar(
     const prevDisableMonth = useRef(disableMonth);
     const prevDisableYear = useRef(disableYear);
     const prevDisableMultiyear = useRef(disableMultiyear);
-    const prevSelectedDate = useRef(selectedDate);
+    const prevActiveDate = useRef(activeDate);
 
     // const _prevSelectedDate = useRef(selectedDate as Date);
     // const _prevEndDate = useRef(endDate as Date);
@@ -193,12 +193,14 @@ export function Calendar(
     //     _setCurrentView(view);
     // }
 
-    /** On selectedDate change, check if view should be updated. */
+    /** On activeDate change, check if view should be updated. */
     useEffect(() => {
-        if (selectedDate) {
+        console.log("active date from calendar: ");
+        console.log(activeDate);
+        if (activeDate) {
             _setCurrentView(current => {
-                if ((prevSelectedDate.current == null) || (getCompareFromView(current, selectedDate, prevSelectedDate.current))) {
-                    prevSelectedDate.current = selectedDate;
+                if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
+                    prevActiveDate.current = activeDate;
                     return (current === 'year' && !disableMonth)
                         ? 'month'
                         : (current === 'multiyear' && !disableYear)
@@ -218,7 +220,7 @@ export function Calendar(
         //                     : current);
         //     }
         // }
-    }, [selectedDate, disableMonth, disableYear]);
+    }, [activeDate, disableMonth, disableYear]);
 
     /**  */
     // const _determineIfDone = useCallback((isMonthDisabled: boolean, isYearDisabled: boolean, currentViewFromSelection: VIEW) => {
@@ -274,45 +276,55 @@ export function Calendar(
             type: 'set-active-date',
             payload: date
         });
-        dispatch({
-            type: 'set-selected-date',
-            payload: date
-        });
+
+        if (_isMostPreciseView(_currentView)) {
+            dispatch({
+                type: 'set-selected-date',
+                payload: date
+            });
+        }
 
         if (rangeMode) {
             if ((!beginDate && !endDate)
                 || (beginDate && getCompareFromView(_currentView, beginDate, date) === 0)
                 || (endDate && getCompareFromView(_currentView, endDate, date)) === 0) {
                 // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
-                dispatch({
-                    type: 'set-begin-date',
-                    payload: date
-                });
-                dispatch({
-                    type: 'set-end-date',
-                    payload: null
-                });
+                if (_isMostPreciseView(_currentView)) {
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: date
+                    });
+                    dispatch({
+                        type: 'set-end-date',
+                        payload: null
+                    });
+                }
                 _getSelectedFromView(_currentView, { selectedDate: date, beginDate: date, endDate: null });
 
             } else if (!beginDate && endDate) {
                 // if no beginDate has been selected but an endDate has, check to see if selected date is before or after the selected end date
                 if (getCompareFromView(_currentView, date, endDate) > 0) {
                     // date is after the end date
-                    const prevEndDate = endDate;
-                    dispatch({
-                        type: 'set-begin-date',
-                        payload: prevEndDate
-                    });
-                    dispatch({
-                        type: 'set-end-date',
-                        payload: date
-                    });
+                    if (_isMostPreciseView(_currentView)) {
+                        const prevEndDate = endDate;
+
+                        dispatch({
+                            type: 'set-begin-date',
+                            payload: prevEndDate
+                        });
+                        dispatch({
+                            type: 'set-end-date',
+                            payload: date
+                        });
+                    }
                 } else {
                     // date is before the end date, just set the begin date
-                    dispatch({
-                        type: 'set-begin-date',
-                        payload: date
-                    });
+                    if (_isMostPreciseView(_currentView)) {
+                        dispatch({
+                            type: 'set-begin-date',
+                            payload: date
+                        });
+                    }
                 }
             } else if (beginDate && getCompareFromView(_currentView, date, beginDate) < 0) {
                 // if the new selection is before the beginDate, make it the new beginDate
@@ -320,43 +332,60 @@ export function Calendar(
 
                 if (endDate) {
                     // if there is an endDate selected, make the earlier beginDate the new beginDate
-                    dispatch({
-                        type: 'set-begin-date',
-                        payload: date
-                    });
+                    // dispatch({
+                    //     type: 'set-begin-date',
+                    //     payload: date
+                    // });
                     const data = { selectedDate: date, beginDate: date, endDate };
                     _getSelectedFromView(_currentView, data);
 
                     if (_isMostPreciseView(_currentView)) {
+                        dispatch({
+                            type: 'set-begin-date',
+                            payload: date
+                        });
+
                         _finalDateSelection(data);
                     }
 
                 } else {
                     // if there is no endDate selected, make the earlier date the beginDate and the later one the endDate
-                    dispatch({
-                        type: 'set-begin-date',
-                        payload: date
-                    });
-                    dispatch({
-                        type: 'set-end-date',
-                        payload: prevBeginDate
-                    });
+                    // dispatch({
+                    //     type: 'set-begin-date',
+                    //     payload: date
+                    // });
+                    // dispatch({
+                    //     type: 'set-end-date',
+                    //     payload: prevBeginDate
+                    // });
                     const data = { selectedDate: date, beginDate: date, endDate: prevBeginDate };
                     _getSelectedFromView(_currentView, data);
-
                     if (_isMostPreciseView(_currentView)) {
+                        dispatch({
+                            type: 'set-begin-date',
+                            payload: date
+                        });
+                        dispatch({
+                            type: 'set-end-date',
+                            payload: prevBeginDate
+                        });
+
                         _finalDateSelection(data);
                     }
                 }
             } else {
                 // if the new selection is after the endDate, make it the new endDate
-                dispatch({
-                    type: 'set-end-date', payload: date
-                });
+                // dispatch({
+                //     type: 'set-end-date', payload: date
+                // });
                 const data = { selectedDate: date, beginDate, endDate: date };
                 _getSelectedFromView(_currentView, data);
 
                 if (_isMostPreciseView(_currentView)) {
+                    dispatch({
+                        type: 'set-end-date', payload: date
+                    });
+
                     _finalDateSelection(data);
                 }
             }

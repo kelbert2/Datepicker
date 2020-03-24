@@ -194,33 +194,47 @@ export function Calendar(
     // }
 
     /** On activeDate change, check if view should be updated. */
-    useEffect(() => {
-        console.log("active date from calendar: ");
-        console.log(activeDate);
-        if (activeDate) {
-            _setCurrentView(current => {
-                if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
-                    prevActiveDate.current = activeDate;
-                    return (current === 'year' && !disableMonth)
-                        ? 'month'
-                        : (current === 'multiyear' && !disableYear)
-                            ? 'year'
-                            : current;
-                }
-                return current;
-            });
-        }
-        //     if (prevSelectedDate == null || getCompareFromView(_currentView, selectedDate, prevSelectedDate)) {
-        //         console.log("selected date change!");
-        //         _setCurrentView(current =>
-        //             (current === 'year' && !disableMonth)
-        //                 ? 'month'
-        //                 : (current === 'multiyear' && !disableYear)
-        //                     ? 'year'
-        //                     : current);
-        //     }
-        // }
-    }, [activeDate, disableMonth, disableYear]);
+    // useEffect(() => {
+    //     console.log("active date from calendar: ");
+    //     console.log(activeDate);
+    //     if (activeDate) {
+    //         _setCurrentView(current => {
+    //             if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
+    //                 prevActiveDate.current = activeDate;
+    //                 return (current === 'year' && !disableMonth)
+    //                     ? 'month'
+    //                     : (current === 'multiyear' && !disableYear)
+    //                         ? 'year'
+    //                         : current;
+    //             }
+    //             return current;
+    //         });
+    //     }
+    //     //     if (prevSelectedDate == null || getCompareFromView(_currentView, selectedDate, prevSelectedDate)) {
+    //     //         console.log("selected date change!");
+    //     //         _setCurrentView(current =>
+    //     //             (current === 'year' && !disableMonth)
+    //     //                 ? 'month'
+    //     //                 : (current === 'multiyear' && !disableYear)
+    //     //                     ? 'year'
+    //     //                     : current);
+    //     //     }
+    //     // }
+    // }, [activeDate, disableMonth, disableYear]);
+
+    const updateCurrentView = () => {
+        _setCurrentView(current => {
+            if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
+                prevActiveDate.current = activeDate;
+                return (current === 'year' && !disableMonth)
+                    ? 'month'
+                    : (current === 'multiyear' && !disableYear)
+                        ? 'year'
+                        : current;
+            }
+            return current;
+        });
+    }
 
     /**  */
     // const _determineIfDone = useCallback((isMonthDisabled: boolean, isYearDisabled: boolean, currentViewFromSelection: VIEW) => {
@@ -398,6 +412,8 @@ export function Calendar(
                 _finalDateSelection(data);
             }
         }
+
+        updateCurrentView();
     }
 
     /** Run on selection or endDate change to determine if the most precise date that can be selected has been selected. */

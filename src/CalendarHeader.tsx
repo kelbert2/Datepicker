@@ -103,33 +103,19 @@ function CalendarHeader({
 
     /** Handles user clicks on the next button. */
     const _nextClicked = () => {
+        console.log("current view seen in calendar header: " + currentView);
 
-        let newActive = (currentView === 'month')
-            ? addCalendarMonths(activeDate, 1)
-            : addCalendarYears(
-                activeDate,
-                (currentView === 'year') ? 1 : YEARS_PER_PAGE
-            );
-        console.log("new active date from click");
-        console.log(newActive);
         dispatch(
             {
                 type: 'set-active-date',
-                payload: newActive
+                payload: (currentView === 'month')
+                    ? addCalendarMonths(activeDate, 1)
+                    : addCalendarYears(
+                        activeDate,
+                        (currentView === 'year') ? 1 : YEARS_PER_PAGE
+                    )
             }
         );
-
-        // dispatch(
-        //     {
-        //         type: 'set-active-date',
-        //         payload: (currentView === 'month')
-        //             ? addCalendarMonths(activeDate, 1)
-        //             : addCalendarYears(
-        //                 activeDate,
-        //                 (currentView === 'year') ? 1 : YEARS_PER_PAGE
-        //             )
-        //     }
-        // );
     }
 
     /** Gets header label for current view */

@@ -268,7 +268,7 @@ export const addCalendarYears = (date: Date, add: number) => {
     return new Date(getYear(date) + add, getMonth(date), getDay(date));
 }
 export const addCalendarMonths = (date: Date, add: number) => {
-    let newDate = date;
+    let newDate = new Date(date);
     const day = getDay(date);
     newDate.setMonth(getMonth(date) + +add);
     if (getDay(newDate) !== day) {
@@ -276,7 +276,6 @@ export const addCalendarMonths = (date: Date, add: number) => {
         newDate.setDate(0);
     }
     return newDate;
-    // had to be mod 12 anyway
 }
 
 export const addCalendarDays = (date: Date, add: number) => {

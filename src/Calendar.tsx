@@ -226,11 +226,32 @@ export function Calendar(
         _setCurrentView(current => {
             if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
                 prevActiveDate.current = activeDate;
-                return (current === 'year' && !disableMonth)
-                    ? 'month'
-                    : (current === 'multiyear' && !disableYear)
-                        ? 'year'
+                return (current === 'year')
+                    ? (!disableMonth)
+                        ? 'month'
+                        : (!disableMultiyear)
+                            ? 'multiyear'
+                            : current
+                    : (current === 'multiyear')
+                        ? (!disableYear)
+                            ? 'year'
+                            : (!disableMonth)
+                                ? 'month'
+                                : current
                         : current;
+                // switch (current) {
+                //     case 'year':
+                //         return !disableMonth ? 'month' : !disableMultiyear ? 'multiyear' : current;
+                //     case 'multiyear':
+                //         return !disableYear ? 'year' : !disableMonth ? 'month' : current;
+                //     default:
+                //         return current;
+                // }
+                // return (current === 'year' && !disableMonth)
+                //     ? 'month'
+                //     : (current === 'multiyear' && !disableYear)
+                //         ? 'year'
+                //         : current;
             }
             return current;
         });

@@ -9,6 +9,7 @@ const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 const INPUT_CLASS_FILLED = 'filled';
 // TODO: blurring or keydowning enter while in end input isn't taking a date
+// TODO: Deleting enddate isn't firing an update event
 export const tealThemeArray = [
     "--color: #1de9b6",
     "--color-light: #a7ffeb",
@@ -124,29 +125,29 @@ function Input() {
             _setCalendarDisplay(calendarOpenDisplay);
         }
     }, [_calendarDisplay, calendarOpenDisplay, canCloseCalendar, disable, disableCalendar, setCalendarOpen]);
-    useEffect(() => {
-        console.log("input mounted");
+    // useEffect(() => {
+    //     console.log("input mounted");
 
-        return () => {
-            console.log("input unmounted");
-        }
-    }, []);
-    useEffect(() => {
-        console.log("rangemode update! It is now: " + rangeMode + " for UID: " + _UID);
-    }, [rangeMode, _UID]);
-    useEffect(() => {
-        console.log("selected date change!");
-        dispatch({
-            type: 'set-selected-date',
-            payload: selectedDate
-        });
-    }, [selectedDate, dispatch]);
+    //     return () => {
+    //         console.log("input unmounted");
+    //     }
+    // }, []);
+    // useEffect(() => {
+    //     console.log("rangemode update! It is now: " + rangeMode + " for UID: " + _UID);
+    // }, [rangeMode, _UID]);
+    // useEffect(() => {
+    //     console.log("selected date change!");
+    //     dispatch({
+    //         type: 'set-selected-date',
+    //         payload: selectedDate
+    //     });
+    // }, [selectedDate, dispatch]);
     // TODO: on rangemode change, the selected date is not becoming the begin date.
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
-        console.log("past: " + _prevRangeMode.current);
-        console.log("current: " + rangeMode);
-        console.log("state past: " + prevRangeMode);
+        // console.log("past: " + _prevRangeMode.current);
+        // console.log("current: " + rangeMode);
+        // console.log("state past: " + prevRangeMode);
         if (rangeMode !== _prevRangeMode.current) {
             console.log("rangemode change!");
             let select = selectedDate, begin = beginDate, end = endDate;

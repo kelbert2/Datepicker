@@ -268,7 +268,14 @@ export const addCalendarYears = (date: Date, add: number) => {
     return new Date(getYear(date) + add, getMonth(date), getDay(date));
 }
 export const addCalendarMonths = (date: Date, add: number) => {
-    return new Date(getYear(date), (getMonth(date) + add) % 11, getDay(date));
+    let newDate = new Date(date);
+    const day = getDay(date);
+    newDate.setMonth(getMonth(date) + +add);
+    if (getDay(newDate) !== day) {
+        // make sure given day is possible in that month, or maximum possible
+        newDate.setDate(0);
+    }
+    return newDate;
 }
 
 export const addCalendarDays = (date: Date, add: number) => {

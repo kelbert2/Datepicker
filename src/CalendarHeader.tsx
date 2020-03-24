@@ -103,6 +103,8 @@ function CalendarHeader({
 
     /** Handles user clicks on the next button. */
     const _nextClicked = () => {
+        console.log("current view seen in calendar header: " + currentView);
+
         dispatch(
             {
                 type: 'set-active-date',

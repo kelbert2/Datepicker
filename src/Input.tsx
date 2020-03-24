@@ -1,5 +1,5 @@
 import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef } from 'react';
-import DatepickerInputContext, { DateData, CalendarDisplay, DatepickerContext, InputContext } from './DatepickerContext';
+import { DateData, CalendarDisplay, DatepickerContext, InputContext } from './DatepickerContext';
 import Calendar from './Calendar';
 import { compareDaysMonthsAndYears, simpleUID, compareDates } from './CalendarUtils';
 
@@ -106,12 +106,15 @@ function Input() {
     const timer = useRef(null as NodeJS.Timeout | null);
     /** Previous rangeMode value. */
     const _prevRangeMode = useRef(rangeMode);
+    const [prevRangeMode, _setPrevRangeMode] = useState(rangeMode);
     /** Previous minDate value. */
     const _prevMinDate = useRef(null as Date | null);
     /** Previous maxDate value. */
     const _prevMaxDate = useRef(null as Date | null);
     /** Previous dateFilter function. */
     const _prevDateFilter = useRef(dateFilter);
+
+    const [_UID] = useState(simpleUID("calendar-datepicker-"));
 
     /** Update Calendar open status if allowances change. */
     useEffect(() => {
@@ -121,12 +124,36 @@ function Input() {
             _setCalendarDisplay(calendarOpenDisplay);
         }
     }, [_calendarDisplay, calendarOpenDisplay, canCloseCalendar, disable, disableCalendar, setCalendarOpen]);
+    useEffect(() => {
+        console.log("input mounted");
 
+        return () => {
+            console.log("input unmounted");
+        }
+    }, []);
+    useEffect(() => {
+        console.log("rangemode update! It is now: " + rangeMode + " for UID: " + _UID);
+    }, [rangeMode, _UID]);
+    useEffect(() => {
+        console.log("selected date change!");
+        dispatch({
+            type: 'set-selected-date',
+            payload: selectedDate
+        });
+    }, [selectedDate, dispatch]);
+    // TODO: on rangemode change, the selected date is not becoming the begin date.
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
+        console.log("past: " + _prevRangeMode.current);
+        console.log("current: " + rangeMode);
+        console.log("state past: " + prevRangeMode);
         if (rangeMode !== _prevRangeMode.current) {
+            console.log("rangemode change!");
             let select = selectedDate, begin = beginDate, end = endDate;
-            if (rangeMode && !beginDate) {
+            if (rangeMode) {
+                console.log("setting begin date to selected date:");
+                console.log(selectedDate);
+                // !beginDate
                 dispatch({
                     type: 'set-begin-date',
                     payload: selectedDate
@@ -151,14 +178,15 @@ function Input() {
                 begin = null;
                 end = null;
             }
+            console.log("updating past values");
             _prevRangeMode.current = rangeMode;
-
+            _setPrevRangeMode(rangeMode);
             // onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
             // onDateChange({ selectedDate, beginDate, endDate });          onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
             onInputDateChange({ selectedDate: select, beginDate: begin, endDate: end });
             onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
         }
-    }, [rangeMode, beginDate, dispatch, endDate, onDateChange, onInputDateChange, selectedDate]);
+    }, [rangeMode, beginDate, dispatch, endDate, onDateChange, onInputDateChange, selectedDate, prevRangeMode]);
     //TODO: move these or get it to update input quicker
     /** On minDate change, check if any values are too low as to be invalid. */
     useEffect(() => {

@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState, useCallback, useLayoutEffect, useRef } from 'react';
-import DatepickerInputContext, { DateData, IDatepickerProps, IDatepickerContext, IInputContext, IDatepickerInputContext, DatepickerContext } from './DatepickerContext';
+import { DateData, IDatepickerContext, DatepickerContext } from './DatepickerContext';
 import Multiyear from './Multiyear';
 import CalendarHeader from './CalendarHeader';
 import Year from './Year';
 import Month from './Month';
-import { compareDaysMonthsAndYears, VIEW, getCompareFromView, simpleUID } from './CalendarUtils';
+import { compareDaysMonthsAndYears, VIEW, getCompareFromView } from './CalendarUtils';
 
 /** Returns a calendar.
  *  @param onFinalDateSelection: Calls with selectedDate, beginDate, and endDate when selected in the most precise enabled view.
@@ -49,7 +49,6 @@ export function Calendar(
     }: IDatepickerContext = useContext(DatepickerContext);
 
     const [_currentView, _setCurrentView] = useState(startView);
-    const [_UID] = useState(simpleUID("calendar-datepicker-"));
 
     const prevStartView = useRef(startView);
     const prevDisableMonth = useRef(disableMonth);
@@ -57,20 +56,12 @@ export function Calendar(
     const prevDisableMultiyear = useRef(disableMultiyear);
     const prevSelectedDate = useRef(selectedDate);
 
-
     // const _prevSelectedDate = useRef(selectedDate as Date);
     // const _prevEndDate = useRef(endDate as Date);
     // const [beginDateSelected, setBeginDateSelected] = useState(false);
 
-    useEffect(() => {
-        console.log("on mount, view: " + _currentView);
-        console.log("for " + _UID);
-    });
-
     /** Update current view on startView change to an allowed view. */
     useLayoutEffect(() => {
-        console.log("start view: " + startView);
-        console.log("for " + _UID);
         if (startView !== prevStartView.current) {
             switch (startView) {
                 case 'multiyear':
@@ -90,7 +81,7 @@ export function Calendar(
             }
             prevStartView.current = startView;
         }
-    }, [startView, _UID, disableMultiyear, disableYear, disableMonth]);
+    }, [startView, disableMultiyear, disableYear, disableMonth]);
 
     /** On disableMonth change, make sure the current view is set to one that can be displayed. */
     useLayoutEffect(() => {
@@ -114,7 +105,6 @@ export function Calendar(
             prevDisableYear.current = disableYear;
         }
     }, [disableYear, _currentView, disableMonth, disableMultiyear]);
-
     /** On disableMultiyear change, make sure the current view is set to one that can be displayed. */
     useLayoutEffect(() => {
         if (disableMultiyear && !prevDisableMultiyear.current && _currentView === 'multiyear') {
@@ -126,12 +116,6 @@ export function Calendar(
             prevDisableMultiyear.current = disableMultiyear;
         }
     }, [disableMultiyear, _currentView, disableYear, disableMonth]);
-
-
-    useEffect(() => {
-        console.log("on change: " + _currentView);
-        console.log("for " + _UID);
-    });
 
     /** Run on mount: set active date and view changes. */
     useEffect(() => {
@@ -159,7 +143,6 @@ export function Calendar(
         _updateTodayDate();
     }, [activeDate, _updateTodayDate]);
 
-    // TODO: See if this worked
     /** On selected date change, set the active date. */
     useEffect(() => {
         if (selectedDate) {
@@ -215,7 +198,6 @@ export function Calendar(
         if (selectedDate) {
             _setCurrentView(current => {
                 if ((prevSelectedDate.current == null) || (getCompareFromView(current, selectedDate, prevSelectedDate.current))) {
-                    console.log("selectedDate change!");
                     prevSelectedDate.current = selectedDate;
                     return (current === 'year' && !disableMonth)
                         ? 'month'
@@ -276,7 +258,6 @@ export function Calendar(
     }
     const _finalDateSelection = (data: DateData) => {
         // console.log("received final date selection");
-        // TODO: see if this worked
         dispatch({
             type: 'set-start-at',
             payload: data.selectedDate
@@ -285,7 +266,7 @@ export function Calendar(
         onFinalDateSelection(data);
         // TODO: see if should move these one level up:
         onDateChange(data);
-        onCalendarDateChange(data);
+        // onCalendarDateChange(data);
     }
     /** Handles date changes from calendar body. */
     const _handleDateChange = (date: Date) => {
@@ -429,7 +410,6 @@ export function Calendar(
 
     /** Renders the current view. */
     const renderView = () => {
-        console.log("rendering view: " + _currentView);
         switch (_currentView) {
             case 'multiyear':
                 if (!disableMultiyear) {

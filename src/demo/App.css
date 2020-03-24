@@ -405,3 +405,7 @@ html {
 .test>div {
   padding: .5em 1em;
 }
+
+.test>div>div {
+  margin: .75em 0 .5em;
+}

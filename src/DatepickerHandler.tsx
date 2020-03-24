@@ -1,5 +1,5 @@
-import DatepickerInputContext, { DateData, IDatepickerContext, datepickerInputReducer, IDatepickerProps, IAction, DatepickerContext } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, getCompareFromView, compareDaysMonthsAndYears, compareDates } from "./CalendarUtils";
+import { DateData, DatepickerContext } from "./DatepickerContext";
+import { compareDates } from "./CalendarUtils";
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { OPEN_STATES } from "./Input";
 import './Datepicker.css';
@@ -91,7 +91,6 @@ function DatepickerHandler() {
         }
     }, [beginDate, dispatch, endDate, onDateChange, rangeMode, selectedDate]);
 
-    // TODO: Refactor so only fires onDateChange once
     /** On minDate change, check if any values are too low as to be invalid. */
     useEffect(() => {
         if (minDate !== _prevMinDate.current) {

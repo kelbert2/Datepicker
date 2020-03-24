@@ -1,11 +1,9 @@
 import { DateData, IDatepickerContext, IDatepickerProps, IInputProps, IInputContext, datepickerReducer, DatepickerContext, InputContext } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, makeDatepickerThemeArrayFromStrings } from "./CalendarUtils";
-import React, { useCallback, useLayoutEffect } from "react";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, makeDatepickerThemeArrayFromStrings, simpleUID } from "./CalendarUtils";
+import React, { useCallback, useLayoutEffect, useEffect, useState } from "react";
 import Input from "./Input";
 import './Datepicker.css';
 import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme } from "./theming";
-
-// TODO: Disable of inputs, calendar, and all must have an effect
 
 function DatepickerInput({
     selectedDate = null as Date | null,
@@ -83,6 +81,7 @@ function DatepickerInput({
 
     theme = DEFAULT_THEME_STRINGS
 }: IDatepickerProps & IInputProps) {
+
     const props = {
         selectedDate,
         todayDate,
@@ -157,6 +156,14 @@ function DatepickerInput({
         parseStringToDate,
         displayDateAsString,
     } as IInputContext;
+
+    const [_UID] = useState(simpleUID("calendar-datepicker-"));
+    useEffect(() => {
+        console.log("Datepicker input mounted " + _UID);
+        return () => {
+            console.log("Datepicker input unmounted " + _UID);
+        }
+    }, []);
 
     const DatepickerContextProvider = ({ children }: { children: any }) => {
         let [state, dispatch] = React.useReducer(datepickerReducer, props);

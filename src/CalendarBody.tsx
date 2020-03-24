@@ -1,5 +1,5 @@
 import React, { useState, useContext, useLayoutEffect, useCallback, useEffect } from 'react';
-import DatepickerInputContext, { DateData, DatepickerContext } from './DatepickerContext';
+import { DateData, DatepickerContext } from './DatepickerContext';
 import { sameDate, dateToMonthCellIndex, compareDates } from './CalendarUtils';
 
 export interface ICalendarCell {
@@ -369,6 +369,7 @@ export function CalendarBody(
                             aria-label={item.ariaLabel}
                             aria-disabled={!item.enabled || undefined}
                             aria-selected={sameDate(selectedDate, item.value)}
+                            key={'' + item.value}
                         >
                             <div aria-label={item.ariaLabel}>{item.displayValue}</div>
                         </td>
@@ -377,7 +378,7 @@ export function CalendarBody(
                 }
             }
             renderedRows.push(
-                <tr role="row">
+                <tr role="row" key={'' + rows[rowIndex][0].value}>
                     {renderedCells}
                 </tr>
             );

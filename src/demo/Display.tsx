@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { VIEW, makeDatepickerTheme, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay } from "../CalendarUtils";
+import { VIEW, makeDatepickerTheme, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, getDayOfWeek } from "../CalendarUtils";
 import { CalendarDisplay, DateData } from "../DatepickerContext";
 import DatepickerInput from "../DatepickerInput";
+
 // TODO: Go through and update date change vs. final date change firings
 function Display() {
     const INPUT_CLASS_FILLED = 'filled';
@@ -15,9 +16,22 @@ function Display() {
 
     const [_minDate, _setMinDate] = useState(null as Date | null);
     const [_maxDate, _setMaxDate] = useState(null as Date | null);
+
     let _dateFilter = (date: Date | null) => {
-        return true
+        if (!date) return false;
+        const dayNumber = getDayOfWeek(date);
+        switch (_dateFilterType) {
+            case 'none':
+                return false;
+            case 'only weekends':
+                return dayNumber === 0 || dayNumber === 6;
+            case 'only weekdays':
+                return dayNumber !== 0 && dayNumber !== 6;
+            default:
+                return true;
+        }
     };
+    const [_dateFilterType, _setDateFilterType] = useState('only weekdays' as 'none' | 'only weekends' | 'only weekdays' | 'all');
 
     const [_rangeMode, _setRangeMode] = useState(true);
     const [_beginDate, _setBeginDate] = useState(null as Date | null);
@@ -343,7 +357,40 @@ function Display() {
             </div>
             <div>
                 <div>Date filter</div>
-                <div>None only weekdays only weekends</div>
+                <div>
+                    <div className="radio">
+                        <input type="radio"
+                            id="radio-date-filter-all"
+                            name="radio-date-filter"
+                            onChange={() => _setDateFilterType('all')}
+                            checked={_dateFilterType === 'all'} />
+                        <label htmlFor="radio-date-filter-all">All</label>
+                    </div>
+                    <div className="radio">
+                        <input type="radio"
+                            id="radio-date-filter-weekends"
+                            name="radio-date-filter"
+                            onChange={() => _setDateFilterType('only weekends')}
+                            checked={_dateFilterType === 'only weekends'} />
+                        <label htmlFor="radio-date-filter-weekends">Only weekends</label>
+                    </div>
+                    <div className="radio">
+                        <input type="radio"
+                            id="radio-date-filter-weekdays"
+                            name="radio-date-filter"
+                            onChange={() => _setDateFilterType('only weekdays')}
+                            checked={_dateFilterType === 'only weekdays'} />
+                        <label htmlFor="radio-date-filter-weekdays">Only weekdays</label>
+                    </div>
+                    <div className="radio">
+                        <input type="radio"
+                            id="radio-date-filter-none"
+                            name="radio-date-filter"
+                            onChange={() => _setDateFilterType('none')}
+                            checked={_dateFilterType === 'none'} />
+                        <label htmlFor="radio-date-filter-none">None</label>
+                    </div>
+                </div>
                 <div>First Day of Week</div>
                 <div>
                     <div className="radio-weekday">

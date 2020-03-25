@@ -103,10 +103,6 @@ export function CalendarBody(
     const _handleCellClick = (cell: ICalendarCell) => {
         if (cell.enabled) {
             const date = createDateFromSelectedCell(cell.value);
-            console.log("active date:");
-            console.log(activeDate);
-            console.log("this date:");
-            console.log(date);
 
             if (date) {
                 dispatch({

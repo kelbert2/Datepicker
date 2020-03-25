@@ -4,7 +4,8 @@ import React, { useCallback, useLayoutEffect, useEffect, useState } from "react"
 import Input from "./Input";
 import './Datepicker.css';
 import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme } from "./theming";
-
+// TODO: add support for Moment.js and non-native date adaptors
+// TODO: add in class name, filter object to apply class to dates that support that filter
 function DatepickerInput({
     selectedDate = null as Date | null,
     todayDate = new Date() as Date | null,
@@ -112,7 +113,7 @@ function DatepickerInput({
 
         disable,
         disableCalendar,
-        calendarOpenDisplay: calendarOpenDisplay,
+        calendarOpenDisplay,
         canCloseCalendar,
         closeAfterSelection,
         setCalendarOpen,
@@ -144,6 +145,8 @@ function DatepickerInput({
         theme
     } as IDatepickerContext;
 
+    let [state, dispatch] = React.useReducer(datepickerReducer, props);
+
     const inputProps = {
         onInputDateChange,
 
@@ -156,8 +159,17 @@ function DatepickerInput({
         parseStringToDate,
         displayDateAsString,
     } as IInputContext;
+    // may need to add dispatch so can modify this without remounting all children ^
 
     const [_UID] = useState(simpleUID("calendar-datepicker-"));
+
+    // The below works, but would have to do for all input props, which doesn't feel ideal.
+    useEffect(() => {
+        dispatch({
+            type: 'set-range-mode',
+            payload: rangeMode
+        });
+    }, [rangeMode]);
 
     useEffect(() => {
         console.log("Datepicker input mounted " + _UID);
@@ -176,16 +188,16 @@ function DatepickerInput({
     //         </DatepickerContext.Provider>
     //     );
     // }
-    const DatepickerContextProvider = ({ children }: { children: any }) => {
-        let [state, dispatch] = React.useReducer(datepickerReducer, props);
-        return (
-            <DatepickerContext.Provider value={{ ...state, dispatch }}>
-                <InputContext.Provider value={inputProps}>
-                    {children}
-                </InputContext.Provider>
-            </DatepickerContext.Provider>
-        );
-    };
+    // const DatepickerContextProvider = ({ children }: { children: any }) => {
+    //     let [state, dispatch] = React.useReducer(datepickerReducer, props);
+    //     return (
+    //         <DatepickerContext.Provider value={{ ...state, dispatch }}>
+    //             <InputContext.Provider value={inputProps}>
+    //                 {children}
+    //             </InputContext.Provider>
+    //         </DatepickerContext.Provider>
+    //     );
+    // };
     // const DatepickerContextConsumer = DatepickerContext.Consumer;
     // /** Replace styles with input. */
     // const _applyTheme = useCallback(() => {
@@ -267,15 +279,19 @@ function DatepickerInput({
 
     // TODO: May refactor to have Calendar be called here
     return (
-        <DatepickerContextProvider
+        // <DatepickerContextProvider
         // props={props}
         // inputProps={inputProps}
-        >
-            {/* <button
+        // >
+        <DatepickerContext.Provider value={{ ...state, dispatch }}>
+            <InputContext.Provider value={inputProps}>
+                {/* <button
                 onClick={() => _applyTheme()}
             >Theme</button> */}
-            <Input></Input>
-        </DatepickerContextProvider >
+                <Input></Input>
+                {/* </DatepickerContextProvider > */}
+            </InputContext.Provider>
+        </DatepickerContext.Provider>
     )
 }
 

@@ -268,16 +268,20 @@ export const datepickerInputReducer = (state: IDatepickerContext & IInputContext
         case "set-active-date":
             return { ...state, activeDate: action.payload };
 
+        case "set-final-date-change":
+            return { ...state, onFinalDateChange: action.payload };
         case "set-date-change":
             return { ...state, onDateChange: action.payload };
-        case "set-date-input":
+        case "set-calendar-date-change":
+            return { ...state, onCalendarDateChange: action.payload };
+        case "set-input-date-change":
             return { ...state, onInputDateChange: action.payload };
-        case "set-year-selected":
-            return { ...state, onYearSelected: action.payload };
-        case "set-month-selected":
-            return { ...state, onMonthSelected: action.payload };
         case "set-day-selected":
             return { ...state, onDaySelected: action.payload };
+        case "set-month-selected":
+            return { ...state, onMonthSelected: action.payload };
+        case "set-year-selected":
+            return { ...state, onYearSelected: action.payload };
 
         case "set-start-at":
             return { ...state, startAt: action.payload };
@@ -389,14 +393,18 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
         case "set-active-date":
             return { ...state, activeDate: action.payload };
 
+        case "set-final-date-change":
+            return { ...state, onFinalDateChange: action.payload };
         case "set-date-change":
             return { ...state, onDateChange: action.payload };
-        case "set-year-selected":
-            return { ...state, onYearSelected: action.payload };
-        case "set-month-selected":
-            return { ...state, onMonthSelected: action.payload };
+        case "set-calendar-date-change":
+            return { ...state, onCalendarDateChange: action.payload };
         case "set-day-selected":
             return { ...state, onDaySelected: action.payload };
+        case "set-month-selected":
+            return { ...state, onMonthSelected: action.payload };
+        case "set-year-selected":
+            return { ...state, onYearSelected: action.payload };
 
         case "set-start-at":
             return { ...state, startAt: action.payload };
@@ -430,12 +438,14 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
             return { ...state, disable: action.payload };
         case "set-disable-calendar":
             return { ...state, disableCalendar: action.payload };
-        case "set-calendar-display":
+        case "set-calendar-open-display":
             return { ...state, calendarOpenDisplay: action.payload };
         case "set-can-close-calendar":
             return { ...state, canCloseCalendar: action.payload };
         case "set-close-after-selection":
             return { ...state, closeAfterSelection: action.payload };
+        case "set-calendar-open":
+            return { ...state, setCalendarOpen: action.payload };
 
         case "set-format-month-label":
             return { ...state, formatMonthLabel: action.payload };
@@ -459,7 +469,7 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
 
         case "set-next-month-label":
             return { ...state, nextMonthLabel: action.payload };
-        case "set-year-label":
+        case "set-next-year-label":
             return { ...state, nextYearLabel: action.payload };
         case "set-next-multiyear-label":
             return { ...state, nextMultiyearLabel: action.payload };
@@ -477,6 +487,9 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
             return { ...state, switchToYearViewLabel: action.payload };
         case "set-switch-to-multiyear-view-label":
             return { ...state, switchToMultiyearViewLabel: action.payload };
+
+        case "set-theme":
+            return { ...state, theme: action.payload };
 
         default:
             return state;

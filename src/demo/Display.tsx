@@ -263,7 +263,7 @@ function Display() {
                 <div className="toggle">
                     <input type="checkbox"
                         id="range-mode-checkbox"
-                        onChange={() => { _setRangeMode(mode => !mode) }}
+                        onChange={() => _setRangeMode(mode => !mode)}
                         checked={_rangeMode} />
                     <label htmlFor="range-mode-checkbox">RangeMode</label>
                 </div>
@@ -350,7 +350,7 @@ function Display() {
                         <input type="radio"
                             id="radio-weekday-0"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(0) }}
+                            onChange={() => _setFirstDayOfWeek(0)}
                             checked={_firstDayOfWeek === 0} />
                         <label htmlFor="radio-weekday-0">Su</label>
                     </div>
@@ -358,7 +358,7 @@ function Display() {
                         <input type="radio"
                             id="radio-weekday-1"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(1) }}
+                            onChange={() => _setFirstDayOfWeek(1)}
                             checked={_firstDayOfWeek === 1} />
                         <label htmlFor="radio-weekday-1">M</label>
                     </div>
@@ -366,7 +366,7 @@ function Display() {
                         <input type="radio"
                             id="radio-weekday-2"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(2) }}
+                            onChange={() => _setFirstDayOfWeek(2)}
                             checked={_firstDayOfWeek === 2} />
                         <label htmlFor="radio-weekday-2">T</label>
                     </div>
@@ -374,7 +374,7 @@ function Display() {
                         <input type="radio"
                             id="radio-weekday-3"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(3) }}
+                            onChange={() => _setFirstDayOfWeek(3)}
                             checked={_firstDayOfWeek === 3} />
                         <label htmlFor="radio-weekday-3">W</label>
                     </div>
@@ -382,7 +382,7 @@ function Display() {
                         <input type="radio"
                             id="radio-weekday-4"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(4) }}
+                            onChange={() => _setFirstDayOfWeek(4)}
                             checked={_firstDayOfWeek === 4} />
                         <label htmlFor="radio-weekday-4">Th</label>
                     </div>
@@ -390,7 +390,7 @@ function Display() {
                         <input type="radio"
                             id="radio-weekday-5"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(5) }}
+                            onChange={() => _setFirstDayOfWeek(5)}
                             checked={_firstDayOfWeek === 5} />
                         <label htmlFor="radio-weekday-5">F</label>
                     </div>
@@ -398,7 +398,7 @@ function Display() {
                         <input type="radio"
                             id="radio-weekday-6"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(6) }}
+                            onChange={() => _setFirstDayOfWeek(6)}
                             checked={_firstDayOfWeek === 6} />
                         <label htmlFor="radio-weekday-6">S</label>
                     </div>
@@ -442,14 +442,14 @@ function Display() {
                     <div className="checkbox">
                         <input type="checkbox"
                             id="month-view-checkbox"
-                            onChange={() => { _setDisableMonth(disable => !disable) }}
+                            onChange={() => _setDisableMonth(disable => !disable)}
                             checked={!_disableMonth} />
                         <label htmlFor="month-view-checkbox">Month</label>
                     </div>
                     <div className="checkbox">
                         <input type="checkbox"
                             id="year-view-checkbox"
-                            onChange={() => { _setDisableYear(disable => !disable) }}
+                            onChange={() => _setDisableYear(disable => !disable)}
                             checked={!_disableYear}
                             className="checkbox" />
                         <label htmlFor="year-view-checkbox">Year</label>
@@ -457,7 +457,7 @@ function Display() {
                     <div className="checkbox">
                         <input type="checkbox"
                             id="multiyear-view-checkbox"
-                            onChange={() => { _setDisableMultiyear(disable => !disable) }}
+                            onChange={() => _setDisableMultiyear(disable => !disable)}
                             checked={!_disableMultiyear}
                             className="checkbox" />
                         <label htmlFor="multiyear-view-checkbox">Multiyear</label>
@@ -468,7 +468,7 @@ function Display() {
                     <div className="checkbox">
                         <input type="checkbox"
                             id="disable-all-checkbox"
-                            onChange={() => { _toggleDisable() }}
+                            onChange={_toggleDisable}
                             checked={_getDisable()} />
                         <label htmlFor="disable-all-checkbox">Disable All</label>
                     </div>
@@ -484,7 +484,7 @@ function Display() {
                         <input type="checkbox"
                             disabled={_disable}
                             id="disable-input-checkbox"
-                            onChange={() => { _setDisableInput(disable => !disable) }}
+                            onChange={() => _setDisableInput(disable => !disable)}
                             checked={_getDisableInput()} />
                         <label htmlFor="disable-input-checkbox">Disable Input</label>
                     </div>
@@ -497,7 +497,7 @@ function Display() {
                         <input type="radio"
                             id="radio-calendar-salmon"
                             name="calendar-theme-color"
-                            onChange={() => { _setThemeColor('salmon') }}
+                            onChange={() => _setThemeColor('salmon')}
                             checked={_themeColor === 'salmon'} />
                         <label htmlFor="radio-calendar-salmon">Salmon</label>
                     </div>
@@ -505,7 +505,7 @@ function Display() {
                         <input type="radio"
                             id="radio-calendar-green"
                             name="calendar-theme-color"
-                            onChange={() => { _setThemeColor('green') }}
+                            onChange={() => _setThemeColor('green')}
                             checked={_themeColor === 'green'} />
                         <label htmlFor="radio-calendar-green">Green</label>
                     </div>
@@ -513,7 +513,7 @@ function Display() {
                         <input type="radio"
                             id="radio-calendar-blue"
                             name="calendar-theme-color"
-                            onChange={() => { _setThemeColor('blue') }}
+                            onChange={() => _setThemeColor('blue')}
                             checked={_themeColor === 'blue'} />
                         <label htmlFor="radio-calendar-blue">Blue</label>
                     </div>
@@ -524,7 +524,7 @@ function Display() {
                         <input type="radio"
                             id="radio-calendar-popup"
                             name="calendar-display"
-                            onChange={() => { _setCalendarOpenDisplay('popup') }}
+                            onChange={() => _setCalendarOpenDisplay('popup')}
                             checked={_calendarOpenDisplay === 'popup'} />
                         <label htmlFor="radio-calendar-popup">Popup</label>
                     </div>
@@ -533,7 +533,7 @@ function Display() {
                         <input type="radio"
                             id="radio-calendar-popup-large"
                             name="calendar-display"
-                            onChange={() => { _setCalendarOpenDisplay('popup-large') }}
+                            onChange={() => _setCalendarOpenDisplay('popup-large')}
                             checked={_calendarOpenDisplay === 'popup-large'} />
                         <label htmlFor="radio-calendar-popup-large">Large popup</label>
                     </div>
@@ -542,7 +542,7 @@ function Display() {
                         <input type="radio"
                             id="radio-calendar-inline"
                             name="calendar-display"
-                            onChange={() => { _setCalendarOpenDisplay('inline') }}
+                            onChange={() => _setCalendarOpenDisplay('inline')}
                             checked={_calendarOpenDisplay === 'inline'} />
                         <label htmlFor="radio-calendar-inline">Inline</label>
                     </div>
@@ -550,14 +550,14 @@ function Display() {
                 <div className="toggle">
                     <input type="checkbox"
                         id="can-close-calendar-toggle"
-                        onChange={() => { _setCanCloseCalendar(can => !can) }}
+                        onChange={() => _setCanCloseCalendar(can => !can)}
                         checked={_canCloseCalendar} />
                     <label htmlFor="can-close-calendar-toggle">Can close calendar</label>
                 </div>
                 <div className="toggle">
                     <input type="checkbox"
                         id="close-after-selection-toggle"
-                        onChange={() => { _setCloseAfterSelection(can => !can) }}
+                        onChange={() => _setCloseAfterSelection(can => !can)}
                         checked={_closeAfterSelection}
                         disabled={!_canCloseCalendar} />
                     <label htmlFor="close-after-selection-toggle">Close after selection</label>

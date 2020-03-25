@@ -1,6 +1,7 @@
 import React, { useState, useContext, useLayoutEffect, useCallback, useEffect } from 'react';
 import { DateData, DatepickerContext } from './DatepickerContext';
 import { sameDate, dateToMonthCellIndex, compareDates } from './CalendarUtils';
+import CalendarCell from './CalendarCell';
 
 export interface ICalendarCell {
     cellIndex: number,
@@ -99,13 +100,19 @@ export function CalendarBody(
     }, [numCols]);
 
     /** Emits event on cell selection. */
-    const _cellClicked = (cell: ICalendarCell) => {
+    const _handleCellClick = (cell: ICalendarCell) => {
         if (cell.enabled) {
             const date = createDateFromSelectedCell(cell.value);
+            console.log("active date:");
+            console.log(activeDate);
+            console.log("this date:");
+            console.log(date);
+
             if (date) {
                 dispatch({
                     type: 'set-active-date', payload: date
                 });
+                dateSelected({ selectedDate: date, beginDate, endDate });
                 selectedValueChange(date);
             }
         }
@@ -195,7 +202,7 @@ export function CalendarBody(
         const { charCode } = event;
         switch (charCode) {
             case 13: { // Enter
-                _cellClicked(cell);
+                _handleCellClick(cell);
             }
         }
     }
@@ -350,6 +357,7 @@ export function CalendarBody(
                         colSpan={_firstRowOffset}
                         style={paddingStyle}
                         className="labelText"
+                        key={"blank-row-" + _firstRowOffset}
                     >
                         {_firstRowOffset >= labelMinRequiredCells ? labelText : ''}
                     </td>
@@ -359,26 +367,35 @@ export function CalendarBody(
                 const item = rows[rowIndex][colIndex];
                 if (item != null) {
                     renderedCells.push(
-                        <td
-                            role="gridcell"
-                            // tabIndex={_isActiveCell(rowIndex, colIndex) ? 0 : -1}
-                            tabIndex={item.enabled ? 0 : -1}
-                            className={_setCellClass(item)}
-                            onClick={() => _cellClicked(item)}
-                            onKeyPress={(e) => _handleCellKeypress(e, item)}
-                            onFocus={() => _handleCellFocus(item)}
-                            onMouseEnter={() => _onHover(item)}
-                            onMouseLeave={() => _offHover(item)}
+                        // <td
+                        //     role="gridcell"
+                        //     // tabIndex={_isActiveCell(rowIndex, colIndex) ? 0 : -1}
+                        //     tabIndex={item.enabled ? 0 : -1}
+                        //     className={_setCellClass(item)}
+                        //     onClick={() => _cellClicked(item)}
+                        //     onKeyPress={(e) => _handleCellKeypress(e, item)}
+                        //     onFocus={() => _handleCellFocus(item)}
+                        //     onMouseEnter={() => _onHover(item)}
+                        //     onMouseLeave={() => _offHover(item)}
+                        //     style={tdStyle}
+                        //     aria-label={item.ariaLabel}
+                        //     aria-disabled={!item.enabled || undefined}
+                        //     aria-selected={sameDate(selectedDate, item.value)}
+                        //     key={'cal-cell-' + item.value}
+                        // >
+                        //     <div aria-label={item.ariaLabel}>{item.displayValue}</div>
+                        // </td>
+                        <CalendarCell
+                            item={item}
+                            handleClick={_handleCellClick}
+                            handleKeyPress={_handleCellKeypress}
+                            handleFocus={_handleCellFocus}
+                            handleHoverOn={_onHover}
+                            handleHoverOff={_offHover}
+                            setCellClass={_setCellClass}
                             style={tdStyle}
-                            aria-label={item.ariaLabel}
-                            aria-disabled={!item.enabled || undefined}
-                            aria-selected={sameDate(selectedDate, item.value)}
-                            key={'cal-cell-' + item.value}
-                        >
-                            <div aria-label={item.ariaLabel}>{item.displayValue}</div>
-                        </td>
+                        ></CalendarCell>
                     );
-
                 }
             }
             renderedRows.push(

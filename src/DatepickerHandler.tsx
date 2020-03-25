@@ -276,7 +276,7 @@ function DatepickerHandler() {
             {
                 _calendarDisplay === 'popup-large' ?
                     <div role="presentation"
-                        onClick={() => _handleNonCalendarClick()}
+                        onClick={_handleNonCalendarClick}
                         className="overlay"></div>
                     : ''
             }

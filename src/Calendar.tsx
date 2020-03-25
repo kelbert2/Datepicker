@@ -210,50 +210,27 @@ export function Calendar(
     //             return current;
     //         });
     //     }
-    //     //     if (prevSelectedDate == null || getCompareFromView(_currentView, selectedDate, prevSelectedDate)) {
-    //     //         console.log("selected date change!");
-    //     //         _setCurrentView(current =>
-    //     //             (current === 'year' && !disableMonth)
-    //     //                 ? 'month'
-    //     //                 : (current === 'multiyear' && !disableYear)
-    //     //                     ? 'year'
-    //     //                     : current);
-    //     //     }
-    //     // }
     // }, [activeDate, disableMonth, disableYear]);
 
     const updateCurrentView = () => {
         _setCurrentView(current => {
-            if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
-                prevActiveDate.current = activeDate;
-                return (current === 'year')
-                    ? (!disableMonth)
-                        ? 'month'
-                        : (!disableMultiyear)
-                            ? 'multiyear'
+            //if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
+            prevActiveDate.current = activeDate;
+            return (current === 'year')
+                ? (!disableMonth)
+                    ? 'month'
+                    : (!disableMultiyear)
+                        ? 'multiyear'
+                        : current
+                : (current === 'multiyear')
+                    ? (!disableYear)
+                        ? 'year'
+                        : (!disableMonth)
+                            ? 'month'
                             : current
-                    : (current === 'multiyear')
-                        ? (!disableYear)
-                            ? 'year'
-                            : (!disableMonth)
-                                ? 'month'
-                                : current
-                        : current;
-                // switch (current) {
-                //     case 'year':
-                //         return !disableMonth ? 'month' : !disableMultiyear ? 'multiyear' : current;
-                //     case 'multiyear':
-                //         return !disableYear ? 'year' : !disableMonth ? 'month' : current;
-                //     default:
-                //         return current;
-                // }
-                // return (current === 'year' && !disableMonth)
-                //     ? 'month'
-                //     : (current === 'multiyear' && !disableYear)
-                //         ? 'year'
-                //         : current;
-            }
-            return current;
+                    : current;
+            // }
+            // return current;
         });
     }
 

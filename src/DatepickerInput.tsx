@@ -158,13 +158,24 @@ function DatepickerInput({
     } as IInputContext;
 
     const [_UID] = useState(simpleUID("calendar-datepicker-"));
+
     useEffect(() => {
         console.log("Datepicker input mounted " + _UID);
         return () => {
             console.log("Datepicker input unmounted " + _UID);
         }
-    }, []);
+    }, [_UID]);
 
+    // const DatepickerContextProvider = ({ props, inputProps, children }: { props: IDatepickerContext, inputProps: IInputContext, children: any }) => {
+    //     let [state, dispatch] = React.useReducer(datepickerReducer, props);
+    //     return (
+    //         <DatepickerContext.Provider value={{ ...state, dispatch }}>
+    //             <InputContext.Provider value={inputProps}>
+    //                 {children}
+    //             </InputContext.Provider>
+    //         </DatepickerContext.Provider>
+    //     );
+    // }
     const DatepickerContextProvider = ({ children }: { children: any }) => {
         let [state, dispatch] = React.useReducer(datepickerReducer, props);
         return (
@@ -174,7 +185,7 @@ function DatepickerInput({
                 </InputContext.Provider>
             </DatepickerContext.Provider>
         );
-    }
+    };
     // const DatepickerContextConsumer = DatepickerContext.Consumer;
     // /** Replace styles with input. */
     // const _applyTheme = useCallback(() => {
@@ -256,7 +267,10 @@ function DatepickerInput({
 
     // TODO: May refactor to have Calendar be called here
     return (
-        <DatepickerContextProvider>
+        <DatepickerContextProvider
+        // props={props}
+        // inputProps={inputProps}
+        >
             {/* <button
                 onClick={() => _applyTheme()}
             >Theme</button> */}

@@ -225,7 +225,7 @@ function Input() {
                 }
             }
             if (select || begin || end) {
-                onDateChange({ selectedDate: select ? select : selectedDate, beginDate: begin ? begin : beginDate, endDate: end ? end : endDate });
+                onDateChange({ selectedDate: select || selectedDate, beginDate: begin || beginDate, endDate: end || endDate });
             }
             _prevMinDate.current = minDate;
         }
@@ -255,7 +255,7 @@ function Input() {
                         });
                     }
                 }
-                onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                onInputDateChange({ selectedDate, beginDate, endDate });
                 onDateChange({ selectedDate, beginDate, endDate });
             }
             _prevMaxDate.current = maxDate;

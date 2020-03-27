@@ -128,7 +128,7 @@ function DatepickerHandler() {
                     }
                 }
                 if (select || begin || end) {
-                    onDateChange({ selectedDate: select ? select : selectedDate, beginDate: begin ? begin : beginDate, endDate: end ? end : endDate });
+                    onDateChange({ selectedDate: select || selectedDate, beginDate: begin || beginDate, endDate: end || endDate });
                 }
             }
             _prevMinDate.current = minDate;
@@ -171,7 +171,7 @@ function DatepickerHandler() {
                     }
                 }
                 if (select || begin || end) {
-                    onDateChange({ selectedDate: select ? select : selectedDate, beginDate: begin ? begin : beginDate, endDate: end ? end : endDate });
+                    onDateChange({ selectedDate: select || selectedDate, beginDate: begin || beginDate, endDate: end || endDate });
                 }
             }
             _prevMaxDate.current = maxDate;

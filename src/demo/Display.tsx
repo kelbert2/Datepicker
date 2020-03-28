@@ -4,8 +4,15 @@ import { CalendarDisplay, DateData } from "../DatepickerContext";
 import DatepickerInput from "../DatepickerInput";
 
 // TODO: Go through and update date change vs. final date change firings
+// TODO: Refactor {() => } to close over functions
+// {foo(input)} is foo = input => { return event => {action(input)}}
 function Display() {
     const INPUT_CLASS_FILLED = 'filled';
+
+    // TODO: might turn this into just one huge object in a single state and update from there
+    // onChange function using name element of inputs to get key of object to modify
+    const [_state, _setState] = useState({});
+
 
     const [_selectedDate, _setSelectedDate] = useState(null as Date | null);
 
@@ -255,13 +262,13 @@ function Display() {
                 selectedDate={_selectedDate}
                 todayDate={new Date()}
 
-                onFinalDateChange={(d) => _onFinalDateChange(d)}
-                onDateChange={(d) => _onDateChange(d)}
-                onCalendarDateChange={(d) => _onCalendarDateChange(d)}
-                onInputDateChange={(d) => _onInputDateChange(d)}
-                onDaySelected={(d) => _onDaySelected(d)}
-                onMonthSelected={(d) => _onMonthSelected(d)}
-                onYearSelected={(d) => _onYearSelected(d)}
+                onFinalDateChange={_onFinalDateChange}
+                onDateChange={_onDateChange}
+                onCalendarDateChange={_onCalendarDateChange}
+                onInputDateChange={_onInputDateChange}
+                onDaySelected={_onDaySelected}
+                onMonthSelected={_onMonthSelected}
+                onYearSelected={_onYearSelected}
 
                 startAt={_startAt}
                 startView={_startView}

@@ -160,6 +160,8 @@ export interface IInputContext {
 
     parseStringToDate: (input: string) => Date | null,
     displayDateAsString: (date: Date) => string,
+
+    dispatch: React.Dispatch<IAction>,
 }
 
 export interface IDatepickerInputContext extends IDatepickerContext, IInputContext {
@@ -377,6 +379,8 @@ export const datepickerInputReducer = (state: IDatepickerContext & IInputContext
         case "set-display-date-as-string":
             return { ...state, displayDateAsString: action.payload };
 
+        case "set-theme":
+            return { ...state, theme: action.payload };
         default:
             return state;
     }
@@ -496,14 +500,32 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
     }
 }
 
-// export const inputReducer = (state: IInputContext, action: IAction): IInputContext => {
-//     switch (action.type) {
-//         // case "reset":
-//         //     return datepickerContextDefault;
-//         default:
-//             return state;
-//     }
-// }
+export const inputReducer = (state: IInputContext, action: IAction): IInputContext => {
+    switch (action.type) {
+        // case "reset":
+        //     return datepickerContextDefault;
+
+        case "set-input-date-change":
+            return { ...state, onInputDateChange: action.payload };
+        case "set-disable-input":
+            return { ...state, disableInput: action.payload };
+
+        case "set-single-input-label":
+            return { ...state, singleInputLabel: action.payload };
+
+        case "set-begin-input-label":
+            return { ...state, beginInputLabel: action.payload };
+        case "set-end-input-label":
+            return { ...state, endInputLabel: action.payload };
+
+        case "set-parse-string-to-date":
+            return { ...state, parseStringToDate: action.payload };
+        case "set-display-date-as-string":
+            return { ...state, displayDateAsString: action.payload };
+        default:
+            return state;
+    }
+}
 
 export function DatepickerInputContextProvider({ children }: { children: any }) {
     let [state, dispatch] = React.useReducer(datepickerInputReducer, { ...datepickerContextDefault, ...inputContextDefault });
@@ -520,7 +542,8 @@ export function DatepickerContextProvider({ children }: { children: any }) {
 }
 
 export function InputContextProvider({ children }: { children: any }) {
-    return <InputContext.Provider value={inputContextDefault}></InputContext.Provider>
+    let [state, dispatch] = React.useReducer(inputReducer, inputContextDefault);
+    return <InputContext.Provider value={{ ...state, dispatch }}></InputContext.Provider>
 }
 
 // export const DatepickerContextConsumer = DatepickerContext.Consumer;

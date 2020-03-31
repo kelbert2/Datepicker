@@ -167,6 +167,7 @@ function DatepickerInput({
     const [_UID] = useState(simpleUID("calendar-datepicker-"));
 
     // The below works, but would have to do for all input props, which doesn't feel ideal.
+    // This also causes too many re-renders when rendered in jest, but not in the usual DOM. TODO: Figure out why this works in one instance but not in test.
     useEffect(() => {
         dispatch({
             type: 'set-selected-date',
@@ -186,6 +187,7 @@ function DatepickerInput({
             payload: onFinalDateChange
         });
     }, [onFinalDateChange]);
+
     useEffect(() => {
         dispatch({
             type: 'set-date-change',
@@ -471,6 +473,7 @@ function DatepickerInput({
             payload: parseStringToDate
         });
     }, [parseStringToDate]);
+    /*
     useEffect(() => {
         inputDispatch({
             type: 'set-display-date-as-string',
@@ -484,6 +487,7 @@ function DatepickerInput({
             payload: theme
         });
     }, [theme]);
+
 
     useEffect(() => {
         console.log("Datepicker input mounted " + _UID);

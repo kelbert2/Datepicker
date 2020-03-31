@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useContext, useReducer } from 'react';
 import ReactDOM from 'react-dom';
-import { render, fireEvent, screen, getByTestId } from '@testing-library/react';
+import { render, fireEvent, screen, getByTestId, getByText, queryByText, getByRole, getAllByRole } from '@testing-library/react';
 // import { getByTestId } from '@testing-library/jest-dom/extend-expect';
 import DatepickerInput from "../DatepickerInput";
 import renderer, { ReactTestRenderer, create } from 'react-test-renderer';
 import Datepicker from '../Datepicker';
-import { datepickerContextDefault, DatepickerContext, datepickerReducer, DatepickerContextProvider } from '../DatepickerContext';
+import { datepickerContextDefault, DatepickerContext, datepickerReducer, DatepickerContextProvider, InputContextProvider, useDatepickerContext } from '../DatepickerContext';
 import Calendar from '../Calendar';
+import Input from '../Input';
 // import Hello from "..";
+import { renderHook } from '@testing-library/react-hooks';
 
 let container: HTMLDivElement;
 
@@ -63,6 +65,57 @@ describe("Header buttons", () => {
 });
 
 describe("Selected begin and end dates", () => {
+    test("can select begin and end dates", () => {
+        ReactDOM.render(
+            <DatepickerContextProvider props={{ rangeMode: true }}>
+                < Calendar ></Calendar >
+            </DatepickerContextProvider >, container);
+
+        let beginValue: HTMLElement, withinValue: HTMLElement, endValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement;
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beginValue = cell;
+                fireEvent.click(cell);
+                expect(beginValue).toHaveClass("beginRange");
+            } else if (cell.textContent === '4') {
+                endValue = cell;
+                fireEvent.click(cell);
+                expect(beginValue).toHaveClass("beginRange");
+                expect(endValue).toHaveClass("endRange");
+                console.log("Ran can select begin and end dates.");
+            }
+        });
+    });
+
+    test("can pass begin and end dates", () => {
+        let _beginDate = new Date();
+        let _endDate = new Date();
+        _beginDate.setDate(2);
+        _endDate.setDate(4);
+        ReactDOM.render(
+            <DatepickerContextProvider props={{ rangeMode: true, beginDate: _beginDate, endDate: _endDate }}>
+                < Calendar ></Calendar >
+            </DatepickerContextProvider >, container);
+
+        let beginValue: HTMLElement, withinValue: HTMLElement, endValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement;
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beginValue = cell;
+                expect(beginValue).toHaveClass("beginRange");
+            } else if (cell.textContent === '3') {
+                withinValue = cell;
+                expect(withinValue).toHaveClass("withinRange");
+            } else if (cell.textContent === '4') {
+                endValue = cell;
+                expect(beginValue).toHaveClass("beginRange");
+                expect(endValue).toHaveClass("endRange");
+                console.log("Ran Can pass begin and end dates.");
+            }
+        });
+    });
+
     // const dpInput = render(<DatepickerInput
     //     // selectedDate={_selectedDate}
     //     // todayDate={new Date()}
@@ -133,13 +186,129 @@ describe("Selected begin and end dates", () => {
     //     // theme={getTheme(_themeColor)}
     //  ></DatepickerInput>)
 
-    // test("Selecting a date that is before the selected begin and end dates sets a new begin date", () => {
-    //     //ReactDOM.render(<DatepickerInput></DatepickerInput>, container);
+    // TODO: Currently it recognizes being at the end of a hover range, being selected and active, but not being at the end of the selected range - may be a timing issue?
+    test("Selecting a date that is before the selected begin and end dates sets a new begin date", () => {
+        //ReactDOM.render(<DatepickerInput></DatepickerInput>, container);
+        let _beginDate = new Date();
+        let _endDate = new Date();
+        _beginDate.setDate(2);
+        _endDate.setDate(4);
+        // _endDate.setDate(_endDate.getDate() - 2);
+        // const { result } = renderHook(() => useReducer(datepickerReducer, datepickerContextDefault));
+        // const [state, dispatch] = result.current;
 
-    // });
-    // test("Selecting a date after the begin and end dates sets a new end date", () => {
+        // const state = datepickerReducer(datepickerContextDefault, { type: "reset", payload: null });
+        // const { getByText } = 
+        ReactDOM.render(
+            <DatepickerContextProvider props={{ rangeMode: true, beginDate: _beginDate, endDate: _endDate }}>
+                {/* ReactDOM.render( , container)
+                 <InputContextProvider>
+                    <Input></Input>
+                </InputContextProvider> */}
+                < Calendar ></Calendar >
 
-    // });
+                {/* {
+                    (_value: any) => {
+                        const {
+                            beginDate, endDate
+                        } = useDatepickerContext();
+                        return (
+                            <div>
+                                <div>Begin: {beginDate?.getDate()}</div>
+                                <div>End: {endDate?.getDate()}</div>
+                            </div>
+                        );
+                    }
+                } */}
+            </DatepickerContextProvider >, container);
+        // TODO: Can't seem to render DatepickerInput without a loop due to the useEffects that run dispatch on prop changes, so don't know how to pass defaults for beginDate, endDate, and rangeMode in order to test Calendar and Input behaviors.
+
+        // const beginInput = getByText(container, /begin/i);
+        // const endInput = getByText(container, /end/i);
+        // let beforeDate = new Date();
+        // beforeDate.setDate(beforeDate.getDate() - 7);
+        // fireEvent.change(input, { target: { value: '23' } });
+
+        // let beginDiv = getByText(container, 'Begin: ');
+        // let endDiv = getByText(container, 'End:');
+
+        let beginValue: HTMLElement, withinValue: HTMLElement, endValue: HTMLElement, beforeValue: HTMLElement;
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '1') {
+                beforeValue = cell;
+            } else if (cell.textContent === '2') {
+                beginValue = cell;
+                //  fireEvent.click(beginValue);
+                expect(beginValue).toHaveClass("beginRange");
+            } else if (cell.textContent === '3') {
+                withinValue = cell;
+                expect(withinValue).toHaveClass("withinRange");
+            } else if (cell.textContent === '4') {
+                endValue = cell;
+                // fireEvent.click(endValue);
+
+                fireEvent.click(beforeValue);
+                expect(endValue).toHaveClass("endRange");
+
+                expect(beforeValue).toHaveClass("beginRange");
+                console.log("Ran Selecting a date that is before the selected begin and end dates sets a new begin date.");
+            } else if (cell.textContent === '5') {
+
+            }
+        });
+
+        //let beginValue = getByText(container, '3');
+        // let endValue = getByText(container, '4');
+        // let beforeValue = getByText(container, '2');
+
+        // fireEvent.click(beginValue);
+        // fireEvent.click(endValue);
+
+
+        //if (beginValue) console.log(beginValue.classList.item(0)); // null if out of range
+        // expect(beginDiv).toHaveTextContent('2');
+        // expect(endDiv).toHaveTextContent('4');
+
+        //expect(endValue).toHaveClass("endRange");
+        // expect(beforeValue).toHaveClass("beginRange");
+    });
+
+    test("Selecting a date after the begin and end dates sets a new end date", () => {
+        let _beginDate = new Date();
+        let _endDate = new Date();
+        _beginDate.setDate(2);
+        _endDate.setDate(4);
+        ReactDOM.render(
+            <DatepickerContextProvider props={{ rangeMode: true, beginDate: _beginDate, endDate: _endDate }}>
+                < Calendar ></Calendar >
+            </DatepickerContextProvider >, container);
+
+        let beginValue: HTMLElement, withinValue: HTMLElement, endValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement;
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '1') {
+                beforeValue = cell;
+            } else if (cell.textContent === '2') {
+                beginValue = cell;
+                expect(beginValue).toHaveClass("beginRange");
+            } else if (cell.textContent === '3') {
+                withinValue = cell;
+                expect(withinValue).toHaveClass("withinRange");
+            } else if (cell.textContent === '4') {
+                endValue = cell;
+                expect(endValue).toHaveClass("endRange");
+            } else if (cell.textContent === '5') {
+                afterValue = cell;
+                fireEvent.click(cell);
+
+                expect(beginValue).toHaveClass("beginRange");
+                expect(afterValue).toHaveClass("endRange");
+
+                console.log("Ran Selecting a date after the begin and end dates sets a new end date.");
+            }
+        });
+    });
 });
 // describe("Selected begin but no end date", () => {
 //     test("Selecting before the selected beginDate switches the two", () => {

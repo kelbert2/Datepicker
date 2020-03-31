@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear, formatDateDisplay, parseStringAsDate } from './CalendarUtils';
 import { DatepickerThemeStrings, DEFAULT_THEME_STRINGS } from './theming';
+import DatepickerInput from './DatepickerInput';
 
 // Based on: https://github.com/SaturnTeam/saturn-datepicker/tree/master/saturn-datepicker/src/datepicker
 // All IDatepickerContext values will be public and updateable outside except for dispatch
@@ -250,7 +251,7 @@ const inputContextDefault = {
     displayDateAsString: (date: Date) => formatDateDisplay(date),
 } as IInputContext;
 
-const DatepickerInputContext = React.createContext({ ...datepickerContextDefault, ...inputContextDefault } as IDatepickerInputContext);
+export const DatepickerInputContext = React.createContext({ ...datepickerContextDefault, ...inputContextDefault } as IDatepickerInputContext);
 // export default React.createContext(datepickerContextDefaultValue);
 export const DatepickerContext = React.createContext(datepickerContextDefault);
 export const InputContext = React.createContext(inputContextDefault);
@@ -261,8 +262,8 @@ export interface IAction {
 }
 export const datepickerInputReducer = (state: IDatepickerContext & IInputContext, action: IAction): IDatepickerContext & IInputContext => {
     switch (action.type) {
-        // case "reset":
-        //     return datepickerContextDefault;
+        case "reset":
+            return { ...datepickerContextDefault, ...inputContextDefault, dispatch: state.dispatch };
         case "set-selected-date":
             return { ...state, selectedDate: action.payload };
         case "set-today-date":
@@ -388,8 +389,8 @@ export const datepickerInputReducer = (state: IDatepickerContext & IInputContext
 
 export const datepickerReducer = (state: IDatepickerContext, action: IAction): IDatepickerContext => {
     switch (action.type) {
-        // case "reset":
-        //     return datepickerContextDefault;
+        case "reset":
+            return { ...datepickerContextDefault, dispatch: state.dispatch };
         case "set-selected-date":
             return { ...state, selectedDate: action.payload };
         case "set-today-date":
@@ -502,9 +503,8 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
 
 export const inputReducer = (state: IInputContext, action: IAction): IInputContext => {
     switch (action.type) {
-        // case "reset":
-        //     return datepickerContextDefault;
-
+        case "reset":
+            return { ...inputContextDefault, dispatch: state.dispatch };
         case "set-input-date-change":
             return { ...state, onInputDateChange: action.payload };
         case "set-disable-input":
@@ -526,29 +526,49 @@ export const inputReducer = (state: IInputContext, action: IAction): IInputConte
             return state;
     }
 }
-
-export function DatepickerInputContextProvider({ children }: { children: any }) {
+// allow input override with props
+export function DatepickerInputContextProvider({ children, props }: { children: any, props?: IDatepickerProps & IInputProps }) {
     let [state, dispatch] = React.useReducer(datepickerInputReducer, { ...datepickerContextDefault, ...inputContextDefault });
     return (
-        <DatepickerInputContext.Provider value={{ ...state, dispatch }}> {children} </DatepickerInputContext.Provider>
+        <DatepickerInputContext.Provider value={{ ...state, dispatch, ...props }}> {children} </DatepickerInputContext.Provider>
     );
 }
 
-export function DatepickerContextProvider({ children }: { children: any }) {
+export function DatepickerContextProvider({ children, props }: { children: any, props?: IDatepickerProps }) {
+    // TODO: check if should use memo here
     let [state, dispatch] = React.useReducer(datepickerReducer, datepickerContextDefault);
     return (
-        <DatepickerContext.Provider value={{ ...state, dispatch }}>{children}</DatepickerContext.Provider>
+        <DatepickerContext.Provider value={{ ...state, dispatch, ...props }} >{children}</DatepickerContext.Provider>
     );
 }
 
-export function InputContextProvider({ children }: { children: any }) {
+export function InputContextProvider({ children, props }: { children: any, props?: IInputProps }) {
     let [state, dispatch] = React.useReducer(inputReducer, inputContextDefault);
-    return <InputContext.Provider value={{ ...state, dispatch }}></InputContext.Provider>
+    return <InputContext.Provider value={{ ...state, dispatch, ...props }}></InputContext.Provider>
 }
-
+// TODO: Use these safer useContexts in component
+export const useDatepickerInputContext = () => {
+    const context = useContext(DatepickerInputContext);
+    if (!context) {
+        throw new Error('Cannot use `useDatepickerInputContext` outsider of DatepickerInputContextProvider.');
+    }
+    return context;
+}
+export const useDatepickerContext = () => {
+    const context = useContext(DatepickerContext);
+    if (!context) {
+        throw new Error('Cannot use `useDatepickerContext` outsider of DatepickerContextProvider.');
+    }
+    return context;
+}
+export const useInputContext = () => {
+    const context = useContext(InputContext);
+    if (!context) {
+        throw new Error('Cannot use `useInputContext` outsider of InputContextProvider.');
+    }
+    return context;
+}
 // export const DatepickerContextConsumer = DatepickerContext.Consumer;
-
-export default DatepickerInputContext;
 
 // TODO: add custom className applied for dates like holidays
 // TODO: refactor all the popup/disable/inline etc. logic to some specific type to avoid any conflicting values

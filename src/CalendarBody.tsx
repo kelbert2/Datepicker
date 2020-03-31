@@ -319,13 +319,9 @@ export function CalendarBody(
                 padding: `0 ${_cellPadding}`
             }
             return (
-                <tr aria-hidden="true">
-                    <td colSpan={numCols}
-                        style={paddingStyle}
-                        className="labelText">
-                        {labelText}
-                    </td>
-                </tr>
+                <tr aria-hidden="true"><td colSpan={numCols}
+                    style={paddingStyle}
+                    className="labelText">{labelText}</td></tr>
             );
         }
         return '';
@@ -354,9 +350,7 @@ export function CalendarBody(
                         style={paddingStyle}
                         className="labelText"
                         key={"blank-row-" + _firstRowOffset}
-                    >
-                        {_firstRowOffset >= labelMinRequiredCells ? labelText : ''}
-                    </td>
+                    >{_firstRowOffset >= labelMinRequiredCells ? labelText : ''}</td>
                 );
             }
             for (let colIndex = 0; colIndex < numCols; colIndex++) {
@@ -390,24 +384,20 @@ export function CalendarBody(
                             handleHoverOff={_offHover}
                             setCellClass={_setCellClass}
                             style={tdStyle}
+                            key={'cal-cell-' + item.value}
                         ></CalendarCell>
                     );
                 }
             }
             renderedRows.push(
-                <tr role="row" key={'cal-row-' + rows[rowIndex][0].value}>
-                    {renderedCells}
-                </tr>
+                <tr role="row" key={'cal-row-' + rows[rowIndex][0].value}>{renderedCells}</tr>
             );
         }
         return renderedRows;
     }
 
     return (
-        <tbody>
-            {_renderTextRow()}
-            {_renderRows()}
-        </tbody >
+        <tbody>{_renderTextRow()}{_renderRows()}</tbody >
     );
 }
 

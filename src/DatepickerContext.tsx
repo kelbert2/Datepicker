@@ -167,7 +167,7 @@ export interface IInputContext {
 export interface IDatepickerInputContext extends IDatepickerContext, IInputContext {
 }
 
-const datepickerContextDefault = {
+export const datepickerContextDefault = {
     selectedDate: null as Date | null,
     todayDate: new Date() as Date | null,
     activeDate: new Date() as Date,

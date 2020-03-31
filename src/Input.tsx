@@ -132,11 +132,11 @@ function Input() {
             console.log("input unmounted");
         }
     }, []);
+    // useEffect(() => {
+    //     console.log("rangemode update! It is now: " + rangeMode + " for UID: " + _UID);
+    // }, [rangeMode, _UID]);
     useEffect(() => {
-        console.log("rangemode update! It is now: " + rangeMode + " for UID: " + _UID);
-    }, [rangeMode, _UID]);
-    useEffect(() => {
-        console.log("selected date change!");
+        // console.log("selected date change!");
         dispatch({
             type: 'set-selected-date',
             payload: selectedDate
@@ -145,15 +145,15 @@ function Input() {
     // TODO: on rangemode change, the selected date is not becoming the begin date.
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
-        console.log("past: " + _prevRangeMode.current);
-        console.log("current: " + rangeMode);
-        console.log("state past: " + prevRangeMode);
+        // console.log("past: " + _prevRangeMode.current);
+        // console.log("current: " + rangeMode);
+        // console.log("state past: " + prevRangeMode);
         if (rangeMode !== _prevRangeMode.current) {
-            console.log("rangemode change!");
+            // console.log("rangemode change!");
             let select = selectedDate, begin = beginDate, end = endDate;
             if (rangeMode) {
-                console.log("setting begin date to selected date:");
-                console.log(selectedDate);
+                // console.log("setting begin date to selected date:");
+                // console.log(selectedDate);
                 // !beginDate
                 dispatch({
                     type: 'set-begin-date',
@@ -179,7 +179,7 @@ function Input() {
                 begin = null;
                 end = null;
             }
-            console.log("updating past values");
+            // console.log("updating past values");
             _prevRangeMode.current = rangeMode;
             _setPrevRangeMode(rangeMode);
             // onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
@@ -606,6 +606,7 @@ function Input() {
                 {rangeMode ? <span> - </span> : ''}
                 {!rangeMode ? '' : _renderEndInput()}
                 <button
+                    data-testid="open-button"
                     aria-label="Open calendar"
                     className="fields-button">
                     <span></span>

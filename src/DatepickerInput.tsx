@@ -4,7 +4,7 @@ import React, { useCallback, useLayoutEffect, useEffect, useState } from "react"
 import Input from "./Input";
 import './Datepicker.css';
 import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme } from "./theming";
-import { start } from "repl";
+
 // TODO: add support for Moment.js and non-native date adaptors
 // TODO: add in class name, filter object to apply class to dates that support that filter
 function DatepickerInput({

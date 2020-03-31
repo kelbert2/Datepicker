@@ -17,9 +17,9 @@ export function Calendar(
         // context = NIDatepickerContext
         disableCalendar = false
     }: {
-        onFinalDateSelection: (data: DateData) => {} | void,
-        classNames: string,
-        disableCalendar: boolean
+        onFinalDateSelection?: (data: DateData) => {} | void,
+        classNames?: string,
+        disableCalendar?: boolean
         // context: React.Context<IDatepickerContext>
     }) {
 

@@ -52,7 +52,7 @@ function Display() {
     const [_disableCalendar, _setDisableCalendar] = useState(false);
     const [_disableInput, _setDisableInput] = useState(false);
     const [_calendarOpenDisplay, _setCalendarOpenDisplay] = useState('inline' as CalendarDisplay);
-    const [_canCloseCalendar, _setCanCloseCalendar] = useState(true);
+    const [_canCloseCalendar, _setCanCloseCalendar] = useState(false);
     const [_closeAfterSelection, _setCloseAfterSelection] = useState(true);
     // const [_open, _setOpen ] = useState(false);
 
@@ -292,7 +292,7 @@ function Display() {
                 calendarOpenDisplay={_calendarOpenDisplay}
                 canCloseCalendar={_canCloseCalendar}
                 closeAfterSelection={_closeAfterSelection}
-                // setCalendarOpen={_open}
+                setCalendarOpen={true}
 
                 formatMonthLabel={_formatMonthLabel}
                 formatMonthText={_formatMonthText}

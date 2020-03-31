@@ -216,7 +216,6 @@ function CalendarHeader({
         <div
             className="header">
             <button
-                data-testid="previous-button"
                 onClick={_previousClicked}
                 disabled={!_previousEnabled()}
                 aria-label={_getPrevButtonLabel()}
@@ -224,7 +223,6 @@ function CalendarHeader({
                 className="left"
             ></button>
             <button
-                data-testid="period-button"
                 onClick={_currentPeriodClicked}
                 disabled={!_periodEnabled()}
                 aria-label={_getPeriodButtonLabel()}
@@ -233,7 +231,6 @@ function CalendarHeader({
                 {_getHeaderLabel()}
             </button>
             <button
-                data-testid="next-button"
                 onClick={_nextClicked}
                 disabled={!_nextEnabled()}
                 aria-label={_getNextButtonLabel()}

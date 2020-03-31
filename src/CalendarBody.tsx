@@ -11,6 +11,9 @@ export interface ICalendarCell {
     enabled: boolean,
 }
 
+// TODO: Jest Test is seeing whitespace somewhere in here:
+// validateDOMNesting(...): Whitespace text nodes cannot appear as a child of <tbody>. Make sure you don't have any extra whitespace between tags on each line of your source code.
+
 /** Displays Calendar data in a table
          *  @param rows: Cells to display
          *  @param labelText: Label for the table ("JAN 2020")
@@ -350,43 +353,23 @@ export function CalendarBody(
                         style={paddingStyle}
                         className="labelText"
                         key={"blank-row-" + _firstRowOffset}
-                    >{_firstRowOffset >= labelMinRequiredCells ? labelText : ''}</td>
-                );
+                    >{_firstRowOffset >= labelMinRequiredCells ? labelText : null}</td>
+                ); // TODO: Check that : null didn't break anything (formerly '')
             }
             for (let colIndex = 0; colIndex < numCols; colIndex++) {
                 const item = rows[rowIndex][colIndex];
                 if (item != null) {
-                    renderedCells.push(
-                        // <td
-                        //     role="gridcell"
-                        //     // tabIndex={_isActiveCell(rowIndex, colIndex) ? 0 : -1}
-                        //     tabIndex={item.enabled ? 0 : -1}
-                        //     className={_setCellClass(item)}
-                        //     onClick={() => _cellClicked(item)}
-                        //     onKeyPress={(e) => _handleCellKeypress(e, item)}
-                        //     onFocus={() => _handleCellFocus(item)}
-                        //     onMouseEnter={() => _onHover(item)}
-                        //     onMouseLeave={() => _offHover(item)}
-                        //     style={tdStyle}
-                        //     aria-label={item.ariaLabel}
-                        //     aria-disabled={!item.enabled || undefined}
-                        //     aria-selected={sameDate(selectedDate, item.value)}
-                        //     key={'cal-cell-' + item.value}
-                        // >
-                        //     <div aria-label={item.ariaLabel}>{item.displayValue}</div>
-                        // </td>
-                        <CalendarCell
-                            item={item}
-                            handleClick={_handleCellClick}
-                            handleKeyPress={_handleCellKeypress}
-                            handleFocus={_handleCellFocus}
-                            handleHoverOn={_onHover}
-                            handleHoverOff={_offHover}
-                            setCellClass={_setCellClass}
-                            style={tdStyle}
-                            key={'cal-cell-' + item.value}
-                        ></CalendarCell>
-                    );
+                    renderedCells.push(<CalendarCell
+                        item={item}
+                        handleClick={_handleCellClick}
+                        handleKeyPress={_handleCellKeypress}
+                        handleFocus={_handleCellFocus}
+                        handleHoverOn={_onHover}
+                        handleHoverOff={_offHover}
+                        setCellClass={_setCellClass}
+                        style={tdStyle}
+                        key={'cal-cell-' + item.value}
+                    ></CalendarCell>);
                 }
             }
             renderedRows.push(

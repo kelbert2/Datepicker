@@ -9,23 +9,6 @@ import { datepickerContextDefault, DatepickerContext, datepickerReducer, Datepic
 import Calendar from '../Calendar';
 // import Hello from "..";
 
-// test("Component should show 'red' text 'Hello World'", () => {
-//     const component = renderer.create(<Hello text="World" />);
-//     const testInstance = component.root;
-
-//     expect(testInstance.findByType(Hello).props.text).toBe("World");
-
-//     let tree = component.toJSON();
-//     expect(tree).toMatchSnapshot();
-// });
-
-// let wrapper: ShallowWrapper<DatepickerInputProps>;
-// let snapshot: ReactTestRenderer;
-// function renderDP() {
-//     return renderer.create(<DatepickerInput></DatepickerInput>);
-// }
-
-
 let container: HTMLDivElement;
 
 beforeEach(() => {
@@ -53,101 +36,111 @@ afterEach(() => {
 //     })
 // });
 
+// Works!:
+describe("Header buttons", () => {
+    test("clicking twelve times advances the year", () => {
+        ReactDOM.render(<DatepickerContextProvider><Calendar></Calendar></DatepickerContextProvider>, container);
+        const nextYear = (new Date()).getFullYear() + 1;
+        const nextButton = document.getElementsByClassName("right")[0];
+        for (let i = 0; i < 12; i++) {
+            fireEvent.click(nextButton);
+        }
+        const periodButton = document.getElementsByClassName("period")[0];
+        expect(periodButton).toHaveTextContent('' + nextYear);
+    });
 
-test("clicking twelve times advances the year", () => {
-    ReactDOM.render(<DatepickerContextProvider><Calendar></Calendar></DatepickerContextProvider>, container);
+    test("clicking twelve times decreases the year", () => {
+        ReactDOM.render(<DatepickerContextProvider><Calendar></Calendar></DatepickerContextProvider>, container);
+        const prevYear = (new Date()).getFullYear() - 1;
+        const prevButton = document.getElementsByClassName("left")[0];
 
-    // fireEvent.click(getByTestId(container, "open-button"));
-
-    const nextYear = (new Date()).getFullYear() + 1;
-    //const nextButton = screen.getByTestId("next-button");
-
-    for (let i = 0; i < 12; i++) {
-        fireEvent.click(getByTestId(container, "next-button"));
-    }
-    const periodButton = getByTestId(container, "period-button");
-    expect(screen.getByTestId("period-button")).toHaveTextContent('' + nextYear);
+        for (let i = 0; i < 12; i++) {
+            fireEvent.click(prevButton);
+        }
+        const periodButton = document.getElementsByClassName("period")[0];
+        expect(periodButton).toHaveTextContent('' + prevYear);
+    });
 });
 
+describe("Selected begin and end dates", () => {
+    // const dpInput = render(<DatepickerInput
+    //     // selectedDate={_selectedDate}
+    //     // todayDate={new Date()}
 
-// describe("Selected begin and end dates", () => {
-//     const dpInput = render(<DatepickerInput
-//     // selectedDate={_selectedDate}
-//     // todayDate={new Date()}
+    //     // onFinalDateChange={_onFinalDateChange}
+    //     // onDateChange={_onDateChange}
+    //     // onCalendarDateChange={_onCalendarDateChange}
+    //     // onInputDateChange={_onInputDateChange}
+    //     // onDaySelected={_onDaySelected}
+    //     // onMonthSelected={_onMonthSelected}
+    //     // onYearSelected={_onYearSelected}
 
-//     // onFinalDateChange={_onFinalDateChange}
-//     // onDateChange={_onDateChange}
-//     // onCalendarDateChange={_onCalendarDateChange}
-//     // onInputDateChange={_onInputDateChange}
-//     // onDaySelected={_onDaySelected}
-//     // onMonthSelected={_onMonthSelected}
-//     // onYearSelected={_onYearSelected}
+    //     // startAt={_startAt}
+    //     // startView={_startView}
+    //     // firstDayOfWeek={_firstDayOfWeek}
 
-//     // startAt={_startAt}
-//     // startView={_startView}
-//     // firstDayOfWeek={_firstDayOfWeek}
+    //     // minDate={_minDate}
+    //     // maxDate={_maxDate}
+    //     // dateFilter={_dateFilter}
 
-//     // minDate={_minDate}
-//     // maxDate={_maxDate}
-//     // dateFilter={_dateFilter}
+    //     // rangeMode={_rangeMode}
+    //     // beginDate={_beginDate}
+    //     // endDate={_endDate}
 
-//     // rangeMode={_rangeMode}
-//     // beginDate={_beginDate}
-//     // endDate={_endDate}
+    //     // disableMonth={_disableMonth}
+    //     // disableYear={_disableYear}
+    //     // disableMultiyear={_disableMultiyear}
 
-//     // disableMonth={_disableMonth}
-//     // disableYear={_disableYear}
-//     // disableMultiyear={_disableMultiyear}
+    //     // disable={_disable}
+    //     // disableCalendar={_disableCalendar}
+    //     // disableInput={_disableInput}
+    //     // calendarOpenDisplay={_calendarOpenDisplay}
+    //     // canCloseCalendar={_canCloseCalendar}
+    //     // closeAfterSelection={_closeAfterSelection}
+    //     // // setCalendarOpen={_open}
 
-//     // disable={_disable}
-//     // disableCalendar={_disableCalendar}
-//     // disableInput={_disableInput}
-//     // calendarOpenDisplay={_calendarOpenDisplay}
-//     // canCloseCalendar={_canCloseCalendar}
-//     // closeAfterSelection={_closeAfterSelection}
-//     // // setCalendarOpen={_open}
+    //     // formatMonthLabel={_formatMonthLabel}
+    //     // formatMonthText={_formatMonthText}
 
-//     // formatMonthLabel={_formatMonthLabel}
-//     // formatMonthText={_formatMonthText}
+    //     // formatYearLabel={_formatYearLabel}
+    //     // formatYearText={_formatYearText}
 
-//     // formatYearLabel={_formatYearLabel}
-//     // formatYearText={_formatYearText}
+    //     // formatMultiyearLabel={_formatMultiyearLabel}
+    //     // formatMultiyearText={_formatMultiyearText}
 
-//     // formatMultiyearLabel={_formatMultiyearLabel}
-//     // formatMultiyearText={_formatMultiyearText}
+    //     // calendarLabel={_calendarLabel}
+    //     // openCalendarLabel={_openCalendarLabel}
 
-//     // calendarLabel={_calendarLabel}
-//     // openCalendarLabel={_openCalendarLabel}
+    //     // nextMonthLabel={_nextMonthLabel}
+    //     // nextYearLabel={_nextYearLabel}
+    //     // nextMultiyearLabel={_nextMultiyearLabel}
 
-//     // nextMonthLabel={_nextMonthLabel}
-//     // nextYearLabel={_nextYearLabel}
-//     // nextMultiyearLabel={_nextMultiyearLabel}
+    //     // prevMonthLabel={_prevMonthLabel}
+    //     // prevMultiyearLabel={_prevMultiyearLabel}
+    //     // prevYearLabel={_prevYearLabel}
 
-//     // prevMonthLabel={_prevMonthLabel}
-//     // prevMultiyearLabel={_prevMultiyearLabel}
-//     // prevYearLabel={_prevYearLabel}
+    //     // switchToMonthViewLabel={_switchToMonthViewLabel}
+    //     // switchToYearViewLabel={_switchToYearViewLabel}
+    //     // switchToMultiyearViewLabel={_switchToMultiyearViewLabel}
 
-//     // switchToMonthViewLabel={_switchToMonthViewLabel}
-//     // switchToYearViewLabel={_switchToYearViewLabel}
-//     // switchToMultiyearViewLabel={_switchToMultiyearViewLabel}
+    //     // singleInputLabel={_singleInputLabel}
+    //     // beginInputLabel={_beginInputLabel}
+    //     // endInputLabel={_endInputLabel}
 
-//     // singleInputLabel={_singleInputLabel}
-//     // beginInputLabel={_beginInputLabel}
-//     // endInputLabel={_endInputLabel}
+    //     // parseStringToDate={_parseStringToDate}
+    //     // displayDateAsString={_displayDateAsString}
 
-//     // parseStringToDate={_parseStringToDate}
-//     // displayDateAsString={_displayDateAsString}
+    //     // theme={getTheme(_themeColor)}
+    //  ></DatepickerInput>)
 
-//     // theme={getTheme(_themeColor)}
-//     ></DatepickerInput>)
+    // test("Selecting a date that is before the selected begin and end dates sets a new begin date", () => {
+    //     //ReactDOM.render(<DatepickerInput></DatepickerInput>, container);
 
-//     test("Selecting a date that is before the selected begin and end dates sets a new begin date", () => {
+    // });
+    // test("Selecting a date after the begin and end dates sets a new end date", () => {
 
-//     });
-//     test("Selecting a date after the begin and end dates sets a new end date", () => {
-
-//     });
-// });
+    // });
+});
 // describe("Selected begin but no end date", () => {
 //     test("Selecting before the selected beginDate switches the two", () => {
 

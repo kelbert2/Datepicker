@@ -606,7 +606,6 @@ function Input() {
                 {rangeMode ? <span> - </span> : ''}
                 {!rangeMode ? '' : _renderEndInput()}
                 <button
-                    data-testid="open-button"
                     aria-label="Open calendar"
                     className="fields-button">
                     <span></span>

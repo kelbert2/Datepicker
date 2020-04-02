@@ -72,6 +72,8 @@ function Input() {
         dateFilter,
 
         onDateChange,
+        onFinalDateChange,
+        onCalendarDateChange,
 
         disable,
         disableCalendar,
@@ -499,6 +501,17 @@ function Input() {
         //     payload: selectedDate
         // });
 
+        onDateChange(data);
+        onCalendarDateChange(data);
+    }
+    const _handleFinalDateSelectionFromCalendar = (data: DateData) => {
+        // dispatch({
+        //     type: 'set-start-at',
+        //     payload: selectedDate
+        // });
+        _handleDateSelectionFromCalendar(data);
+        onFinalDateChange(data);
+
         if (closeAfterSelection && canCloseCalendar) {
             _setCalendarDisplay('close');
         }
@@ -614,7 +627,8 @@ function Input() {
             {
                 _calendarDisplay !== 'close' ?
                     <Calendar
-                        onFinalDateSelection={_handleDateSelectionFromCalendar}
+                        onFinalDateSelection={_handleFinalDateSelectionFromCalendar}
+                        onDateSelection={_handleDateSelectionFromCalendar}
                         classNames={_setCalendarClass()}
                         disableCalendar={disable || disableCalendar}
                     ></Calendar>

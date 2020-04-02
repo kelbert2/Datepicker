@@ -65,7 +65,11 @@ function CalendarCell(
             aria-disabled={!item.enabled || undefined}
             aria-selected={sameDate(selectedDate, item.value)}
             key={'cal-cell-' + item.value}
-        ><div aria-label={item.ariaLabel}>{item.displayValue}</div></td>
+        >
+            <div aria-label={item.ariaLabel}>
+                {item.displayValue}
+            </div>
+        </td>
     );
 }
 

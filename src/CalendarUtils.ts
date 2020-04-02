@@ -320,7 +320,7 @@ export const getActiveOffset = (
         YEARS_PER_PAGE);
 }
 /** Gets remainder that is non-negative, even if first number is negative */
-const euclideanModulo = (a: number, b: number) => {
+export const euclideanModulo = (a: number, b: number) => {
     return (a % b + b) % b;
 }
 

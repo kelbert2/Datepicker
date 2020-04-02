@@ -327,7 +327,7 @@ export function CalendarBody(
                     className="labelText">{labelText}</td></tr>
             );
         }
-        return '';
+        return null;
     }
 
     /** Renders all rows of the table. */
@@ -353,7 +353,9 @@ export function CalendarBody(
                         style={paddingStyle}
                         className="labelText"
                         key={"blank-row-" + _firstRowOffset}
-                    >{_firstRowOffset >= labelMinRequiredCells ? labelText : null}</td>
+                    >
+                        {_firstRowOffset >= labelMinRequiredCells ? labelText : null}
+                    </td>
                 ); // TODO: Check that : null didn't break anything (formerly '')
             }
             for (let colIndex = 0; colIndex < numCols; colIndex++) {
@@ -373,14 +375,19 @@ export function CalendarBody(
                 }
             }
             renderedRows.push(
-                <tr role="row" key={'cal-row-' + rows[rowIndex][0].value}>{renderedCells}</tr>
+                <tr role="row" key={'cal-row-' + rows[rowIndex][0].value}>
+                    {renderedCells}
+                </tr>
             );
         }
         return renderedRows;
     }
 
     return (
-        <tbody>{_renderTextRow()}{_renderRows()}</tbody >
+        <tbody>
+            {_renderTextRow()}
+            {_renderRows()}
+        </tbody >
     );
 }
 

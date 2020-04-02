@@ -216,6 +216,8 @@ export function Calendar(
         _setCurrentView(current => {
             //if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
             prevActiveDate.current = activeDate;
+            console.log("Changing view");
+
             return (current === 'year')
                 ? (!disableMonth)
                     ? 'month'

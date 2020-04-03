@@ -61,6 +61,7 @@ function CalendarHeader({
 
     /** Handles clicks on the period label. */
     const _currentPeriodClicked = () => {
+        console.log("period clicked");
         switch (currentView) {
             case 'month':
                 if (!disableMultiyear) {
@@ -103,7 +104,7 @@ function CalendarHeader({
 
     /** Handles user clicks on the next button. */
     const _nextClicked = () => {
-        console.log("current view seen in calendar header: " + currentView);
+        //console.log("current view seen in calendar header: " + currentView);
 
         dispatch(
             {

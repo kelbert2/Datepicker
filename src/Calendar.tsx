@@ -18,10 +18,10 @@ export function Calendar(
         // context = NIDatepickerContext
         disableCalendar = false
     }: {
-        onDateSelection: (data: DateData) => {} | void,
-        onFinalDateSelection: (data: DateData) => {} | void,
-        classNames: string,
-        disableCalendar: boolean
+        onDateSelection?: (data: DateData) => {} | void,
+        onFinalDateSelection?: (data: DateData) => {} | void,
+        classNames?: string,
+        disableCalendar?: boolean
         // context: React.Context<IDatepickerContext>
     }) {
 
@@ -212,37 +212,30 @@ export function Calendar(
     //             return current;
     //         });
     //     }
-    //     //     if (prevSelectedDate == null || getCompareFromView(_currentView, selectedDate, prevSelectedDate)) {
-    //     //         console.log("selected date change!");
-    //     //         _setCurrentView(current =>
-    //     //             (current === 'year' && !disableMonth)
-    //     //                 ? 'month'
-    //     //                 : (current === 'multiyear' && !disableYear)
-    //     //                     ? 'year'
-    //     //                     : current);
-    //     //     }
-    //     // }
     // }, [activeDate, disableMonth, disableYear]);
 
     const updateCurrentView = () => {
         _setCurrentView(current => {
-            if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
-                prevActiveDate.current = activeDate;
-                return (current === 'year')
-                    ? (!disableMonth)
-                        ? 'month'
-                        : (!disableMultiyear)
-                            ? 'multiyear'
+            //if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
+            prevActiveDate.current = activeDate;
+            console.log("Changing view");
+
+            return (current === 'year')
+                ? (!disableMonth)
+                    ? 'month'
+                    : (!disableMultiyear)
+                        ? 'multiyear'
+                        : current
+                : (current === 'multiyear')
+                    ? (!disableYear)
+                        ? 'year'
+                        : (!disableMonth)
+                            ? 'month'
                             : current
-                    : (current === 'multiyear')
-                        ? (!disableYear)
-                            ? 'year'
-                            : (!disableMonth)
-                                ? 'month'
-                                : current
-                        : current;
-            }
-            return current;
+
+                    : current;
+            // }
+            // return current;
         });
     }
 

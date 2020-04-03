@@ -278,10 +278,10 @@ export const addCalendarMonths = (date: Date, add: number) => {
     return newDate;
 }
 
-export const addCalendarDays = (date: Date, add: number) => {
+export const addCalendarDays = (date: Date, add: number = 1) => {
     var newDate = new Date(date);
     newDate.setDate(newDate.getDate() + add);
-    return date;
+    return newDate;
 }
 // Numbers 
 export const dateToNumber = (date: Date) => {

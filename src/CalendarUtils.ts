@@ -278,10 +278,10 @@ export const addCalendarMonths = (date: Date, add: number) => {
     return newDate;
 }
 
-export const addCalendarDays = (date: Date, add: number) => {
+export const addCalendarDays = (date: Date, add: number = 1) => {
     var newDate = new Date(date);
     newDate.setDate(newDate.getDate() + add);
-    return date;
+    return newDate;
 }
 // Numbers 
 export const dateToNumber = (date: Date) => {
@@ -320,7 +320,7 @@ export const getActiveOffset = (
         YEARS_PER_PAGE);
 }
 /** Gets remainder that is non-negative, even if first number is negative */
-const euclideanModulo = (a: number, b: number) => {
+export const euclideanModulo = (a: number, b: number) => {
     return (a % b + b) % b;
 }
 
@@ -364,23 +364,21 @@ export const parseStringAsDate = (input: string) => {
             day = third;
         }
     }
-
     // const date = new Date();
     if (year == null || month == null || day == null) {
         return null;
     } else {
         return new Date(year, month, day);
     }
-
     // return new Date(year ? year : getYear(date), month ? month : getMonth(date), day ? day : getDay(date));
 }
 
-// https://stackoverflow.com/questions/29420835/how-to-generate-unique-ids-for-form-labels-in-react
+// From https://stackoverflow.com/questions/29420835/how-to-generate-unique-ids-for-form-labels-in-react
 export const gen4 = () => {
     return Math.random().toString(16).slice(-4)
 }
 /** Creates a simple unique ID with a given prefix. */
-export const simpleUID = (prefix: string) => {
+export const simpleUID = (prefix: string = '') => {
     return (prefix || '').concat([
         gen4(),
         gen4(),

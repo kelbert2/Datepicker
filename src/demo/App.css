@@ -343,7 +343,8 @@ html {
   transition: .3s;
 }
 
-.radio-weekday:hover label::before {
+.radio-weekday:hover label::before,
+.radio-weekday:focus label::before {
   background: var(--neutral-light);
 }
 
@@ -361,6 +362,23 @@ html {
 .checkbox input:disabled+label::before {
   border-color: var(--neutral);
   background: var(--neutral);
+}
+
+.toggle label,
+.radio label,
+.checkbox label {
+  cursor: pointer;
+}
+
+.toggle input+label:hover::before,
+.radio input+label:hover::before,
+.checkbox input+label:hover::before,
+.radio-weekday input:focus+label::before,
+.toggle input:focus+label::before,
+.radio input:focus+label::before,
+.checkbox input:focus+label::before {
+  background: var(--neutral);
+  transition: .3s;
 }
 
 .toggle input:disabled+label,
@@ -408,4 +426,10 @@ html {
 
 .test>div>div {
   margin: .75em 0 .5em;
+}
+
+.test ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 }

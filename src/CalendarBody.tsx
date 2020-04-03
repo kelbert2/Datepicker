@@ -1,6 +1,7 @@
 import React, { useState, useContext, useLayoutEffect, useCallback, useEffect } from 'react';
 import { DateData, DatepickerContext } from './DatepickerContext';
 import { sameDate, dateToMonthCellIndex, compareDates } from './CalendarUtils';
+import CalendarCell from './CalendarCell';
 
 export interface ICalendarCell {
     cellIndex: number,
@@ -9,6 +10,9 @@ export interface ICalendarCell {
     ariaLabel: string,
     enabled: boolean,
 }
+
+// TODO: Jest Test is seeing whitespace somewhere in here:
+// validateDOMNesting(...): Whitespace text nodes cannot appear as a child of <tbody>. Make sure you don't have any extra whitespace between tags on each line of your source code.
 
 /** Displays Calendar data in a table
          *  @param rows: Cells to display
@@ -99,13 +103,15 @@ export function CalendarBody(
     }, [numCols]);
 
     /** Emits event on cell selection. */
-    const _cellClicked = (cell: ICalendarCell) => {
+    const _handleCellClick = (cell: ICalendarCell) => {
         if (cell.enabled) {
             const date = createDateFromSelectedCell(cell.value);
+
             if (date) {
                 dispatch({
                     type: 'set-active-date', payload: date
                 });
+                dateSelected({ selectedDate: date, beginDate, endDate });
                 selectedValueChange(date);
             }
         }
@@ -195,7 +201,7 @@ export function CalendarBody(
         const { charCode } = event;
         switch (charCode) {
             case 13: { // Enter
-                _cellClicked(cell);
+                _handleCellClick(cell);
             }
         }
     }
@@ -316,16 +322,12 @@ export function CalendarBody(
                 padding: `0 ${_cellPadding}`
             }
             return (
-                <tr aria-hidden="true">
-                    <td colSpan={numCols}
-                        style={paddingStyle}
-                        className="labelText">
-                        {labelText}
-                    </td>
-                </tr>
+                <tr aria-hidden="true"><td colSpan={numCols}
+                    style={paddingStyle}
+                    className="labelText">{labelText}</td></tr>
             );
         }
-        return '';
+        return null;
     }
 
     /** Renders all rows of the table. */
@@ -350,35 +352,26 @@ export function CalendarBody(
                         colSpan={_firstRowOffset}
                         style={paddingStyle}
                         className="labelText"
+                        key={"blank-row-" + _firstRowOffset}
                     >
-                        {_firstRowOffset >= labelMinRequiredCells ? labelText : ''}
+                        {_firstRowOffset >= labelMinRequiredCells ? labelText : null}
                     </td>
-                );
+                ); // TODO: Check that : null didn't break anything (formerly '')
             }
             for (let colIndex = 0; colIndex < numCols; colIndex++) {
                 const item = rows[rowIndex][colIndex];
                 if (item != null) {
-                    renderedCells.push(
-                        <td
-                            role="gridcell"
-                            // tabIndex={_isActiveCell(rowIndex, colIndex) ? 0 : -1}
-                            tabIndex={item.enabled ? 0 : -1}
-                            className={_setCellClass(item)}
-                            onClick={() => _cellClicked(item)}
-                            onKeyPress={(e) => _handleCellKeypress(e, item)}
-                            onFocus={() => _handleCellFocus(item)}
-                            onMouseEnter={() => _onHover(item)}
-                            onMouseLeave={() => _offHover(item)}
-                            style={tdStyle}
-                            aria-label={item.ariaLabel}
-                            aria-disabled={!item.enabled || undefined}
-                            aria-selected={sameDate(selectedDate, item.value)}
-                            key={'cal-cell-' + item.value}
-                        >
-                            <div aria-label={item.ariaLabel}>{item.displayValue}</div>
-                        </td>
-                    );
-
+                    renderedCells.push(<CalendarCell
+                        item={item}
+                        handleClick={_handleCellClick}
+                        handleKeyPress={_handleCellKeypress}
+                        handleFocus={_handleCellFocus}
+                        handleHoverOn={_onHover}
+                        handleHoverOff={_offHover}
+                        setCellClass={_setCellClass}
+                        style={tdStyle}
+                        key={'cal-cell-' + item.value}
+                    ></CalendarCell>);
                 }
             }
             renderedRows.push(

@@ -125,23 +125,23 @@ function Input() {
             _setCalendarDisplay(calendarOpenDisplay);
         }
     }, [_calendarDisplay, calendarOpenDisplay, canCloseCalendar, disable, disableCalendar, setCalendarOpen]);
-    // useEffect(() => {
-    //     console.log("input mounted");
+    useEffect(() => {
+        console.log("input mounted");
 
-    //     return () => {
-    //         console.log("input unmounted");
-    //     }
-    // }, []);
+        return () => {
+            console.log("input unmounted");
+        }
+    }, []);
     // useEffect(() => {
     //     console.log("rangemode update! It is now: " + rangeMode + " for UID: " + _UID);
     // }, [rangeMode, _UID]);
-    // useEffect(() => {
-    //     console.log("selected date change!");
-    //     dispatch({
-    //         type: 'set-selected-date',
-    //         payload: selectedDate
-    //     });
-    // }, [selectedDate, dispatch]);
+    useEffect(() => {
+        // console.log("selected date change!");
+        dispatch({
+            type: 'set-selected-date',
+            payload: selectedDate
+        });
+    }, [selectedDate, dispatch]);
     // TODO: on rangemode change, the selected date is not becoming the begin date.
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
@@ -149,11 +149,11 @@ function Input() {
         // console.log("current: " + rangeMode);
         // console.log("state past: " + prevRangeMode);
         if (rangeMode !== _prevRangeMode.current) {
-            console.log("rangemode change!");
+            // console.log("rangemode change!");
             let select = selectedDate, begin = beginDate, end = endDate;
             if (rangeMode) {
-                console.log("setting begin date to selected date:");
-                console.log(selectedDate);
+                // console.log("setting begin date to selected date:");
+                // console.log(selectedDate);
                 // !beginDate
                 dispatch({
                     type: 'set-begin-date',
@@ -179,7 +179,7 @@ function Input() {
                 begin = null;
                 end = null;
             }
-            console.log("updating past values");
+            // console.log("updating past values");
             _prevRangeMode.current = rangeMode;
             _setPrevRangeMode(rangeMode);
             // onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
@@ -225,7 +225,7 @@ function Input() {
                 }
             }
             if (select || begin || end) {
-                onDateChange({ selectedDate: select ? select : selectedDate, beginDate: begin ? begin : beginDate, endDate: end ? end : endDate });
+                onDateChange({ selectedDate: select || selectedDate, beginDate: begin || beginDate, endDate: end || endDate });
             }
             _prevMinDate.current = minDate;
         }
@@ -255,7 +255,7 @@ function Input() {
                         });
                     }
                 }
-                onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
+                onInputDateChange({ selectedDate, beginDate, endDate });
                 onDateChange({ selectedDate, beginDate, endDate });
             }
             _prevMaxDate.current = maxDate;
@@ -558,8 +558,8 @@ function Input() {
             <div className="field">
                 <input type="text"
                     disabled={disable || disableInput}
-                    onChange={(e) => _handleEndInputChange(e)}
-                    onBlur={() => _onBlurEndInput()}
+                    onChange={_handleEndInputChange}
+                    onBlur={_onBlurEndInput}
                     value={_endInput}
                     className={_setInputClass(_endInput !== '')}
                     id={"end-" + id}
@@ -574,26 +574,26 @@ function Input() {
 
     return (
         <div
-            onBlur={() => _onBlurAll()}
+            onBlur={_onBlurAll}
             onFocus={_onFocusHandler}
             className="datepicker"
         >
             {/* <button
-                onClick={() => _applyTheme()}
+                onClick={_applyTheme}
             >Theme</button> */}
             <div
                 role="button"
                 tabIndex={0}
-                onClick={() => _handleNonCalendarClick()}
-                onKeyDown={(e) => _handleKeyDownOverFields(e)}
+                onClick={_handleNonCalendarClick}
+                onKeyDown={_handleKeyDownOverFields}
                 className="fields"
             >
                 <div className="field">
                     <input
                         type="text"
                         disabled={disable || disableInput}
-                        onChange={(e) => _handleBeginInputChange(e)}
-                        onBlur={() => _onBlurBeginInput()}
+                        onChange={_handleBeginInputChange}
+                        onBlur={_onBlurBeginInput}
                         value={_beginInput}
                         className={_setInputClass(_beginInput !== '')}
                         id={"begin-" + id}
@@ -623,7 +623,7 @@ function Input() {
             {
                 _calendarDisplay === 'popup-large' ?
                     <div role="presentation"
-                        onClick={() => _handleNonCalendarClick()}
+                        onClick={_handleNonCalendarClick}
                         className="overlay"></div>
                     : ''
             }

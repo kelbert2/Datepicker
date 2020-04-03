@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./build",
+    "outDir": "./target",
     "target": "es5",
     "lib": [
       "dom",
@@ -36,7 +36,7 @@
     ]
   },
   "include": [
-    "src", "rollup.config.js"
+    "src", "rollup.config.js", "jest.setup.ts"
   ],
-  "exclude": ["node_modules", "build"]
+  "exclude": ["node_modules", "target"]
 }

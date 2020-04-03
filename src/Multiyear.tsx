@@ -52,6 +52,7 @@ function Multiyear({
         }
 
         const firstOfYear = createDate(year, 0, 1);
+
         // If any date in the year is enabled, count the year as enabled.
         for (let date = firstOfYear; getYear(date) === year;
             date = addCalendarDays(date, 1)) {

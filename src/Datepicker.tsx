@@ -1,4 +1,4 @@
-import DatepickerInputContext, { DateData, IDatepickerContext, datepickerInputReducer, IDatepickerProps, IAction, datepickerReducer, DatepickerContext } from "./DatepickerContext";
+import { DateData, IDatepickerContext, datepickerInputReducer, IDatepickerProps, IAction, datepickerReducer, DatepickerContext } from "./DatepickerContext";
 import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, makeDatepickerThemeArrayFromStrings } from "./CalendarUtils";
 import React, { useCallback, useLayoutEffect } from "react";
 import './Datepicker.css';

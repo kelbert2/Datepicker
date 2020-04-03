@@ -1,10 +1,18 @@
 import React, { useState } from "react";
-import { VIEW, makeDatepickerTheme, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay } from "../CalendarUtils";
+import { VIEW, makeDatepickerTheme, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, getDayOfWeek } from "../CalendarUtils";
 import { CalendarDisplay, DateData } from "../DatepickerContext";
 import DatepickerInput from "../DatepickerInput";
+
 // TODO: Go through and update date change vs. final date change firings
+// TODO: Refactor {() => } to close over functions
+// {foo(input)} is foo = input => { return event => {action(input)}}
 function Display() {
     const INPUT_CLASS_FILLED = 'filled';
+
+    // TODO: might turn this into just one huge object in a single state and update from there
+    // onChange function using name element of inputs to get key of object to modify
+    const [_state, _setState] = useState({});
+
 
     const [_selectedDate, _setSelectedDate] = useState(null as Date | null);
 
@@ -15,9 +23,22 @@ function Display() {
 
     const [_minDate, _setMinDate] = useState(null as Date | null);
     const [_maxDate, _setMaxDate] = useState(null as Date | null);
+
     let _dateFilter = (date: Date | null) => {
-        return true
+        if (!date) return false;
+        const dayNumber = getDayOfWeek(date);
+        switch (_dateFilterType) {
+            case 'none':
+                return false;
+            case 'only weekends':
+                return dayNumber === 0 || dayNumber === 6;
+            case 'only weekdays':
+                return dayNumber !== 0 && dayNumber !== 6;
+            default:
+                return true;
+        }
     };
+    const [_dateFilterType, _setDateFilterType] = useState('only weekdays' as 'none' | 'only weekends' | 'only weekdays' | 'all');
 
     const [_rangeMode, _setRangeMode] = useState(true);
     const [_beginDate, _setBeginDate] = useState(null as Date | null);
@@ -185,6 +206,53 @@ function Display() {
         console.log("received click from: " + view);
         _setStartView(view);
     }
+    /** Handle keydown events when Fields div is in focus. */
+    const _handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+        const { keyCode } = event;
+        switch (keyCode) {
+            case 13: { // Enter
+                return true;
+            }
+        }
+        return false;
+    }
+    const _handleRangeModeKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+        if (_handleKeyDown(event)) _setRangeMode(mode => !mode);
+    }
+    const _handleViewEnabledKeyDown = (event: React.KeyboardEvent<HTMLElement>, view: VIEW) => {
+        if (_handleKeyDown(event)) {
+            switch (view) {
+                case 'month':
+                    _setDisableMonth(disable => !disable);
+                    break;
+                case 'year':
+                    _setDisableYear(disable => !disable);
+                    break;
+                case 'multiyear':
+                    _setDisableMultiyear(disable => !disable);
+            }
+        }
+    }
+    const _handleDisableViewKeyDown = (event: React.KeyboardEvent<HTMLElement>, input: 'all' | 'calendar' | 'input') => {
+        if (_handleKeyDown(event)) {
+            switch (input) {
+                case 'calendar':
+                    _setDisableCalendar(disable => !disable);
+                    break;
+                case 'input':
+                    _setDisableInput(disable => !disable);
+                    break;
+                case 'all':
+                    _toggleDisable();
+            }
+        }
+    }
+    const _handleCanCloseCalendarKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+        if (_handleKeyDown(event)) _setCanCloseCalendar(can => !can);
+    }
+    const _handleCloseAfterSelectionKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+        if (_handleKeyDown(event)) _setCloseAfterSelection(can => !can);
+    }
 
     return (
         <div
@@ -194,13 +262,13 @@ function Display() {
                 selectedDate={_selectedDate}
                 todayDate={new Date()}
 
-                onFinalDateChange={(d) => _onFinalDateChange(d)}
-                onDateChange={(d) => _onDateChange(d)}
-                onCalendarDateChange={(d) => _onCalendarDateChange(d)}
-                onInputDateChange={(d) => _onInputDateChange(d)}
-                onDaySelected={(d) => _onDaySelected(d)}
-                onMonthSelected={(d) => _onMonthSelected(d)}
-                onYearSelected={(d) => _onYearSelected(d)}
+                onFinalDateChange={_onFinalDateChange}
+                onDateChange={_onDateChange}
+                onCalendarDateChange={_onCalendarDateChange}
+                onInputDateChange={_onInputDateChange}
+                onDaySelected={_onDaySelected}
+                onMonthSelected={_onMonthSelected}
+                onYearSelected={_onYearSelected}
 
                 startAt={_startAt}
                 startView={_startView}
@@ -224,7 +292,7 @@ function Display() {
                 calendarOpenDisplay={_calendarOpenDisplay}
                 canCloseCalendar={_canCloseCalendar}
                 closeAfterSelection={_closeAfterSelection}
-                // setCalendarOpen={_open}
+                setCalendarOpen={true}
 
                 formatMonthLabel={_formatMonthLabel}
                 formatMonthText={_formatMonthText}
@@ -260,10 +328,11 @@ function Display() {
                 theme={getTheme(_themeColor)}
             ></DatepickerInput>
             <div>
-                <div className="toggle">
+                <div className="toggle" >
                     <input type="checkbox"
                         id="range-mode-checkbox"
-                        onChange={() => { _setRangeMode(mode => !mode) }}
+                        onChange={() => _setRangeMode(mode => !mode)}
+                        onKeyDown={_handleRangeModeKeyDown}
                         checked={_rangeMode} />
                     <label htmlFor="range-mode-checkbox">RangeMode</label>
                 </div>
@@ -343,70 +412,102 @@ function Display() {
             </div>
             <div>
                 <div>Date filter</div>
-                <div>None only weekdays only weekends</div>
+                <ul>
+                    <li className="radio">
+                        <input type="radio"
+                            id="radio-date-filter-all"
+                            name="radio-date-filter"
+                            onChange={() => _setDateFilterType('all')}
+                            checked={_dateFilterType === 'all'} />
+                        <label htmlFor="radio-date-filter-all">All</label>
+                    </li>
+                    <li className="radio">
+                        <input type="radio"
+                            id="radio-date-filter-weekends"
+                            name="radio-date-filter"
+                            onChange={() => _setDateFilterType('only weekends')}
+                            checked={_dateFilterType === 'only weekends'} />
+                        <label htmlFor="radio-date-filter-weekends">Only weekends</label>
+                    </li>
+                    <li className="radio">
+                        <input type="radio"
+                            id="radio-date-filter-weekdays"
+                            name="radio-date-filter"
+                            onChange={() => _setDateFilterType('only weekdays')}
+                            checked={_dateFilterType === 'only weekdays'} />
+                        <label htmlFor="radio-date-filter-weekdays">Only weekdays</label>
+                    </li>
+                    <li className="radio">
+                        <input type="radio"
+                            id="radio-date-filter-none"
+                            name="radio-date-filter"
+                            onChange={() => _setDateFilterType('none')}
+                            checked={_dateFilterType === 'none'} />
+                        <label htmlFor="radio-date-filter-none">None</label>
+                    </li>
+                </ul>
                 <div>First Day of Week</div>
-                <div>
-                    <div className="radio-weekday">
+                <ul>
+                    <li className="radio-weekday">
                         <input type="radio"
                             id="radio-weekday-0"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(0) }}
+                            onChange={() => _setFirstDayOfWeek(0)}
                             checked={_firstDayOfWeek === 0} />
                         <label htmlFor="radio-weekday-0">Su</label>
-                    </div>
-                    <div className="radio-weekday">
+                    </li>
+                    <li className="radio-weekday">
                         <input type="radio"
                             id="radio-weekday-1"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(1) }}
+                            onChange={() => _setFirstDayOfWeek(1)}
                             checked={_firstDayOfWeek === 1} />
                         <label htmlFor="radio-weekday-1">M</label>
-                    </div>
-                    <div className="radio-weekday">
+                    </li>
+                    <li className="radio-weekday">
                         <input type="radio"
                             id="radio-weekday-2"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(2) }}
+                            onChange={() => _setFirstDayOfWeek(2)}
                             checked={_firstDayOfWeek === 2} />
                         <label htmlFor="radio-weekday-2">T</label>
-                    </div>
-                    <div className="radio-weekday">
+                    </li>
+                    <li className="radio-weekday">
                         <input type="radio"
                             id="radio-weekday-3"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(3) }}
+                            onChange={() => _setFirstDayOfWeek(3)}
                             checked={_firstDayOfWeek === 3} />
                         <label htmlFor="radio-weekday-3">W</label>
-                    </div>
-                    <div className="radio-weekday">
+                    </li>
+                    <li className="radio-weekday">
                         <input type="radio"
                             id="radio-weekday-4"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(4) }}
+                            onChange={() => _setFirstDayOfWeek(4)}
                             checked={_firstDayOfWeek === 4} />
                         <label htmlFor="radio-weekday-4">Th</label>
-                    </div>
-                    <div className="radio-weekday">
+                    </li>
+                    <li className="radio-weekday">
                         <input type="radio"
                             id="radio-weekday-5"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(5) }}
+                            onChange={() => _setFirstDayOfWeek(5)}
                             checked={_firstDayOfWeek === 5} />
                         <label htmlFor="radio-weekday-5">F</label>
-                    </div>
-                    <div className="radio-weekday">
+                    </li>
+                    <li className="radio-weekday">
                         <input type="radio"
                             id="radio-weekday-6"
                             name="radio-weekday"
-                            onChange={() => { _setFirstDayOfWeek(6) }}
+                            onChange={() => _setFirstDayOfWeek(6)}
                             checked={_firstDayOfWeek === 6} />
                         <label htmlFor="radio-weekday-6">S</label>
-                    </div>
-                </div>
+                    </li>
+                </ul>
                 <div>Start View:</div>
-                <div>month year multiyear disable when view disabled</div>
-                <div>
-                    <div className="radio">
+                <ul>
+                    <li className="radio">
                         <input type="radio"
                             id="month-start-view-radio"
                             name="start-view-radio"
@@ -415,8 +516,8 @@ function Display() {
                             checked={_startView === 'month'}
                             disabled={_disableMonth} />
                         <label htmlFor="month-start-view-radio">Month</label>
-                    </div>
-                    <div className="radio">
+                    </li>
+                    <li className="radio">
                         <input type="radio"
                             id="year-start-view-radio"
                             name="start-view-radio"
@@ -425,8 +526,8 @@ function Display() {
                             checked={_startView === 'year'}
                             disabled={_disableYear} />
                         <label htmlFor="year-start-view-radio">Year</label>
-                    </div>
-                    <div className="radio">
+                    </li>
+                    <li className="radio">
                         <input type="radio"
                             id="multiyear-start-view-radio"
                             name="start-view-radio"
@@ -435,131 +536,135 @@ function Display() {
                             checked={_startView === 'multiyear'}
                             disabled={_disableMultiyear} />
                         <label htmlFor="multiyear-start-view-radio">Multiyear</label>
-                    </div>
-                </div>
+                    </li>
+                </ul>
                 <div>Enable Views:</div>
-                <div>
-                    <div className="checkbox">
+                <ul>
+                    <li className="checkbox">
                         <input type="checkbox"
                             id="month-view-checkbox"
-                            onChange={() => { _setDisableMonth(disable => !disable) }}
-                            checked={!_disableMonth} />
+                            onChange={() => _setDisableMonth(disable => !disable)}
+                            checked={!_disableMonth}
+                            onKeyDown={(e) => _handleViewEnabledKeyDown(e, 'month')} />
                         <label htmlFor="month-view-checkbox">Month</label>
-                    </div>
-                    <div className="checkbox">
+                    </li>
+                    <li className="checkbox">
                         <input type="checkbox"
                             id="year-view-checkbox"
-                            onChange={() => { _setDisableYear(disable => !disable) }}
+                            onChange={() => _setDisableYear(disable => !disable)}
                             checked={!_disableYear}
-                            className="checkbox" />
+                            onKeyDown={(e) => _handleViewEnabledKeyDown(e, 'year')} />
                         <label htmlFor="year-view-checkbox">Year</label>
-                    </div>
-                    <div className="checkbox">
+                    </li>
+                    <li className="checkbox">
                         <input type="checkbox"
                             id="multiyear-view-checkbox"
-                            onChange={() => { _setDisableMultiyear(disable => !disable) }}
+                            onChange={() => _setDisableMultiyear(disable => !disable)}
                             checked={!_disableMultiyear}
-                            className="checkbox" />
+                            onKeyDown={(e) => _handleViewEnabledKeyDown(e, 'multiyear')} />
                         <label htmlFor="multiyear-view-checkbox">Multiyear</label>
-                    </div>
-                </div>
+                    </li>
+                </ul>
                 <div>Enable Inputs:</div>
-                <div>
-                    <div className="checkbox">
+                <ul>
+                    <li className="checkbox">
                         <input type="checkbox"
                             id="disable-all-checkbox"
-                            onChange={() => { _toggleDisable() }}
-                            checked={_getDisable()} />
+                            onChange={_toggleDisable}
+                            checked={_getDisable()}
+                            onKeyDown={(e) => _handleDisableViewKeyDown(e, 'all')} />
                         <label htmlFor="disable-all-checkbox">Disable All</label>
-                    </div>
-                    <div className="checkbox">
+                    </li>
+                    <li className="checkbox">
                         <input type="checkbox"
                             disabled={_disable}
                             id="disable-calendar-checkbox"
                             onChange={() => _setDisableCalendar(disable => !disable)}
-                            checked={_getDisableCalendar()} />
+                            checked={_getDisableCalendar()}
+                            onKeyDown={(e) => _handleDisableViewKeyDown(e, 'calendar')} />
                         <label htmlFor="disable-calendar-checkbox">Disable Calendar</label>
-                    </div>
-                    <div className="checkbox">
+                    </li>
+                    <li className="checkbox">
                         <input type="checkbox"
                             disabled={_disable}
                             id="disable-input-checkbox"
-                            onChange={() => { _setDisableInput(disable => !disable) }}
-                            checked={_getDisableInput()} />
+                            onChange={() => _setDisableInput(disable => !disable)}
+                            checked={_getDisableInput()}
+                            onKeyDown={(e) => _handleDisableViewKeyDown(e, 'input')} />
                         <label htmlFor="disable-input-checkbox">Disable Input</label>
-                    </div>
-                </div>
+                    </li>
+                </ul>
             </div>
             <div>
                 <div>Calendar Theme Color:</div>
-                <div>
-                    <div className="radio">
+                <ul>
+                    <li className="radio">
                         <input type="radio"
                             id="radio-calendar-salmon"
                             name="calendar-theme-color"
-                            onChange={() => { _setThemeColor('salmon') }}
+                            onChange={() => _setThemeColor('salmon')}
                             checked={_themeColor === 'salmon'} />
                         <label htmlFor="radio-calendar-salmon">Salmon</label>
-                    </div>
-                    <div className="radio">
+                    </li>
+                    <li className="radio">
                         <input type="radio"
                             id="radio-calendar-green"
                             name="calendar-theme-color"
-                            onChange={() => { _setThemeColor('green') }}
+                            onChange={() => _setThemeColor('green')}
                             checked={_themeColor === 'green'} />
                         <label htmlFor="radio-calendar-green">Green</label>
-                    </div>
-                    <div className="radio">
+                    </li>
+                    <li className="radio">
                         <input type="radio"
                             id="radio-calendar-blue"
                             name="calendar-theme-color"
-                            onChange={() => { _setThemeColor('blue') }}
+                            onChange={() => _setThemeColor('blue')}
                             checked={_themeColor === 'blue'} />
                         <label htmlFor="radio-calendar-blue">Blue</label>
-                    </div>
-                </div>
+                    </li>
+                </ul>
                 <div>Calendar Display:</div>
-                <div>
-                    <div className="radio">
+                <ul>
+                    <li className="radio">
                         <input type="radio"
                             id="radio-calendar-popup"
                             name="calendar-display"
-                            onChange={() => { _setCalendarOpenDisplay('popup') }}
+                            onChange={() => _setCalendarOpenDisplay('popup')}
                             checked={_calendarOpenDisplay === 'popup'} />
                         <label htmlFor="radio-calendar-popup">Popup</label>
-                    </div>
-
-                    <div className="radio">
+                    </li>
+                    <li className="radio">
                         <input type="radio"
                             id="radio-calendar-popup-large"
                             name="calendar-display"
-                            onChange={() => { _setCalendarOpenDisplay('popup-large') }}
+                            onChange={() => _setCalendarOpenDisplay('popup-large')}
                             checked={_calendarOpenDisplay === 'popup-large'} />
                         <label htmlFor="radio-calendar-popup-large">Large popup</label>
-                    </div>
-
-                    <div className="radio">
+                    </li>
+                    <li className="radio">
                         <input type="radio"
                             id="radio-calendar-inline"
                             name="calendar-display"
-                            onChange={() => { _setCalendarOpenDisplay('inline') }}
+                            onChange={() => _setCalendarOpenDisplay('inline')}
                             checked={_calendarOpenDisplay === 'inline'} />
                         <label htmlFor="radio-calendar-inline">Inline</label>
-                    </div>
-                </div>
+                    </li>
+                </ul>
                 <div className="toggle">
                     <input type="checkbox"
                         id="can-close-calendar-toggle"
-                        onChange={() => { _setCanCloseCalendar(can => !can) }}
-                        checked={_canCloseCalendar} />
+                        onChange={() => _setCanCloseCalendar(can => !can)}
+                        checked={_canCloseCalendar}
+                        onKeyDown={_handleCanCloseCalendarKeyDown} />
                     <label htmlFor="can-close-calendar-toggle">Can close calendar</label>
                 </div>
                 <div className="toggle">
                     <input type="checkbox"
                         id="close-after-selection-toggle"
-                        onChange={() => { _setCloseAfterSelection(can => !can) }}
+                        onChange={() => _setCloseAfterSelection(can => !can)}
                         checked={_closeAfterSelection}
-                        disabled={!_canCloseCalendar} />
+                        disabled={!_canCloseCalendar}
+                        onKeyDown={_handleCloseAfterSelectionKeyDown} />
                     <label htmlFor="close-after-selection-toggle">Close after selection</label>
                 </div>
             </div>

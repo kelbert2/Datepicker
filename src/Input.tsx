@@ -72,6 +72,8 @@ function Input() {
         dateFilter,
 
         onDateChange,
+        onFinalDateChange,
+        onCalendarDateChange,
 
         disable,
         disableCalendar,
@@ -499,6 +501,13 @@ function Input() {
         //     payload: selectedDate
         // });
 
+        onCalendarDateChange(data);
+        onDateChange(data);
+    }
+
+    const _handleFinalDateSelectionFromCalendar = (data: DateData) => {
+        onFinalDateChange(data);
+
         if (closeAfterSelection && canCloseCalendar) {
             _setCalendarDisplay('close');
         }
@@ -614,7 +623,8 @@ function Input() {
             {
                 _calendarDisplay !== 'close' ?
                     <Calendar
-                        onFinalDateSelection={_handleDateSelectionFromCalendar}
+                        onDateSelection={_handleDateSelectionFromCalendar}
+                        onFinalDateSelection={_handleFinalDateSelectionFromCalendar}
                         classNames={_setCalendarClass()}
                         disableCalendar={disable || disableCalendar}
                     ></Calendar>

@@ -267,6 +267,7 @@ function DatepickerHandler() {
             {
                 _calendarDisplay !== 'close' ?
                     <Calendar
+                        onDateSelection={_handleDateSelectionFromCalendar}
                         onFinalDateSelection={_handleDateSelectionFromCalendar}
                         classNames={_setCalendarClass()}
                         disableCalendar={disable}

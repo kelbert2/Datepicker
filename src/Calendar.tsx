@@ -12,11 +12,13 @@ import { compareDaysMonthsAndYears, VIEW, getCompareFromView } from './CalendarU
  */
 export function Calendar(
     {
+        onDateSelection = (date: DateData) => { },
         onFinalDateSelection = (date: DateData) => { },
         classNames = '',
         // context = NIDatepickerContext
         disableCalendar = false
     }: {
+        onDateSelection: (data: DateData) => {} | void,
         onFinalDateSelection: (data: DateData) => {} | void,
         classNames: string,
         disableCalendar: boolean
@@ -239,19 +241,6 @@ export function Calendar(
                                 ? 'month'
                                 : current
                         : current;
-                // switch (current) {
-                //     case 'year':
-                //         return !disableMonth ? 'month' : !disableMultiyear ? 'multiyear' : current;
-                //     case 'multiyear':
-                //         return !disableYear ? 'year' : !disableMonth ? 'month' : current;
-                //     default:
-                //         return current;
-                // }
-                // return (current === 'year' && !disableMonth)
-                //     ? 'month'
-                //     : (current === 'multiyear' && !disableYear)
-                //         ? 'year'
-                //         : current;
             }
             return current;
         });
@@ -284,6 +273,7 @@ export function Calendar(
 
     /** Returns response to selected date based on provided view. */
     const _getSelectedFromView = (view: VIEW, data: DateData) => {
+        onDateSelection(data);
         switch (view) {
             case 'multiyear':
                 return onYearSelected(data);
@@ -293,6 +283,12 @@ export function Calendar(
                 return onDaySelected(data);
         }
     }
+    const _dateSelection = (data: DateData) => {
+        onDateSelection(data);
+        // TODO: see if should move these one level up:
+        // onDateChange(data);
+        // onCalendarDateChange(data);
+    }
     const _finalDateSelection = (data: DateData) => {
         // console.log("received final date selection");
         dispatch({
@@ -300,10 +296,8 @@ export function Calendar(
             payload: data.selectedDate
         });
 
+        // _dateSelection(data);
         onFinalDateSelection(data);
-        // TODO: see if should move these one level up:
-        onDateChange(data);
-        // onCalendarDateChange(data);
     }
     /** Handles date changes from calendar body. */
     const _handleDateChange = (date: Date) => {
@@ -340,6 +334,10 @@ export function Calendar(
                 // if no beginDate has been selected but an endDate has, check to see if selected date is before or after the selected end date
                 if (getCompareFromView(_currentView, date, endDate) > 0) {
                     // date is after the end date
+
+                    // ADDED
+                    //_getSelectedFromView(_currentView, { selectedDate: date, beginDate: date, endDate: null });
+
                     if (_isMostPreciseView(_currentView)) {
                         const prevEndDate = endDate;
 
@@ -351,14 +349,24 @@ export function Calendar(
                             type: 'set-end-date',
                             payload: date
                         });
+
+                        // ADDED
+                        //_finalDateSelection({ selectedDate: date, beginDate: date, endDate: null });
                     }
                 } else {
                     // date is before the end date, just set the begin date
+
+                    // ADDED
+                    // _getSelectedFromView(_currentView, { selectedDate: date, beginDate: date, endDate: null });
+
                     if (_isMostPreciseView(_currentView)) {
                         dispatch({
                             type: 'set-begin-date',
                             payload: date
                         });
+
+                        // ADDED
+                        //   _finalDateSelection({ selectedDate: date, beginDate: date, endDate: null });
                     }
                 }
             } else if (beginDate && getCompareFromView(_currentView, date, beginDate) < 0) {

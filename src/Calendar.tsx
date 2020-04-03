@@ -62,6 +62,10 @@ export function Calendar(
     // const _prevEndDate = useRef(endDate as Date);
     // const [beginDateSelected, setBeginDateSelected] = useState(false);
 
+    useEffect(() => {
+        console.log("begin date update: " + beginDate?.getDate());
+    }, [beginDate]);
+
     /** Update current view on startView change to an allowed view. */
     useLayoutEffect(() => {
         if (startView !== prevStartView.current) {
@@ -218,8 +222,6 @@ export function Calendar(
         _setCurrentView(current => {
             //if ((prevActiveDate.current == null) || (getCompareFromView(current, activeDate, prevActiveDate.current))) {
             prevActiveDate.current = activeDate;
-            console.log("Changing view");
-
             return (current === 'year')
                 ? (!disableMonth)
                     ? 'month'
@@ -376,6 +378,9 @@ export function Calendar(
                     _getSelectedFromView(_currentView, data);
 
                     if (_isMostPreciseView(_currentView)) {
+                        console.log(
+                            "setting begin date"
+                        );
                         dispatch({
                             type: 'set-begin-date',
                             payload: date

@@ -115,9 +115,9 @@ function Display() {
     }
     const _onDateChange = (d: DateData) => {
         // console.log("date change");
-        _setBeginDate(d.beginDate);
-        _setEndDate(d.endDate);
-        _setSelectedDate(d.selectedDate);
+        // _setBeginDate(d.beginDate);
+        // _setEndDate(d.endDate);
+        // _setSelectedDate(d.selectedDate);
     }
     const _onCalendarDateChange = (d: DateData) => {
         // console.log("date change in calendar:");

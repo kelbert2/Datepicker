@@ -241,6 +241,9 @@ export function CalendarBody(
         const cellIndex = dateToCellIndex(cell.value);
 
         if ((selectedDate && compare(selectedDate, cell.value) === 0)) {
+            console.log("is selected date: " + cell.displayValue);
+            console.log("current stored beginDate: " + beginDate?.getDate());
+
             styles.push(selectedClass);
         }
         if (todayDate ? compare(todayDate, cell.value) === 0 : compare(new Date(), cell.value) === 0) {
@@ -368,7 +371,7 @@ export function CalendarBody(
                         handleFocus={_handleCellFocus}
                         handleHoverOn={_onHover}
                         handleHoverOff={_offHover}
-                        setCellClass={_setCellClass}
+                        setClassName={_setCellClass}
                         style={tdStyle}
                         key={'cal-cell-' + item.value}
                     ></CalendarCell>);

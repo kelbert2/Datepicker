@@ -11,7 +11,7 @@ function CalendarCell(
         handleFocus,
         handleHoverOn,
         handleHoverOff,
-        setCellClass,
+        setClassName,
         style
     }: {
         item: ICalendarCell,
@@ -20,13 +20,14 @@ function CalendarCell(
         handleFocus: (cell: ICalendarCell) => {} | void,
         handleHoverOn: (cell: ICalendarCell) => {} | void,
         handleHoverOff: (cell: ICalendarCell) => {} | void,
-        setCellClass: (cell: ICalendarCell) => string,
+        setClassName: (cell: ICalendarCell) => string,
         style: CSSProperties
     }) {
     const {
         selectedDate,
     } = useContext(DatepickerContext);
 
+    // TODO: May refactor to just accept prop function directly
     /** Emits event on cell selection. */
     const _cellClicked = () => {
         handleClick(item);
@@ -54,7 +55,7 @@ function CalendarCell(
             role="gridcell"
             // tabIndex={_isActiveCell(rowIndex, colIndex) ? 0 : -1}
             tabIndex={item.enabled ? 0 : -1}
-            className={setCellClass(item)}
+            className={setClassName(item)}
             onClick={_cellClicked}
             onKeyPress={_handleCellKeypress}
             onFocus={_handleCellFocus}

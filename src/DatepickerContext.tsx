@@ -391,6 +391,9 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
     switch (action.type) {
         case "reset":
             return { ...datepickerContextDefault, dispatch: state.dispatch };
+
+        case "set-dates":
+            return { ...state, selectedDate: action.payload.selectedDate, beginDate: action.payload.beginDate, endDate: action.payload.endDate };
         case "set-selected-date":
             return { ...state, selectedDate: action.payload };
         case "set-today-date":

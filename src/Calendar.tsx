@@ -62,9 +62,9 @@ export function Calendar(
     // const _prevEndDate = useRef(endDate as Date);
     // const [beginDateSelected, setBeginDateSelected] = useState(false);
 
-    useEffect(() => {
-        console.log("begin date update: " + beginDate?.getDate());
-    }, [beginDate]);
+    // useEffect(() => {
+    //     console.log("begin date was updated: " + beginDate?.getDate());
+    // }, [beginDate]);
 
     /** Update current view on startView change to an allowed view. */
     useLayoutEffect(() => {
@@ -296,17 +296,19 @@ export function Calendar(
     }
     /** Handles date changes from calendar body. */
     const _handleDateChange = (date: Date) => {
+        // console.log("recieved date change event in calendar");
+
         dispatch({
             type: 'set-active-date',
             payload: date
         });
 
-        if (_isMostPreciseView(_currentView)) {
-            dispatch({
-                type: 'set-selected-date',
-                payload: date
-            });
-        }
+        // if (_isMostPreciseView(_currentView)) {
+        //     dispatch({
+        //         type: 'set-selected-date',
+        //         payload: date
+        //     });
+        // }
 
         if (rangeMode) {
             if ((!beginDate && !endDate)
@@ -314,13 +316,17 @@ export function Calendar(
                 || (endDate && getCompareFromView(_currentView, endDate, date)) === 0) {
                 // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
                 if (_isMostPreciseView(_currentView)) {
+                    // dispatch({
+                    //     type: 'set-begin-date',
+                    //     payload: date
+                    // });
+                    // dispatch({
+                    //     type: 'set-end-date',
+                    //     payload: null
+                    // });
                     dispatch({
-                        type: 'set-begin-date',
-                        payload: date
-                    });
-                    dispatch({
-                        type: 'set-end-date',
-                        payload: null
+                        type: 'set-dates',
+                        payload: { selectedDate: date, beginDate: date, endDate: null }
                     });
                 }
                 _getSelectedFromView(_currentView, { selectedDate: date, beginDate: date, endDate: null });
@@ -336,13 +342,17 @@ export function Calendar(
                     if (_isMostPreciseView(_currentView)) {
                         const prevEndDate = endDate;
 
+                        // dispatch({
+                        //     type: 'set-begin-date',
+                        //     payload: prevEndDate
+                        // });
+                        // dispatch({
+                        //     type: 'set-end-date',
+                        //     payload: date
+                        // });
                         dispatch({
-                            type: 'set-begin-date',
-                            payload: prevEndDate
-                        });
-                        dispatch({
-                            type: 'set-end-date',
-                            payload: date
+                            type: 'set-dates',
+                            payload: { selectedDate: date, beginDate: prevEndDate, endDate: date }
                         });
 
                         // ADDED
@@ -355,11 +365,15 @@ export function Calendar(
                     // _getSelectedFromView(_currentView, { selectedDate: date, beginDate: date, endDate: null });
 
                     if (_isMostPreciseView(_currentView)) {
-                        dispatch({
-                            type: 'set-begin-date',
-                            payload: date
-                        });
+                        // dispatch({
+                        //     type: 'set-begin-date',
+                        //     payload: date
+                        // });
 
+                        dispatch({
+                            type: 'set-dates',
+                            payload: { selectedDate: date, beginDate: date, endDate: endDate }
+                        });
                         // ADDED
                         //   _finalDateSelection({ selectedDate: date, beginDate: date, endDate: null });
                     }
@@ -377,15 +391,22 @@ export function Calendar(
                     const data = { selectedDate: date, beginDate: date, endDate };
                     _getSelectedFromView(_currentView, data);
 
+                    // console.log(
+                    //     "setting begin date with current view: " + _currentView
+                    // );
                     if (_isMostPreciseView(_currentView)) {
-                        console.log(
-                            "setting begin date"
-                        );
-                        dispatch({
-                            type: 'set-begin-date',
-                            payload: date
-                        });
+                        // console.log(
+                        //     "dispatching begin date: " + data.beginDate.getDate()
+                        // );
+                        // dispatch({
+                        //     type: 'set-begin-date',
+                        //     payload: date
+                        // });
 
+                        dispatch({
+                            type: 'set-dates',
+                            payload: data
+                        });
                         _finalDateSelection(data);
                     }
 
@@ -402,15 +423,19 @@ export function Calendar(
                     const data = { selectedDate: date, beginDate: date, endDate: prevBeginDate };
                     _getSelectedFromView(_currentView, data);
                     if (_isMostPreciseView(_currentView)) {
-                        dispatch({
-                            type: 'set-begin-date',
-                            payload: date
-                        });
-                        dispatch({
-                            type: 'set-end-date',
-                            payload: prevBeginDate
-                        });
+                        // dispatch({
+                        //     type: 'set-begin-date',
+                        //     payload: date
+                        // });
+                        // dispatch({
+                        //     type: 'set-end-date',
+                        //     payload: prevBeginDate
+                        // });
 
+                        dispatch({
+                            type: 'set-dates',
+                            payload: data
+                        });
                         _finalDateSelection(data);
                     }
                 }
@@ -423,8 +448,12 @@ export function Calendar(
                 _getSelectedFromView(_currentView, data);
 
                 if (_isMostPreciseView(_currentView)) {
+                    // dispatch({
+                    //     type: 'set-end-date', payload: date
+                    // });
                     dispatch({
-                        type: 'set-end-date', payload: date
+                        type: 'set-dates',
+                        payload: data
                     });
 
                     _finalDateSelection(data);
@@ -436,6 +465,11 @@ export function Calendar(
             _getSelectedFromView(_currentView, data);
 
             if (_isMostPreciseView(_currentView)) {
+                dispatch({
+                    type: 'set-dates',
+                    payload: data
+                });
+
                 _finalDateSelection(data);
             }
         }

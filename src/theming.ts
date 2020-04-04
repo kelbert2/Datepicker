@@ -141,41 +141,284 @@ export const DEFAULT_THEME_STRINGS = {
     "--on-disabled": "var(--neutral)"
 } as DatepickerThemeStrings;
 
-
+// TODO: Refactor by combining because use together in practice
 export const resetTheme = (theme: DatepickerThemeStrings) => {
     let retTheme = {} as DatepickerThemeStrings;
     retTheme["--color"] = theme["--color"] ? theme["--color"] : DEFAULT_THEME_STRINGS["--color"];
-    retTheme["--color-light"] = theme["--color-light"] ? theme["--color-light"] : DEFAULT_THEME_STRINGS["--color-light"];
-    retTheme["--on-color"] = theme["--on-color"] ? theme["--on-color"] : DEFAULT_THEME_STRINGS["--on-color"];
-    retTheme["--on-color-light"] = theme["--on-color-light"] ? theme["--on-color-light"] : DEFAULT_THEME_STRINGS["--on-color-light"];
+    retTheme["--color-light"] =
+        theme["--color-light"]
+            ? theme["--color-light"]
+            : !!addAlpha(theme["--color"], .5)
+                ? addAlpha(theme["--color"], .5)
+                : DEFAULT_THEME_STRINGS["--color-light"];
+    retTheme["--on-color"] =
+        theme["--on-color"]
+            ? theme["--on-color"]
+            : theme["--background"]
+                ? theme["--background"]
+                : DEFAULT_THEME_STRINGS["--on-color"];
+    retTheme["--on-color-light"] =
+        theme["--on-color-light"]
+            ? theme["--on-color-light"]
+            : theme["--on-color"]
+                ? theme["--on-color"]
+                : theme["--background"]
+                    ? theme["--background"]
+                    : DEFAULT_THEME_STRINGS["--on-color-light"];
 
     retTheme["--background"] = theme["--background"] ? theme["--background"] : DEFAULT_THEME_STRINGS["--background"];
-    retTheme["--neutral-light"] = theme["--neutral-light"] ? theme["--neutral-light"] : DEFAULT_THEME_STRINGS["--neutral-light"];
-    retTheme["--neutral"] = theme["--neutral"] ? theme["--neutral"] : DEFAULT_THEME_STRINGS["--neutral"];
-    retTheme["--neutral-dark"] = theme["--neutral-dark"] ? theme["--neutral-dark"] : DEFAULT_THEME_STRINGS["--neutral-dark"];
+    retTheme["--neutral-light"] =
+        theme["--neutral-light"]
+            ? theme["--neutral-light"]
+            : !!addAlpha(retTheme["--neutral"], .2)
+                ? addAlpha(retTheme["--neutral"], .2)
+                : DEFAULT_THEME_STRINGS["--neutral-light"];
+    retTheme["--neutral"] =
+        theme["--neutral"]
+            ? theme["--neutral"]
+            : !!addAlpha(theme["--on-background"], .4)
+                ? addAlpha(theme["--on-background"], .4)
+                : DEFAULT_THEME_STRINGS["--neutral"];
+    retTheme["--neutral-dark"] =
+        theme["--neutral-dark"]
+            ? theme["--neutral-dark"]
+            : !!addAlpha(retTheme["--neutral"], .6)
+                ? addAlpha(retTheme["--neutral"], .6)
+                : DEFAULT_THEME_STRINGS["--neutral-dark"];
     retTheme["--on-background"] = theme["--on-background"] ? theme["--on-background"] : DEFAULT_THEME_STRINGS["--on-background"];
-    retTheme["--on-neutral-light"] = theme["--on-neutral-light"] ? theme["--on-neutral-light"] : DEFAULT_THEME_STRINGS["--on-neutral-light"];
-    retTheme["--on-neutral"] = theme["--on-neutral"] ? theme["--on-neutral"] : DEFAULT_THEME_STRINGS["--on-neutral"];
+    retTheme["--on-neutral-light"] =
+        theme["--on-neutral-light"]
+            ? theme["--on-neutral-light"]
+            : theme["--on-background"]
+                ? theme["--on-background"]
+                : DEFAULT_THEME_STRINGS["--on-neutral-light"];
+    retTheme["--on-neutral"] =
+        theme["--on-neutral"]
+            ? theme["--on-neutral"]
+            : theme["--background"]
+                ? theme["--background"]
+                : DEFAULT_THEME_STRINGS["--on-neutral"];
 
-    retTheme["--weekday-row"] = theme["--weekday-row"] ? theme["--weekday-row"] : DEFAULT_THEME_STRINGS["--weekday-row"];
-    retTheme["--on-weekday-row"] = theme["--on-weekday-row"] ? theme["--on-weekday-row"] : DEFAULT_THEME_STRINGS["--on-weekday-row"];
+    retTheme["--weekday-row"] =
+        theme["--weekday-row"]
+            ? theme["--weekday-row"]
+            : theme["--background"]
+                ? theme["--background"]
+                : DEFAULT_THEME_STRINGS["--weekday-row"];
+    retTheme["--on-weekday-row"] =
+        theme["--on-weekday-row"]
+            ? theme["--on-weekday-row"]
+            : retTheme["--neutral"]
+                ? retTheme["--neutral"]
+                : DEFAULT_THEME_STRINGS["--on-weekday-row"];
 
-    retTheme["--divider"] = theme["--divider"] ? theme["--divider"] : DEFAULT_THEME_STRINGS["--divider"];
-    retTheme["--label-text"] = theme["--label-text"] ? theme["--label-text"] : DEFAULT_THEME_STRINGS["--label-text"];
+    retTheme["--divider"] =
+        theme["--divider"]
+            ? theme["--divider"]
+            : retTheme["--neutral-light"]
+                ? retTheme["--neutral-light"]
+                : DEFAULT_THEME_STRINGS["--divider"];
+    retTheme["--label-text"] =
+        theme["--label-text"]
+            ? theme["--label-text"]
+            : retTheme["--neutral-dark"]
+                ? retTheme["--neutral-dark"]
+                : DEFAULT_THEME_STRINGS["--label-text"];
 
     retTheme["--button-background"] = theme["--button-background"] ? theme["--button-background"] : DEFAULT_THEME_STRINGS["--button-background"];
-    retTheme["--on-button"] = theme["--on-button"] ? theme["--on-button"] : DEFAULT_THEME_STRINGS["--on-button"];
+    retTheme["--on-button"] =
+        theme["--on-button"]
+            ? theme["--on-button"]
+            : retTheme["--neutral-dark"]
+                ? retTheme["--neutral-dark"]
+                : DEFAULT_THEME_STRINGS["--on-button"];
     retTheme["--button-border"] = theme["--button-border"] ? theme["--button-border"] : DEFAULT_THEME_STRINGS["--button-border"];
 
-    retTheme["--hover"] = theme["--hover"] ? theme["--hover"] : DEFAULT_THEME_STRINGS["--hover"];
-    retTheme["--on-hover"] = theme["--on-hover"] ? theme["--on-hover"] : DEFAULT_THEME_STRINGS["--on-hover"];
-    retTheme["--hover-range"] = theme["--hover-range"] ? theme["--hover-range"] : DEFAULT_THEME_STRINGS["--hover-range"];
-    retTheme["--on-hover-range"] = theme["--on-hover-range"] ? theme["--on-hover-range"] : DEFAULT_THEME_STRINGS["--on-hover-range"];
+    retTheme["--hover"] =
+        theme["--hover"]
+            ? theme["--hover"]
+            : retTheme["--neutral"]
+                ? retTheme["--neutral"]
+                : DEFAULT_THEME_STRINGS["--hover"];
+    retTheme["--on-hover"] =
+        theme["--on-hover"]
+            ? theme["--on-hover"]
+            : retTheme["--on-neutral"]
+                ? retTheme["--on-neutral"]
+                : DEFAULT_THEME_STRINGS["--on-hover"];
+    retTheme["--hover-range"] =
+        theme["--hover-range"]
+            ? theme["--hover-range"]
+            : !!addAlpha(retTheme["--hover"], .25)
+                ? addAlpha(retTheme["--hover"], .25)
+                : retTheme["--neutral-light"]
+                    ? retTheme["--neutral-light"]
+                    : DEFAULT_THEME_STRINGS["--hover-range"];
+    retTheme["--on-hover-range"] =
+        theme["--on-hover-range"]
+            ? theme["--on-hover-range"]
+            : retTheme["--on-neutral-light"]
+                ? retTheme["--on-neutral-light"]
+                : DEFAULT_THEME_STRINGS["--on-hover-range"];
 
-    retTheme["--today"] = theme["--today"] ? theme["--today"] : DEFAULT_THEME_STRINGS["--today"];
+    retTheme["--today"] =
+        theme["--today"]
+            ? theme["--today"]
+            : retTheme["--neutral"]
+                ? retTheme["--neutral"]
+                : DEFAULT_THEME_STRINGS["--today"];
 
     retTheme["--disabled"] = theme["--disabled"] ? theme["--disabled"] : DEFAULT_THEME_STRINGS["--disabled"];
-    retTheme["--on-disabled"] = theme["--on-disabled"] ? theme["--on-disabled"] : DEFAULT_THEME_STRINGS["--on-disabled"];
+    retTheme["--on-disabled"] =
+        theme["--on-disabled"]
+            ? theme["--on-disabled"]
+            : retTheme["--neutral"]
+                ? retTheme["--neutral"]
+                : DEFAULT_THEME_STRINGS["--on-disabled"];
+
+    return retTheme;
+}
+
+const getCssVariable = (key: string) => {
+    return "--" + key.replace(/[A-Z]/g, letter => "-" + letter.toLowerCase());
+}
+
+export const makeDatepickerThemeArray = (themeObject: DatepickerTheme) => {
+    let array = [] as string[];
+    Object.keys(themeObject).forEach((key) => {
+        const value = (themeObject as any)[key];
+        array.push(getCssVariable(key) + ": " + value);
+    });
+    return array;
+}
+
+export const makeDatepickerThemeArrayFromStrings = (themeObject: DatepickerThemeStrings) => {
+    let array = [] as string[];
+    Object.keys(themeObject).forEach((key) => {
+        const value = (themeObject as any)[key];
+        array.push(key + ": " + value);
+    });
+
+    return array;
+}
+
+const addAlpha = (color: string | undefined, alpha = .5) => {
+    if (color == null) return undefined;
+    let array = color.split(/[\s,()]+/);
+    if (array.length > 2) {
+        let prefix: string;
+        if (array[0].length < 4) {
+            prefix = array[0] + "a(";
+        } else {
+            prefix = array[0] + "(";
+        }
+        return prefix + array[1] + "," + array[2] + "," + array[3] + "," + alpha + ")";
+    }
+    return undefined;
+}
+/** Creates a datepicker theme around --color, --hover, and --on-background in hsl() or rgb() or anything that can take an alpha when converted to type+a(). Default theme assumes --background and --color have sufficient (legible) contrast with each other and --neutral and --background have sufficient contrast. */
+export const makeDatepickerTheme = (themeObject: DatepickerThemeStrings) => {
+    let retTheme = themeObject;
+    if (themeObject["--color"] && !(themeObject["--color-light"])) {
+        // If --color has been changed but --color-light has not, set it to an alpha value of --color
+        const lightColor = addAlpha(themeObject["--color"], .5);
+        if (lightColor) {
+            retTheme["--color-light"] = lightColor;
+        }
+    }
+    if ("--on-color" in themeObject && !("--on-color-light" in themeObject)) {
+        retTheme["--on-color-light"] = themeObject["--on-color"];
+    }
+
+    if (themeObject["--hover"] && !(themeObject["--hover-range"])) {
+        const hoverRange = addAlpha(themeObject["--hover"], .25);
+        if (hoverRange) {
+            retTheme["--hover-range"] = hoverRange;
+        }
+    }
+
+    if ("--on-background" in themeObject) {
+        // if on-background has changed, can assume that all values that appear on the background now do not have the desired contrast, so need to reset them
+        if (!("--neutral" in themeObject)) {
+            const neutral = addAlpha(themeObject["--on-background"], .4);
+            if (neutral) {
+                retTheme["--neutral"] = neutral;
+            }
+        }
+        if (!("--on-neutral-light" in themeObject)) {
+            retTheme["--on-neutral-light"] = themeObject["--on-background"];
+        }
+        if ("--neutral" in retTheme) {
+            if (!("--neutral-light" in themeObject)) {
+                const neutralLight = addAlpha(retTheme["--neutral"], .2);
+                if (neutralLight) {
+                    retTheme["--neutral-light"] = neutralLight;
+                }
+            }
+            if (!("--neutral-dark" in themeObject)) {
+                const neutralDark = addAlpha(retTheme["--neutral"], .6);
+                if (neutralDark) {
+                    retTheme["--neutral-dark"] = neutralDark;
+                }
+            }
+        }
+    }
+
+    if ("--background" in themeObject) {
+        if (!("--on-color" in themeObject)) {
+            retTheme["--on-color"] = themeObject["--background"];
+        }
+        if (!("--on-color-light" in themeObject)) {
+            if ("--on-color" in themeObject) {
+                retTheme["--on-color-light"] = themeObject["--on-color"];
+            } else {
+                retTheme["--on-color-light"] = themeObject["--background"];
+            }
+        }
+        if (!("--on-neutral" in themeObject)) {
+            retTheme["--on-neutral"] = themeObject["--background"];
+        }
+        if (!("--weekday-row" in themeObject)) {
+            retTheme["--weekday-row"] = themeObject["--background"];
+        }
+    }
+
+    if ("--neutral" in retTheme) {
+        if (!("--on-weekday-row" in themeObject)) {
+            retTheme["--on-weekday-row"] = retTheme["--neutral"];
+        }
+        if (!("--hover" in themeObject)) {
+            retTheme["--hover"] = retTheme["--neutral"];
+        }
+        if (!("--today" in themeObject)) {
+            retTheme["--today"] = retTheme["--neutral"];
+        }
+        if (!("--on-disabled" in themeObject)) {
+            retTheme["--on-disabled"] = retTheme["--neutral"];
+        }
+    }
+    if ("--neutral-light" in retTheme) {
+        if (!("--divider" in themeObject)) {
+            retTheme["--divider"] = retTheme["--neutral-light"];
+        }
+        if (!("--hover-range" in themeObject)) {
+            retTheme["--hover-range"] = retTheme["--neutral-light"];
+        }
+    }
+    if ("--neutral-dark" in retTheme) {
+        if (!("--label-text" in themeObject)) {
+            retTheme["--label-text"] = retTheme["--neutral-dark"];
+        }
+        if (!("--on-button" in themeObject)) {
+            retTheme["--on-button"] = retTheme["--neutral-dark"];
+        }
+    }
+    if ("--on-neutral" in retTheme && !("--on-hover" in themeObject)) {
+        retTheme["--on-hover"] = retTheme["--on-neutral"];
+    }
+    if ("--on-neutral-light" in retTheme && !("--on-hover-range" in themeObject)) {
+        retTheme["--on-hover-range"] = retTheme["--on-neutral-light"];
+    }
 
     return retTheme;
 }

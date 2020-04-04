@@ -59,7 +59,7 @@ export const blueThemeObject = {
 }
 
 // TODO: When input is deleted, set dates as null
-function Input() {
+function Input({ id }: { id: string }) {
     const {
         selectedDate,
 
@@ -104,7 +104,7 @@ function Input() {
     /** Input in the second text input. */
     const [_endInput, _setEndInput] = useState('' as string);
     /** UID for inputs and labels. */
-    const [id] = useState(() => simpleUID('myprefix-'));
+    const [inputID] = useState(() => simpleUID('myprefix-'));
     /** Timer to avoid on focus respose not running because seen after on blur. */
     const timer = useRef(null as NodeJS.Timeout | null);
     /** Previous rangeMode value. */
@@ -586,6 +586,7 @@ function Input() {
             onBlur={_onBlurAll}
             onFocus={_onFocusHandler}
             className="datepicker"
+            id={id}
         >
             {/* <button
                 onClick={_applyTheme}

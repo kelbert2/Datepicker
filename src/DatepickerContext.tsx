@@ -576,6 +576,9 @@ export const useInputContext = () => {
 // TODO: add custom className applied for dates like holidays
 // TODO: refactor all the popup/disable/inline etc. logic to some specific type to avoid any conflicting values
 
+/* 
+ * @param id: id to be applied to the datepicker html element.
+ */
 export interface IDatepickerProps {
     selectedDate?: Date | null,
     todayDate?: Date | null,
@@ -635,6 +638,7 @@ export interface IDatepickerProps {
     switchToMultiyearViewLabel?: string,
 
     theme?: DatepickerThemeStrings,
+    id?: string
 }
 
 export interface IInputProps {

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { VIEW, makeDatepickerTheme, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, getDayOfWeek } from "../CalendarUtils";
+import React, { useState, useLayoutEffect, useCallback } from "react";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, getDayOfWeek } from "../CalendarUtils";
 import { CalendarDisplay, DateData } from "../DatepickerContext";
 import DatepickerInput from "../DatepickerInput";
+import { makeDatepickerTheme, resetTheme, DatepickerThemeStrings, makeDatepickerThemeArrayFromStrings } from "../theming";
 
 // TODO: Go through and update date change vs. final date change firings
 // TODO: Refactor {() => } to close over functions
@@ -74,6 +75,8 @@ function Display() {
     const [_singleInputLabel, _setSingleInputLabel] = useState("Choose a date");
     const [_beginInputLabel, _setBeginInputLabel] = useState("Choose a start date");
     const [_endInputLabel, _setEndInputLabel] = useState("end date");
+
+    const [_changeThemeGlobal, _setChangeThemeGlobal] = useState(true);
 
     type THEMES = 'salmon' | 'blue' | 'green';
     const _salmonTheme = ({});
@@ -253,6 +256,21 @@ function Display() {
     const _handleCloseAfterSelectionKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
         if (_handleKeyDown(event)) _setCloseAfterSelection(can => !can);
     }
+
+    const _handleChangeThemeGlobalKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+        if (_handleKeyDown(event)) _setChangeThemeGlobal(can => !can);
+    }
+
+    const _applyTheme = useCallback((theme: THEMES) => {
+        const root = document.getElementsByTagName('html')[0];
+        root.style.cssText = makeDatepickerThemeArrayFromStrings(resetTheme(getTheme(theme))).join(';');
+    }, [_themeColor]);
+
+    useLayoutEffect(() => {
+        if (_changeThemeGlobal) {
+            _applyTheme(_themeColor);
+        }
+    }, [_themeColor, _changeThemeGlobal]);
 
     return (
         <div
@@ -623,6 +641,14 @@ function Display() {
                         <label htmlFor="radio-calendar-blue">Blue</label>
                     </li>
                 </ul>
+                <div className="toggle">
+                    <input type="checkbox"
+                        id="can-close-calendar-toggle"
+                        onChange={() => _setChangeThemeGlobal(can => !can)}
+                        checked={_changeThemeGlobal}
+                        onKeyDown={_handleChangeThemeGlobalKeyDown} />
+                    <label htmlFor="can-close-calendar-toggle">Change Theme Globally</label>
+                </div>
                 <div>Calendar Display:</div>
                 <ul>
                     <li className="radio">

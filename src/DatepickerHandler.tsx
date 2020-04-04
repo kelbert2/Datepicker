@@ -9,7 +9,7 @@ const CALENDAR_CLASS_INLINE = 'inline';
 const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 
-function DatepickerHandler() {
+function DatepickerHandler({ id }: { id: string }) {
     const {
         selectedDate,
 
@@ -263,7 +263,8 @@ function DatepickerHandler() {
     }
 
     return (
-        <div>
+        <div
+            id={id}>
             {
                 _calendarDisplay !== 'close' ?
                     <Calendar

@@ -1,9 +1,9 @@
-import { DateData, IDatepickerContext, datepickerInputReducer, IDatepickerProps, IAction, datepickerReducer, DatepickerContext } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, makeDatepickerThemeArrayFromStrings } from "./CalendarUtils";
-import React, { useCallback, useLayoutEffect } from "react";
+import { DateData, IDatepickerContext, IDatepickerProps, datepickerReducer, DatepickerContext } from "./DatepickerContext";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, simpleUID } from "./CalendarUtils";
+import React, { useCallback, useLayoutEffect, useEffect } from "react";
 import './Datepicker.css';
 import DatepickerHandler from "./DatepickerHandler";
-import { DatepickerThemeStrings, resetTheme } from "./theming";
+import { DatepickerThemeStrings, resetTheme, DEFAULT_THEME_STRINGS, makeDatepickerThemeArrayFromStrings } from "./theming";
 
 function Datepicker({
     selectedDate = null as Date | null,
@@ -70,19 +70,8 @@ function Datepicker({
     switchToYearViewLabel = 'Switch to year view',
     switchToMultiyearViewLabel = 'Switch to multi-year view',
 
-    theme = {
-        "--color": "salmon",
-        "--color-light": "rgb(250, 186, 160)",
-        "--on-color": "white",
-        "--on-color-light": "black",
-
-        "--background": "white",
-        "--neutral-light": "rgba(0, 0, 0, .1)",
-        "--neutral": "rgba(0, 0, 0, .4)",
-        "--neutral-dark": "rgba(0, 0, 0, .5)",
-        "--on-background": "black"
-    }
-
+    theme = DEFAULT_THEME_STRINGS,
+    id = simpleUID("calendar-datepicker-")
 }: IDatepickerProps) {
 
     const props = {
@@ -147,12 +136,281 @@ function Datepicker({
         theme
     } as IDatepickerContext;
 
-    const DatepickerContextProvider = ({ children }: { children: any }) => {
-        let [state, dispatch] = React.useReducer(datepickerReducer, props);
-        return (
-            <DatepickerContext.Provider value={{ ...state, dispatch }}> {children} </DatepickerContext.Provider>
-        );
-    }
+    let [state, dispatch] = React.useReducer(datepickerReducer, props);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-selected-date',
+            payload: selectedDate
+        });
+    }, [selectedDate]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-today-date',
+            payload: todayDate
+        });
+    }, [todayDate]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-final-date-change',
+            payload: onFinalDateChange
+        });
+    }, [onFinalDateChange]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-date-change',
+            payload: onDateChange
+        });
+    }, [onDateChange]);
+
+    // TODO: May change this
+    useEffect(() => {
+        dispatch({
+            type: 'set-calendar-date-change',
+            payload: onCalendarDateChange
+        });
+    }, [onCalendarDateChange]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-day-selected',
+            payload: onDaySelected
+        });
+    }, [onDaySelected]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-month-selected',
+            payload: onMonthSelected
+        });
+    }, [onMonthSelected]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-year-selected',
+            payload: onYearSelected
+        });
+    }, [onYearSelected]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-start-at',
+            payload: startAt
+        });
+    }, [startAt]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-start-view',
+            payload: startView
+        });
+    }, [startView]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-first-day-of-week',
+            payload: firstDayOfWeek
+        });
+    }, [firstDayOfWeek]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-min-date',
+            payload: minDate
+        });
+    }, [minDate]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-max-date',
+            payload: maxDate
+        });
+    }, [maxDate]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-date-filter',
+            payload: dateFilter
+        });
+    }, [dateFilter]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-range-mode',
+            payload: rangeMode
+        });
+    }, [rangeMode]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-begin-date',
+            payload: beginDate
+        });
+    }, [beginDate]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-end-date',
+            payload: endDate
+        });
+    }, [endDate]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-disable-month',
+            payload: disableMonth
+        });
+    }, [disableMonth]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-disable-year',
+            payload: disableYear
+        });
+    }, [disableYear]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-disable-multiyear',
+            payload: disableMultiyear
+        });
+    }, [disableMultiyear]);
+
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-disable',
+            payload: disable
+        });
+    }, [disable]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-disable-calendar',
+            payload: disableCalendar
+        });
+    }, [disableCalendar]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-calendar-display',
+            payload: calendarOpenDisplay
+        });
+    }, [calendarOpenDisplay]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-can-close-calendar',
+            payload: canCloseCalendar
+        });
+    }, [canCloseCalendar]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-close-after-selection',
+            payload: closeAfterSelection
+        });
+    }, [closeAfterSelection]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-format-month-label',
+            payload: formatMonthLabel
+        });
+    }, [formatMonthLabel]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-format-month-text',
+            payload: formatMonthText
+        });
+    }, [formatMonthText]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-format-year-label',
+            payload: formatYearLabel
+        });
+    }, [formatYearLabel]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-format-year-text',
+            payload: formatYearText
+        });
+    }, [formatYearText]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-format-multiyear-label',
+            payload: formatMultiyearLabel
+        });
+    }, [formatMultiyearLabel]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-format-multiyear-text',
+            payload: formatMultiyearText
+        });
+    }, [formatMultiyearText]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-calendar-label',
+            payload: calendarLabel
+        });
+    }, [calendarLabel]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-open-calendar-label',
+            payload: openCalendarLabel
+        });
+    }, [openCalendarLabel]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-next-month-label',
+            payload: nextMonthLabel
+        });
+    }, [nextMonthLabel]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-next-year-label',
+            payload: nextYearLabel
+        });
+    }, [nextYearLabel]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-next-multiyear-label',
+            payload: nextMultiyearLabel
+        });
+    }, [nextMultiyearLabel]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-prev-month-label',
+            payload: prevMonthLabel
+        });
+    }, [prevMonthLabel]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-prev-year-label',
+            payload: prevYearLabel
+        });
+    }, [prevYearLabel]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-prev-multiyear-label',
+            payload: prevMultiyearLabel
+        });
+    }, [prevMultiyearLabel]);
+
+    useEffect(() => {
+        dispatch({
+            type: 'set-switch-to-month-view-label',
+            payload: switchToMonthViewLabel
+        });
+    }, [switchToMonthViewLabel]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-switch-to-year-view-label',
+            payload: switchToYearViewLabel
+        });
+    }, [switchToYearViewLabel]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-switch-to-multiyear-view-label',
+            payload: switchToMultiyearViewLabel
+        });
+    }, [switchToMultiyearViewLabel]);
+
+
     // const DatepickerContextConsumer = DatepickerContext.Consumer;
 
     // /** Replace styles with input. */
@@ -179,21 +437,23 @@ function Datepicker({
     // });
     // }, [theme]);
 
-    const _applyThemeGlobal = useCallback((theme: DatepickerThemeStrings) => {
-        const root = document.getElementsByTagName('html')[0];
-        root.style.cssText = makeDatepickerThemeArrayFromStrings(resetTheme(theme)).join(';');
-    }, []);
+    const _applyTheme = useCallback((theme: DatepickerThemeStrings) => {
+        // const root = document.getElementsByTagName('html')[0];
+        const element = document.getElementById(id);
+        if (element) element.style.cssText = makeDatepickerThemeArrayFromStrings(resetTheme(theme)).join(';');
+    }, [id, theme]);
 
     useLayoutEffect(() => {
-        _applyThemeGlobal(theme);
-    }, [_applyThemeGlobal, theme]);
+        _applyTheme(theme);
+    }, [_applyTheme, theme]);
 
     // TODO: May refactor to have Calendar be called here
     return (
-        <DatepickerContextProvider>
-            <DatepickerHandler></DatepickerHandler>
-        </DatepickerContextProvider>
-    )
+        <DatepickerContext.Provider value={{ ...state, dispatch }}>
+            <DatepickerHandler
+                id={id}></DatepickerHandler>
+        </DatepickerContext.Provider>
+    );
 }
 
 export default Datepicker;

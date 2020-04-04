@@ -1,8 +1,9 @@
 import React, { useState, ChangeEvent, useRef, useLayoutEffect } from "react";
 import { CalendarDisplay, DateData } from "../DatepickerContext";
-import { formatDateDisplay, parseStringAsDate, makeDatepickerTheme } from "../CalendarUtils";
+import { formatDateDisplay, parseStringAsDate } from "../CalendarUtils";
 import DatepickerInput from "../DatepickerInput";
 import Datepicker from "../Datepicker";
+import { makeDatepickerTheme } from "../theming";
 
 // TODO: Figure out why max date isn't working as Datepicker, but InputTest's Datepickers are
 // TODO: deleting min date doesn't add back in the previous month button
@@ -67,6 +68,8 @@ function TestDisplay() {
                 return _salmonTheme;
         }
     }
+
+    const [_globalTheme, _setGlobalTheme] = useState(true);
 
     const _onDateChange = (d: DateData) => {
         _setBeginDate(d.beginDate);

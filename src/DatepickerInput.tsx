@@ -1,9 +1,9 @@
 import { DateData, IDatepickerContext, IDatepickerProps, IInputProps, IInputContext, datepickerReducer, DatepickerContext, InputContext, inputReducer } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, makeDatepickerThemeArrayFromStrings, simpleUID } from "./CalendarUtils";
-import React, { useCallback, useLayoutEffect, useEffect, useState } from "react";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, simpleUID } from "./CalendarUtils";
+import React, { useCallback, useLayoutEffect, useEffect } from "react";
 import Input from "./Input";
 import './Datepicker.css';
-import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme } from "./theming";
+import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme, makeDatepickerThemeArrayFromStrings } from "./theming";
 
 // TODO: add support for Moment.js and non-native date adaptors
 // TODO: add in class name, filter object to apply class to dates that support that filter
@@ -81,7 +81,8 @@ function DatepickerInput({
     parseStringToDate = (input: string) => parseStringAsDate(input),
     displayDateAsString = (date: Date) => formatDateDisplay(date),
 
-    theme = DEFAULT_THEME_STRINGS
+    theme = DEFAULT_THEME_STRINGS,
+    id = simpleUID("calendar-datepicker-")
 }: IDatepickerProps & IInputProps) {
 
     const props = {
@@ -162,9 +163,6 @@ function DatepickerInput({
     } as IInputContext;
 
     let [inputState, inputDispatch] = React.useReducer(inputReducer, inputProps);
-    // may need to add dispatch so can modify this without remounting all children ^
-
-    const [_UID] = useState(simpleUID("calendar-datepicker-"));
 
     // The below works, but would have to do for all input props, which doesn't feel ideal.
     // This also causes too many re-renders when rendered in jest, but not in the usual DOM. TODO: Figure out why this works in one instance but not in test.
@@ -488,14 +486,6 @@ function DatepickerInput({
         });
     }, [theme]);
 
-
-    useEffect(() => {
-        console.log("Datepicker input mounted " + _UID);
-        return () => {
-            console.log("Datepicker input unmounted " + _UID);
-        }
-    }, [_UID]);
-
     // const DatepickerContextProvider = ({ props, inputProps, children }: { props: IDatepickerContext, inputProps: IInputContext, children: any }) => {
     //     let [state, dispatch] = React.useReducer(datepickerReducer, props);
     //     return (
@@ -537,10 +527,11 @@ function DatepickerInput({
     // }, [_applyTheme]);
 
     // TODO: reference by ID so can keep it just to this specific datepicker
-    const _applyThemeGlobal = useCallback((theme: DatepickerThemeStrings) => {
-        const root = document.getElementsByTagName('html')[0];
-        root.style.cssText = makeDatepickerThemeArrayFromStrings(resetTheme(theme)).join(';');
-    }, []);
+    const _applyTheme = useCallback((theme: DatepickerThemeStrings) => {
+        // const root = document.getElementsByTagName('html')[0];
+        const element = document.getElementById(id);
+        if (element) element.style.cssText = makeDatepickerThemeArrayFromStrings(resetTheme(theme)).join(';');
+    }, [id, theme]);
 
     /** When style inputs change, update css. */
     // useLayoutEffect(() => {
@@ -564,7 +555,7 @@ function DatepickerInput({
         //     const value = (theme as any)[key];
         //     document.documentElement.style.setProperty(key, value);
         // });
-        _applyThemeGlobal(theme);
+        _applyTheme(theme);
 
         // _applyThemeGlobal(Object.keys(theme).map((key) => {
         //     const value = (theme as any)[key];
@@ -584,7 +575,7 @@ function DatepickerInput({
         //     return key + ": " + value;
         // })).join(';');
 
-    }, [_applyThemeGlobal, theme]);
+    }, [_applyTheme, theme]);
 
     // const makeArray = () => {
     //     let array = [] as string[];
@@ -602,15 +593,16 @@ function DatepickerInput({
         // inputProps={inputProps}
         // >
         <DatepickerContext.Provider value={{ ...state, dispatch }}>
-            <InputContext.Provider value={inputProps}>
+            <InputContext.Provider value={{ ...inputProps, dispatch: inputDispatch }}>
                 {/* <button
                 onClick={() => _applyTheme()}
             >Theme</button> */}
-                <Input></Input>
+                <Input
+                    id={id}></Input>
                 {/* </DatepickerContextProvider > */}
             </InputContext.Provider>
         </DatepickerContext.Provider>
-    )
+    );
 }
 
 export default DatepickerInput;

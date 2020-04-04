@@ -39,6 +39,9 @@ export const MONTH_NAMES = [
     { long: "December", short: "Dec" }
 ] as longShortNames[];
 
+export const stagnantDate = new Date(2020, 3, 14);
+export const stagnantDateData = { selectedDate: stagnantDate, beginDate: stagnantDate, endDate: new Date(2020, 3, 16) }
+export const stagnantDateString = "4/14/2020";
 // create
 export const createDate = (year: number, month: number, day = 1) => {
     return new Date(year, month, day);
@@ -368,7 +371,7 @@ export const parseStringAsDate = (input: string) => {
     if (year == null || month == null || day == null) {
         return null;
     } else {
-        return new Date(year, month, day);
+        return new Date(year, month, day, 0, 0, 0, 0);
     }
     // return new Date(year ? year : getYear(date), month ? month : getMonth(date), day ? day : getDay(date));
 }

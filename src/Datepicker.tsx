@@ -7,7 +7,7 @@ import { DatepickerThemeStrings, resetTheme, DEFAULT_THEME_STRINGS, makeDatepick
 
 function Datepicker({
     selectedDate = null as Date | null,
-    todayDate = new Date() as Date | null,
+    // todayDate = new Date() as Date | null,
 
     onFinalDateChange = (d: DateData) => { },
     onDateChange = (d: DateData) => { },
@@ -76,7 +76,7 @@ function Datepicker({
 
     const props = {
         selectedDate,
-        todayDate,
+        todayDate: new Date(),
         activeDate: startAt ? startAt : new Date(),
 
         onFinalDateChange,
@@ -144,12 +144,12 @@ function Datepicker({
             payload: selectedDate
         });
     }, [selectedDate]);
-    useEffect(() => {
-        dispatch({
-            type: 'set-today-date',
-            payload: todayDate
-        });
-    }, [todayDate]);
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-today-date',
+    //         payload: todayDate
+    //     });
+    // }, [todayDate]);
 
     useEffect(() => {
         dispatch({

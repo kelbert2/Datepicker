@@ -1,6 +1,6 @@
 import { DateData, IDatepickerContext, IDatepickerProps, IInputProps, IInputContext, datepickerReducer, DatepickerContext, InputContext, inputReducer } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, simpleUID } from "./CalendarUtils";
-import React, { useCallback, useLayoutEffect, useEffect } from "react";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, simpleUID, stagnantDateData, stagnantDate, stagnantDateString, compareDaysMonthsAndYears } from "./CalendarUtils";
+import React, { useCallback, useLayoutEffect, useEffect, useState, useRef } from "react";
 import Input from "./Input";
 import './Datepicker.css';
 import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme, makeDatepickerThemeArrayFromStrings } from "./theming";
@@ -9,7 +9,7 @@ import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme, makeDatepick
 // TODO: add in class name, filter object to apply class to dates that support that filter
 function DatepickerInput({
     selectedDate = null as Date | null,
-    todayDate = new Date() as Date | null,
+    // todayDate = new Date() as Date,
 
     onFinalDateChange = (d: DateData) => { },
     onDateChange = (d: DateData) => { },
@@ -19,7 +19,7 @@ function DatepickerInput({
     onMonthSelected = (d: DateData) => { },
     onYearSelected = (d: DateData) => { },
 
-    startAt = new Date() as Date | null,
+    startAt = new Date(new Date().setHours(0, 0, 0, 0)) as Date | null,
     startView = 'month' as VIEW,
     firstDayOfWeek = 0,
 
@@ -87,7 +87,7 @@ function DatepickerInput({
 
     const props = {
         selectedDate,
-        todayDate,
+        todayDate: new Date(),
         activeDate: startAt ? startAt : new Date(),
 
         onFinalDateChange,
@@ -166,68 +166,82 @@ function DatepickerInput({
 
     // The below works, but would have to do for all input props, which doesn't feel ideal.
     // This also causes too many re-renders when rendered in jest, but not in the usual DOM. TODO: Figure out why this works in one instance but not in test.
+    // Causes too many renders when format functions are not supplied, as the Object.is comparator doesn't work on functions
+    // Because of course you can't compare two functions unless you add inputs and see if the outputs differ, duh.
+    // React uses Object.js to compare in order to determine when to re-render
+
     useEffect(() => {
         dispatch({
             type: 'set-selected-date',
             payload: selectedDate
         });
     }, [selectedDate]);
-    useEffect(() => {
-        dispatch({
-            type: 'set-today-date',
-            payload: todayDate
-        });
-    }, [todayDate]);
 
-    useEffect(() => {
-        dispatch({
-            type: 'set-final-date-change',
-            payload: onFinalDateChange
-        });
-    }, [onFinalDateChange]);
+    // Currently cannot change onFinalDateChange or any on value after pass them into the datepicker
+    // TODO: Figure out why it is having lifecycle rendering issues
+    // any changes you make here will need to be duplicated in other "on" functions
+    // const onFinalDateChangeWrapper = useCallback((dateData: DateData) => {
+    //     return onFinalDateChange(dateData);
+    // }, [onFinalDateChange]);
+    // const prevFinalDateChange = useRef(onFinalDateChange(stagnantDateData));
+    // useEffect(() => {
+    //     // if (prevFinalDateChange.current != onFinalDateChange(stagnantDateData)) {
+    //     //     dispatch({
+    //     //         type: 'set-final-date-change',
+    //     //         payload: onFinalDateChange
+    //     //     });
+    //     // }
+
+    //     // currently is triggering a re-render when rendering the parent display
+    //     console.log("trying to update onFinalDateChange");
+    // }, [onFinalDateChangeWrapper(stagnantDateData)]);
 
     useEffect(() => {
         dispatch({
             type: 'set-date-change',
             payload: onDateChange
         });
-    }, [onDateChange]);
+    }, [onDateChange(stagnantDateData)]);
     useEffect(() => {
         dispatch({
             type: 'set-calendar-date-change',
             payload: onCalendarDateChange
         });
-    }, [onCalendarDateChange]);
+    }, [onCalendarDateChange(stagnantDateData)]);
     useEffect(() => {
         inputDispatch({
             type: 'set-input-date-change',
             payload: onInputDateChange
         });
-    }, [onInputDateChange]);
+    }, [onInputDateChange(stagnantDateData)]);
     useEffect(() => {
         dispatch({
             type: 'set-day-selected',
             payload: onDaySelected
         });
-    }, [onDaySelected]);
+    }, [onDaySelected(stagnantDateData)]);
     useEffect(() => {
         dispatch({
             type: 'set-month-selected',
             payload: onMonthSelected
         });
-    }, [onMonthSelected]);
+    }, [onMonthSelected(stagnantDateData)]);
     useEffect(() => {
         dispatch({
             type: 'set-year-selected',
             payload: onYearSelected
         });
-    }, [onYearSelected]);
+    }, [onYearSelected(stagnantDateData)]);
 
+    const prevStartAt = useRef(startAt);
     useEffect(() => {
-        dispatch({
-            type: 'set-start-at',
-            payload: startAt
-        });
+        if (startAt != null && (prevStartAt.current == null || compareDaysMonthsAndYears(prevStartAt.current, startAt))) {
+            dispatch({
+                type: 'set-start-at',
+                payload: startAt
+            });
+            prevStartAt.current = startAt;
+        }
     }, [startAt]);
     useEffect(() => {
         dispatch({
@@ -254,12 +268,13 @@ function DatepickerInput({
             payload: maxDate
         });
     }, [maxDate]);
+    // TODO: will only update if the datefilter treats a tuesday in april differently, which is clearly not ideal
     useEffect(() => {
         dispatch({
             type: 'set-date-filter',
             payload: dateFilter
         });
-    }, [dateFilter]);
+    }, [dateFilter(stagnantDate)]);
 
     useEffect(() => {
         dispatch({
@@ -299,7 +314,6 @@ function DatepickerInput({
         });
     }, [disableMultiyear]);
 
-
     useEffect(() => {
         dispatch({
             type: 'set-disable',
@@ -338,43 +352,44 @@ function DatepickerInput({
     }, [closeAfterSelection]);
 
     useEffect(() => {
+        console.log("Noticed change in format month label");
         dispatch({
             type: 'set-format-month-label',
             payload: formatMonthLabel
         });
-    }, [formatMonthLabel]);
+    }, [formatMonthLabel(stagnantDate)]);
     useEffect(() => {
         dispatch({
             type: 'set-format-month-text',
             payload: formatMonthText
         });
-    }, [formatMonthText]);
+    }, [formatMonthText(stagnantDate)]);
 
     useEffect(() => {
         dispatch({
             type: 'set-format-year-label',
             payload: formatYearLabel
         });
-    }, [formatYearLabel]);
+    }, [formatYearLabel(stagnantDate)]);
     useEffect(() => {
         dispatch({
             type: 'set-format-year-text',
             payload: formatYearText
         });
-    }, [formatYearText]);
+    }, [formatYearText(stagnantDate)]);
 
     useEffect(() => {
         dispatch({
             type: 'set-format-multiyear-label',
             payload: formatMultiyearLabel
         });
-    }, [formatMultiyearLabel]);
+    }, [formatMultiyearLabel(stagnantDate)]);
     useEffect(() => {
         dispatch({
             type: 'set-format-multiyear-text',
             payload: formatMultiyearText
         });
-    }, [formatMultiyearText]);
+    }, [formatMultiyearText(stagnantDate)]);
 
     useEffect(() => {
         dispatch({
@@ -465,19 +480,31 @@ function DatepickerInput({
         });
     }, [endInputLabel]);
 
+    // const [counter, setCounter] = useState(0);
+    const prevParseStringToDate = useRef(parseStringToDate(stagnantDateString));
     useEffect(() => {
-        inputDispatch({
-            type: 'set-parse-string-to-date',
-            payload: parseStringToDate
-        });
-    }, [parseStringToDate]);
-    /*
+        // console.log("got date " + parseStringToDate(stagnantDateString));
+        // setCounter(c => c + 1);
+        // console.log(counter);
+        let parsedDate = parseStringToDate(stagnantDateString);
+        if ((parsedDate != null)
+            && (prevParseStringToDate.current == null
+                || compareDaysMonthsAndYears(prevParseStringToDate.current, parsedDate))) {
+            console.log("different");
+            inputDispatch({
+                type: 'set-parse-string-to-date',
+                payload: parseStringToDate
+            });
+            prevParseStringToDate.current = parseStringToDate(stagnantDateString);
+        }
+    }, [parseStringToDate(stagnantDateString)]);
+
     useEffect(() => {
         inputDispatch({
             type: 'set-display-date-as-string',
             payload: displayDateAsString
         });
-    }, [displayDateAsString]);
+    }, [displayDateAsString(stagnantDate)]);
 
     useEffect(() => {
         dispatch({
@@ -485,29 +512,29 @@ function DatepickerInput({
             payload: theme
         });
     }, [theme]);
-
-    // const DatepickerContextProvider = ({ props, inputProps, children }: { props: IDatepickerContext, inputProps: IInputContext, children: any }) => {
-    //     let [state, dispatch] = React.useReducer(datepickerReducer, props);
-    //     return (
-    //         <DatepickerContext.Provider value={{ ...state, dispatch }}>
-    //             <InputContext.Provider value={inputProps}>
-    //                 {children}
-    //             </InputContext.Provider>
-    //         </DatepickerContext.Provider>
-    //     );
-    // }
-    // const DatepickerContextProvider = ({ children }: { children: any }) => {
-    //     let [state, dispatch] = React.useReducer(datepickerReducer, props);
-    //     return (
-    //         <DatepickerContext.Provider value={{ ...state, dispatch }}>
-    //             <InputContext.Provider value={inputProps}>
-    //                 {children}
-    //             </InputContext.Provider>
-    //         </DatepickerContext.Provider>
-    //     );
-    // };
-    // const DatepickerContextConsumer = DatepickerContext.Consumer;
-    // /** Replace styles with input. */
+    /*
+        // const DatepickerContextProvider = ({ props, inputProps, children }: { props: IDatepickerContext, inputProps: IInputContext, children: any }) => {
+        //     let [state, dispatch] = React.useReducer(datepickerReducer, props);
+        //     return (
+        //         <DatepickerContext.Provider value={{ ...state, dispatch }}>
+        //             <InputContext.Provider value={inputProps}>
+        //                 {children}
+        //             </InputContext.Provider>
+        //         </DatepickerContext.Provider>
+        //     );
+        // }
+        // const DatepickerContextProvider = ({ children }: { children: any }) => {
+        //     let [state, dispatch] = React.useReducer(datepickerReducer, props);
+        //     return (
+        //         <DatepickerContext.Provider value={{ ...state, dispatch }}>
+        //             <InputContext.Provider value={inputProps}>
+        //                 {children}
+        //             </InputContext.Provider>
+        //         </DatepickerContext.Provider>
+        //     );
+        // };
+        // const DatepickerContextConsumer = DatepickerContext.Consumer;
+        // /** Replace styles with input. */
     // const _applyTheme = useCallback(() => {
     //     //for (let key in theme) {
     //     Object.keys(theme).forEach(key => {
@@ -593,7 +620,7 @@ function DatepickerInput({
         // inputProps={inputProps}
         // >
         <DatepickerContext.Provider value={{ ...state, dispatch }}>
-            <InputContext.Provider value={{ ...inputProps, dispatch: inputDispatch }}>
+            <InputContext.Provider value={{ ...inputState, dispatch: inputDispatch }}>
                 {/* <button
                 onClick={() => _applyTheme()}
             >Theme</button> */}

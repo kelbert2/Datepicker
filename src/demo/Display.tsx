@@ -272,13 +272,13 @@ function Display() {
         }
     }, [_themeColor, _changeThemeGlobal]);
 
+    // TODO: Getting stack overflow when do not pass a prop but try to base useEffect on its changing
     return (
         <div
             className="test">
             <h1>Datepicker</h1>
             <DatepickerInput
                 selectedDate={_selectedDate}
-                todayDate={new Date()}
 
                 onFinalDateChange={_onFinalDateChange}
                 onDateChange={_onDateChange}
@@ -363,13 +363,17 @@ function Display() {
                 {/* <DatepickerInput
                         selectedDate={_minDate}
 
-                        onFinalDateChange={(d) => { }}
-                        onDateChange={(d) => _setMinDate(d.selectedDate)}
+                        onFinalDateChange={(d) => _setMinDate(d.selectedDate)}
+                        onDateChange={(d) => { }}
                         onCalendarDateChange={(d) => { }}
                         onInputDateChange={(d) => { }}
-                        onDaySelected={(d) => _onDaySelected(d)}
-                        onMonthSelected={(d) => _onMonthSelected(d)}
-                        onYearSelected={(d) => _onYearSelected(d)}
+                        onDaySelected={_onDaySelected}
+                        onMonthSelected={_onMonthSelected}
+                        onYearSelected={_onYearSelected}
+
+                        startAt={_startAt}
+                        startView={_startView}
+                        firstDayOfWeek={_firstDayOfWeek}
 
                         minDate={null}
                         maxDate={_maxDate}
@@ -390,11 +394,42 @@ function Display() {
                         canCloseCalendar={true}
                         closeAfterSelection={_closeAfterSelection}
 
+                        formatMonthLabel={_formatMonthLabel}
+                        formatMonthText={_formatMonthText}
+
+                        formatYearLabel={_formatYearLabel}
+                        formatYearText={_formatYearText}
+
+                        formatMultiyearLabel={_formatMultiyearLabel}
+                        formatMultiyearText={_formatMultiyearText}
+
+                        calendarLabel={_calendarLabel}
+                        openCalendarLabel={_openCalendarLabel}
+
+                        nextMonthLabel={_nextMonthLabel}
+                        nextYearLabel={_nextYearLabel}
+                        nextMultiyearLabel={_nextMultiyearLabel}
+
+                        prevMonthLabel={_prevMonthLabel}
+                        prevMultiyearLabel={_prevMultiyearLabel}
+                        prevYearLabel={_prevYearLabel}
+
+                        switchToMonthViewLabel={_switchToMonthViewLabel}
+                        switchToYearViewLabel={_switchToYearViewLabel}
+                        switchToMultiyearViewLabel={_switchToMultiyearViewLabel}
+
+                        singleInputLabel={_singleInputLabel}
+                        beginInputLabel={_beginInputLabel}
+                        endInputLabel={_endInputLabel}
+
+                        parseStringToDate={_parseStringToDate}
+                        displayDateAsString={_displayDateAsString}
+
                         theme={getTheme(_themeColor)}
                     ></DatepickerInput> */}
                 </div>
                 <div>Maximum date:
-                {/* <DatepickerInput
+                    {/* <DatepickerInput
                         selectedDate={_maxDate}
 
                         onFinalDateChange={(d) => { }}
@@ -643,11 +678,11 @@ function Display() {
                 </ul>
                 <div className="toggle">
                     <input type="checkbox"
-                        id="can-close-calendar-toggle"
+                        id="set-change-theme-global"
                         onChange={() => _setChangeThemeGlobal(can => !can)}
                         checked={_changeThemeGlobal}
                         onKeyDown={_handleChangeThemeGlobalKeyDown} />
-                    <label htmlFor="can-close-calendar-toggle">Change Theme Globally</label>
+                    <label htmlFor="set-change-theme-global">Change Theme Globally</label>
                 </div>
                 <div>Calendar Display:</div>
                 <ul>

@@ -581,7 +581,7 @@ export const useInputContext = () => {
  */
 export interface IDatepickerProps {
     selectedDate?: Date | null,
-    todayDate?: Date | null,
+    // todayDate?: Date | null,
 
     onFinalDateChange?: (d: DateData) => {} | void,
     onDateChange?: (d: DateData) => {} | void,

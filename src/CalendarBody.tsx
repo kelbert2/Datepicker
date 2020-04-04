@@ -241,8 +241,8 @@ export function CalendarBody(
         const cellIndex = dateToCellIndex(cell.value);
 
         if ((selectedDate && compare(selectedDate, cell.value) === 0)) {
-            console.log("is selected date: " + cell.displayValue);
-            console.log("current stored beginDate: " + beginDate?.getDate());
+            // console.log("is selected date: " + cell.displayValue);
+            // console.log("current stored beginDate: " + beginDate?.getDate());
 
             styles.push(selectedClass);
         }

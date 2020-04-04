@@ -316,17 +316,123 @@ describe("Selected begin but no end date", () => {
         });
     });
     test("Selecting a date after a begin date selects the end date", () => {
+        expect.assertions(4);
 
+        let _beginDate = new Date();
+        _beginDate.setDate(2);
+
+        // TODO: passing beginDate into ContextProvider instead of clicking in the iteration fails this test
+        ReactDOM.render(
+            <DatepickerContextProvider props={{ rangeMode: true, beginDate: _beginDate }}>
+                < Calendar ></Calendar >
+            </DatepickerContextProvider >, container);
+
+        let withinValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement;
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beforeValue = cell;
+                // fireEvent.click(beforeValue);
+                expect(beforeValue).toHaveClass("beginRange");
+            } else if (cell.textContent === '3') {
+                withinValue = cell;
+            } else if (cell.textContent === '4') {
+                afterValue = cell;
+                fireEvent.click(afterValue);
+
+                expect(beforeValue).toHaveClass("beginRange");
+                expect(withinValue).toHaveClass("withinRange");
+                expect(afterValue).toHaveClass("endRange");
+
+                console.log("Ran Selecting a date after a begin date selects the end date.");
+            }
+        });
     });
 });
-// describe("Selected end but no begin date", () => {
-//     test("Selecting a date before the end date sets a begin date", () => {
+describe("Selected end but no begin date", () => {
+    test("Selecting a date before the end date sets a begin date", () => {
+        expect.assertions(4);
 
-//     });
-//     test("Selecting a date after the end date sets a new end date and sets the previous end date to the begin date", () => {
+        let _endDate = new Date();
+        _endDate.setDate(4);
 
-//     });
-// });
+        // TODO: passing beginDate into ContextProvider instead of clicking in the iteration fails this test
+        ReactDOM.render(
+            <DatepickerContextProvider props={{ rangeMode: true, endDate: _endDate }}>
+                < Calendar ></Calendar >
+            </DatepickerContextProvider >, container);
+
+        let withinValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement;
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beforeValue = cell;
+            } else if (cell.textContent === '3') {
+                withinValue = cell;
+            } else if (cell.textContent === '4') {
+                afterValue = cell;
+                expect(afterValue).toHaveClass("endRange");
+
+                fireEvent.click(beforeValue);
+
+                expect(beforeValue).toHaveClass("beginRange");
+                expect(withinValue).toHaveClass("withinRange");
+                expect(afterValue).toHaveClass("endRange");
+
+                console.log("Ran Selecting a date before the end date sets a begin date.");
+            }
+        });
+    });
+    test("Selecting a date after the end date sets a new end date and sets the previous end date to the begin date", () => {
+        expect.assertions(4);
+
+        let _endDate = new Date();
+        _endDate.setDate(2);
+
+        // TODO: passing beginDate into ContextProvider instead of clicking in the iteration fails this test
+        ReactDOM.render(
+            <DatepickerContextProvider props={{ rangeMode: true, endDate: _endDate }}>
+                < Calendar ></Calendar >
+            </DatepickerContextProvider >, container);
+
+        let withinValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement, afterAfterValue: HTMLElement;
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beforeValue = cell;
+                expect(beforeValue).toHaveClass("endRange");
+            } else if (cell.textContent === '3') {
+                withinValue = cell;
+            } else if (cell.textContent === '4') {
+                afterValue = cell;
+
+                fireEvent.click(afterValue);
+
+                // expect(beforeValue).toHaveClass("beginRange");
+                // expect(withinValue).toHaveClass("withinRange");
+                // expect(afterValue).toHaveClass("endRange");
+            } else if (cell.textContent === '5') {
+                // afterAfterValue = cell;
+
+                // fireEvent.click(afterAfterValue);
+
+                // expect(beforeValue).toHaveClass("beginRange");
+                // expect(withinValue).toHaveClass("withinRange");
+                // expect(afterAfterValue).toHaveClass("endRange");
+                // console.log("Ran Selecting a date after the end date sets a new end date and sets the previous end date to the begin date.");
+            }
+        });
+        cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '5') {
+                expect(beforeValue).toHaveClass("beginRange");
+                expect(withinValue).toHaveClass("withinRange");
+                expect(afterValue).toHaveClass("endRange");
+                console.log("Ran Selecting a date after the end date sets a new end date and sets the previous end date to the begin date.");
+            }
+        });
+    });
+});
 
 // // expect(function()).toEqual(output);
 

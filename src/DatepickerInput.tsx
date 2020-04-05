@@ -177,24 +177,26 @@ function DatepickerInput({
         });
     }, [selectedDate]);
 
+    // as use effects, all of these are emitting on object mount
+
+
     // Currently cannot change onFinalDateChange or any on value after pass them into the datepicker
     // TODO: Figure out why it is having lifecycle rendering issues
     // any changes you make here will need to be duplicated in other "on" functions
     // const onFinalDateChangeWrapper = useCallback((dateData: DateData) => {
     //     return onFinalDateChange(dateData);
     // }, [onFinalDateChange]);
-    // const prevFinalDateChange = useRef(onFinalDateChange(stagnantDateData));
-    // useEffect(() => {
-    //     // if (prevFinalDateChange.current != onFinalDateChange(stagnantDateData)) {
-    //     //     dispatch({
-    //     //         type: 'set-final-date-change',
-    //     //         payload: onFinalDateChange
-    //     //     });
-    //     // }
-
-    //     // currently is triggering a re-render when rendering the parent display
-    //     console.log("trying to update onFinalDateChange");
-    // }, [onFinalDateChangeWrapper(stagnantDateData)]);
+    const prevFinalDateChange = useRef(onFinalDateChange(stagnantDateData));
+    useEffect(() => {
+        if (prevFinalDateChange.current != onFinalDateChange(stagnantDateData)) {
+            console.log("trying to update onFinalDateChange: " + onFinalDateChange(stagnantDateData));
+            dispatch({
+                type: 'set-final-date-change',
+                payload: onFinalDateChange
+            });
+        }
+        // currently is triggering a re-render when rendering the parent display
+    }, [onFinalDateChange(stagnantDateData)]);
 
     useEffect(() => {
         dispatch({

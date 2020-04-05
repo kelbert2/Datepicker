@@ -1,5 +1,5 @@
 import { DateData, IDatepickerContext, IDatepickerProps, datepickerReducer, DatepickerContext } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, simpleUID } from "./CalendarUtils";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, simpleUID, stagnantDateData, stagnantDate } from "./CalendarUtils";
 import React, { useCallback, useLayoutEffect, useEffect } from "react";
 import './Datepicker.css';
 import DatepickerHandler from "./DatepickerHandler";
@@ -151,46 +151,46 @@ function Datepicker({
     //     });
     // }, [todayDate]);
 
-    useEffect(() => {
-        dispatch({
-            type: 'set-final-date-change',
-            payload: onFinalDateChange
-        });
-    }, [onFinalDateChange]);
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-final-date-change',
+    //         payload: onFinalDateChange
+    //     });
+    // }, [onFinalDateChange]);
 
-    useEffect(() => {
-        dispatch({
-            type: 'set-date-change',
-            payload: onDateChange
-        });
-    }, [onDateChange]);
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-date-change',
+    //         payload: onDateChange
+    //     });
+    // }, [onDateChange]);
 
-    // TODO: May change this
-    useEffect(() => {
-        dispatch({
-            type: 'set-calendar-date-change',
-            payload: onCalendarDateChange
-        });
-    }, [onCalendarDateChange]);
+    // // TODO: May change this
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-calendar-date-change',
+    //         payload: onCalendarDateChange
+    //     });
+    // }, [onCalendarDateChange]);
 
-    useEffect(() => {
-        dispatch({
-            type: 'set-day-selected',
-            payload: onDaySelected
-        });
-    }, [onDaySelected]);
-    useEffect(() => {
-        dispatch({
-            type: 'set-month-selected',
-            payload: onMonthSelected
-        });
-    }, [onMonthSelected]);
-    useEffect(() => {
-        dispatch({
-            type: 'set-year-selected',
-            payload: onYearSelected
-        });
-    }, [onYearSelected]);
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-day-selected',
+    //         payload: onDaySelected
+    //     });
+    // }, [onDaySelected]);
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-month-selected',
+    //         payload: onMonthSelected
+    //     });
+    // }, [onMonthSelected]);
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-year-selected',
+    //         payload: onYearSelected
+    //     });
+    // }, [onYearSelected]);
 
     useEffect(() => {
         dispatch({
@@ -306,39 +306,39 @@ function Datepicker({
             type: 'set-format-month-label',
             payload: formatMonthLabel
         });
-    }, [formatMonthLabel]);
+    }, [formatMonthLabel(stagnantDate)]);
     useEffect(() => {
         dispatch({
             type: 'set-format-month-text',
             payload: formatMonthText
         });
-    }, [formatMonthText]);
+    }, [formatMonthText(stagnantDate)]);
 
     useEffect(() => {
         dispatch({
             type: 'set-format-year-label',
             payload: formatYearLabel
         });
-    }, [formatYearLabel]);
+    }, [formatYearLabel(stagnantDate)]);
     useEffect(() => {
         dispatch({
             type: 'set-format-year-text',
             payload: formatYearText
         });
-    }, [formatYearText]);
+    }, [formatYearText(stagnantDate)]);
 
     useEffect(() => {
         dispatch({
             type: 'set-format-multiyear-label',
             payload: formatMultiyearLabel
         });
-    }, [formatMultiyearLabel]);
+    }, [formatMultiyearLabel(stagnantDate)]);
     useEffect(() => {
         dispatch({
             type: 'set-format-multiyear-text',
             payload: formatMultiyearText
         });
-    }, [formatMultiyearText]);
+    }, [formatMultiyearText(stagnantDate)]);
 
     useEffect(() => {
         dispatch({

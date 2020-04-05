@@ -111,11 +111,9 @@ function Display() {
     }
 
     const _onFinalDateChange = (d: DateData) => {
-        console.log("final date change");
-        console.log(d);
-        // _setBeginDate(d.beginDate);
-        // _setEndDate(d.endDate);
-        // _setSelectedDate(d.selectedDate);
+        _setBeginDate(d.beginDate);
+        _setEndDate(d.endDate);
+        _setSelectedDate(d.selectedDate);
     }
     const _onDateChange = (d: DateData) => {
         // console.log("date change");

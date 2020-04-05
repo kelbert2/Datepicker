@@ -506,6 +506,9 @@ function Input({ id }: { id: string }) {
     }
 
     const _handleFinalDateSelectionFromCalendar = (data: DateData) => {
+
+        console.log("final date change from calendar");
+
         onFinalDateChange(data);
 
         if (closeAfterSelection && canCloseCalendar) {

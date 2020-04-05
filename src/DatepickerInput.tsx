@@ -7,6 +7,7 @@ import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme, makeDatepick
 
 // TODO: add support for Moment.js and non-native date adaptors
 // TODO: add in class name, filter object to apply class to dates that support that filter
+// Every input can be changed except the on* functions
 function DatepickerInput({
     selectedDate = null as Date | null,
     // todayDate = new Date() as Date,
@@ -186,54 +187,59 @@ function DatepickerInput({
     // const onFinalDateChangeWrapper = useCallback((dateData: DateData) => {
     //     return onFinalDateChange(dateData);
     // }, [onFinalDateChange]);
-    const prevFinalDateChange = useRef(onFinalDateChange(stagnantDateData));
-    useEffect(() => {
-        if (prevFinalDateChange.current != onFinalDateChange(stagnantDateData)) {
-            console.log("trying to update onFinalDateChange: " + onFinalDateChange(stagnantDateData));
-            dispatch({
-                type: 'set-final-date-change',
-                payload: onFinalDateChange
-            });
-        }
-        // currently is triggering a re-render when rendering the parent display
-    }, [onFinalDateChange(stagnantDateData)]);
 
-    useEffect(() => {
-        dispatch({
-            type: 'set-date-change',
-            payload: onDateChange
-        });
-    }, [onDateChange(stagnantDateData)]);
-    useEffect(() => {
-        dispatch({
-            type: 'set-calendar-date-change',
-            payload: onCalendarDateChange
-        });
-    }, [onCalendarDateChange(stagnantDateData)]);
-    useEffect(() => {
-        inputDispatch({
-            type: 'set-input-date-change',
-            payload: onInputDateChange
-        });
-    }, [onInputDateChange(stagnantDateData)]);
-    useEffect(() => {
-        dispatch({
-            type: 'set-day-selected',
-            payload: onDaySelected
-        });
-    }, [onDaySelected(stagnantDateData)]);
-    useEffect(() => {
-        dispatch({
-            type: 'set-month-selected',
-            payload: onMonthSelected
-        });
-    }, [onMonthSelected(stagnantDateData)]);
-    useEffect(() => {
-        dispatch({
-            type: 'set-year-selected',
-            payload: onYearSelected
-        });
-    }, [onYearSelected(stagnantDateData)]);
+    // const onFinalDateChangeClone = () => {
+    //     let dummyFinalDateChange = onFinalDateChange;
+
+    // }
+    // const prevFinalDateChange = useRef(onFinalDateChange(stagnantDateData));
+    // useEffect(() => {
+    //     if (prevFinalDateChange.current != onFinalDateChange(stagnantDateData)) {
+    //         console.log("trying to update onFinalDateChange: " + onFinalDateChange(stagnantDateData));
+    //         dispatch({
+    //             type: 'set-final-date-change',
+    //             payload: onFinalDateChange
+    //         });
+    //     }
+    //     // currently is triggering a re-render when rendering the parent display
+    // }, [onFinalDateChange(stagnantDateData)]);
+
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-date-change',
+    //         payload: onDateChange
+    //     });
+    // }, [onDateChange(stagnantDateData)]);
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-calendar-date-change',
+    //         payload: onCalendarDateChange
+    //     });
+    // }, [onCalendarDateChange(stagnantDateData)]);
+    // useEffect(() => {
+    //     inputDispatch({
+    //         type: 'set-input-date-change',
+    //         payload: onInputDateChange
+    //     });
+    // }, [onInputDateChange(stagnantDateData)]);
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-day-selected',
+    //         payload: onDaySelected
+    //     });
+    // }, [onDaySelected(stagnantDateData)]);
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-month-selected',
+    //         payload: onMonthSelected
+    //     });
+    // }, [onMonthSelected(stagnantDateData)]);
+    // useEffect(() => {
+    //     dispatch({
+    //         type: 'set-year-selected',
+    //         payload: onYearSelected
+    //     });
+    // }, [onYearSelected(stagnantDateData)]);
 
     const prevStartAt = useRef(startAt);
     useEffect(() => {
@@ -270,13 +276,13 @@ function DatepickerInput({
             payload: maxDate
         });
     }, [maxDate]);
-    // TODO: will only update if the datefilter treats a tuesday in april differently, which is clearly not ideal
+    // Not passing a default value into the dateFilter function as would have to check datefilter against all possible dates to determine if different
     useEffect(() => {
         dispatch({
             type: 'set-date-filter',
             payload: dateFilter
         });
-    }, [dateFilter(stagnantDate)]);
+    }, [dateFilter]);
 
     useEffect(() => {
         dispatch({
@@ -284,11 +290,15 @@ function DatepickerInput({
             payload: rangeMode
         });
     }, [rangeMode]);
+
+    // const prevBeginDate = useRef(beginDate);
     useEffect(() => {
+        // if (prevBeginDate.current != beginDate) {
         dispatch({
             type: 'set-begin-date',
             payload: beginDate
         });
+        // }
     }, [beginDate]);
     useEffect(() => {
         dispatch({

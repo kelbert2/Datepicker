@@ -393,6 +393,27 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
             return { ...datepickerContextDefault, dispatch: state.dispatch };
 
         case "set-dates":
+
+            // console.log("setting dates in dispatch: ");
+            // console.log("new beginDate: " + action.payload.beginDate.getDate());
+            // console.log("new endDate: " + action.payload.endDate.getDate());
+            // console.log("former beginDate: " + state.beginDate?.getDate());
+            // console.log("former endDate: " + state.endDate?.getDate());
+            // let ret = { ...state };
+            // ret.beginDate = action.payload.beginDate;
+            // ret.endDate = action.payload.endDate;
+            // ret.selectedDate = action.payload.selectedDate;
+
+            // return ret;
+            // return {
+            //     ...
+            //     datepickerReducer(
+            //         datepickerReducer(
+            //             datepickerReducer(state,
+            //                 { type: 'set-selected-date', payload: action.payload.selectedDate }),
+            //             { type: 'set-begin-date', payload: action.payload.beginDate }),
+            //         { type: 'set-end-date', payload: action.payload.endDate })
+            // };
             return { ...state, selectedDate: action.payload.selectedDate, beginDate: action.payload.beginDate, endDate: action.payload.endDate };
         case "set-selected-date":
             return { ...state, selectedDate: action.payload };
@@ -539,9 +560,12 @@ export function DatepickerInputContextProvider({ children, props }: { children: 
 
 export function DatepickerContextProvider({ children, props }: { children: any, props?: IDatepickerProps }) {
     // TODO: check if should use memo here
-    let [state, dispatch] = React.useReducer(datepickerReducer, datepickerContextDefault);
+    // console.log("see beginDate in props: " + props?.beginDate?.getDate());
+    // console.log("see endDate in props: " + props?.endDate?.getDate())
+
+    let [state, dispatch] = React.useReducer(datepickerReducer, { ...datepickerContextDefault, ...props });
     return (
-        <DatepickerContext.Provider value={{ ...state, dispatch, ...props }} >{children}</DatepickerContext.Provider>
+        <DatepickerContext.Provider value={{ ...state, dispatch }} >{children}</DatepickerContext.Provider>
     );
 }
 

@@ -11,9 +11,6 @@ export interface ICalendarCell {
     enabled: boolean,
 }
 
-// TODO: Jest Test is seeing whitespace somewhere in here:
-// validateDOMNesting(...): Whitespace text nodes cannot appear as a child of <tbody>. Make sure you don't have any extra whitespace between tags on each line of your source code.
-
 /** Displays Calendar data in a table
          *  @param rows: Cells to display
          *  @param labelText: Label for the table ("JAN 2020")
@@ -89,9 +86,7 @@ export function CalendarBody(
     useLayoutEffect(() => {
         _setCellHovered(activeCell);
     }, [activeCell]);
-    // useLayoutEffect(() => {
-    //     _setCellHovered(dateToCellIndex(activeDate));
-    // }, [activeDate, _setCellHovered, dateToCellIndex]);
+
     /** On cellAspectRatio or numCols change, update the cell padding. */
     useLayoutEffect(() => {
         _setCellPadding(`${50 * cellAspectRatio / numCols}%`);
@@ -118,18 +113,9 @@ export function CalendarBody(
         return undefined;
     }
 
-    /** Determines if given row and column is the location of the current activeCell. */
-    // const _isActiveCell = (rowIndex: number, colIndex: number) => {
-    //     let cellNumber = rowIndex * numCols + colIndex;
-    //     if (rowIndex) {
-    //         // first row may not be full
-    //         cellNumber -= _firstRowOffset;
-    //     }
-    //     return cellNumber === activeCell;
-    // }
+    /** Determines if given cell is the current activeCell. */
     const _isActiveCell = (cell: ICalendarCell) => {
         return dateToCellIndex(cell.value) === activeCell;
-        // return compare(cell.value, activeDate) === 0;
     }
 
     /** Whether to mark as between begin and end dates in the selected range, exclusive. */

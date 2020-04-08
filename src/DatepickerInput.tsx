@@ -1,6 +1,6 @@
 import { DateData, IDatepickerContext, IDatepickerProps, IInputProps, IInputContext, datepickerReducer, DatepickerContext, InputContext, inputReducer } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, simpleUID, stagnantDateData, stagnantDate, stagnantDateString, compareDaysMonthsAndYears } from "./CalendarUtils";
-import React, { useCallback, useLayoutEffect, useEffect, useState, useRef } from "react";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, simpleUID, stagnantDate, stagnantDateString, compareDaysMonthsAndYears } from "./CalendarUtils";
+import React, { useCallback, useLayoutEffect, useEffect, useRef } from "react";
 import Input from "./Input";
 import './Datepicker.css';
 import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme, makeDatepickerThemeArrayFromStrings } from "./theming";
@@ -627,18 +627,10 @@ function DatepickerInput({
 
     // TODO: May refactor to have Calendar be called here
     return (
-        // <DatepickerContextProvider
-        // props={props}
-        // inputProps={inputProps}
-        // >
         <DatepickerContext.Provider value={{ ...state, dispatch }}>
             <InputContext.Provider value={{ ...inputState, dispatch: inputDispatch }}>
-                {/* <button
-                onClick={() => _applyTheme()}
-            >Theme</button> */}
                 <Input
                     id={id}></Input>
-                {/* </DatepickerContextProvider > */}
             </InputContext.Provider>
         </DatepickerContext.Provider>
     );

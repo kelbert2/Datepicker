@@ -104,7 +104,7 @@ function Input({ id }: { id: string }) {
     /** Input in the second text input. */
     const [_endInput, _setEndInput] = useState('' as string);
     /** UID for inputs and labels. */
-    const [inputID] = useState(() => simpleUID('myprefix-'));
+    // const [inputID] = useState(() => simpleUID('input-'));
     /** Timer to avoid on focus respose not running because seen after on blur. */
     const timer = useRef(null as NodeJS.Timeout | null);
     /** Previous rangeMode value. */
@@ -117,8 +117,6 @@ function Input({ id }: { id: string }) {
     /** Previous dateFilter function. */
     const _prevDateFilter = useRef(dateFilter);
 
-    const [_UID] = useState(simpleUID("calendar-datepicker-"));
-
     /** Update Calendar open status if allowances change. */
     useEffect(() => {
         if ((disable || disableCalendar) && canCloseCalendar) {
@@ -128,17 +126,7 @@ function Input({ id }: { id: string }) {
         }
     }, [_calendarDisplay, calendarOpenDisplay, canCloseCalendar, disable, disableCalendar, setCalendarOpen]);
     useEffect(() => {
-        console.log("input mounted");
-
-        return () => {
-            console.log("input unmounted");
-        }
-    }, []);
-    // useEffect(() => {
-    //     console.log("rangemode update! It is now: " + rangeMode + " for UID: " + _UID);
-    // }, [rangeMode, _UID]);
-    useEffect(() => {
-        // console.log("selected date change!");
+        console.log("selected date change!");
         dispatch({
             type: 'set-selected-date',
             payload: selectedDate

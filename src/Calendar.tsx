@@ -66,6 +66,17 @@ export function Calendar(
     //     console.log("begin date was updated: " + beginDate?.getDate());
     // }, [beginDate]);
 
+
+    // TEMPORARY TESTING
+    // useLayoutEffect(() => {
+    //     console.log("beginDate update! It is now: " + beginDate?.getDate());
+    //     console.log("endDate is: " + endDate?.getDate());
+    // }, [beginDate]);
+    // useLayoutEffect(() => {
+    //     console.log("endDate update! It is now: " + endDate?.getDate());
+    // }, [endDate]);
+
+
     /** Update current view on startView change to an allowed view. */
     useLayoutEffect(() => {
         if (startView !== prevStartView.current) {
@@ -315,6 +326,9 @@ export function Calendar(
                 || (beginDate && getCompareFromView(_currentView, beginDate, date) === 0)
                 || (endDate && getCompareFromView(_currentView, endDate, date)) === 0) {
                 // reset begin selection if nothing has been selected or if previously-selected beginDate or endDate are clicked again
+
+                // console.log("resetting");
+
                 if (_isMostPreciseView(_currentView)) {
                     // dispatch({
                     //     type: 'set-begin-date',
@@ -333,14 +347,22 @@ export function Calendar(
 
             } else if (!beginDate && endDate) {
                 // if no beginDate has been selected but an endDate has, check to see if selected date is before or after the selected end date
+
+                // console.log("saw enddate but no begindate: " + endDate.getDate());
+
                 if (getCompareFromView(_currentView, date, endDate) > 0) {
                     // date is after the end date
 
+                    // console.log("date is after the current endDate");
+
+                    const prevEndDate = endDate;
+
                     // ADDED
-                    //_getSelectedFromView(_currentView, { selectedDate: date, beginDate: date, endDate: null });
+                    _getSelectedFromView(_currentView, { selectedDate: date, beginDate: prevEndDate, endDate: date });
 
                     if (_isMostPreciseView(_currentView)) {
-                        const prevEndDate = endDate;
+
+                        // console.log("calling dispatch");
 
                         // dispatch({
                         //     type: 'set-begin-date',
@@ -356,13 +378,15 @@ export function Calendar(
                         });
 
                         // ADDED
-                        //_finalDateSelection({ selectedDate: date, beginDate: date, endDate: null });
+                        _finalDateSelection({ selectedDate: date, beginDate: prevEndDate, endDate: date });
                     }
                 } else {
                     // date is before the end date, just set the begin date
 
+                    // console.log("date is before the end date");
+
                     // ADDED
-                    // _getSelectedFromView(_currentView, { selectedDate: date, beginDate: date, endDate: null });
+                    _getSelectedFromView(_currentView, { selectedDate: date, beginDate: date, endDate: endDate });
 
                     if (_isMostPreciseView(_currentView)) {
                         // dispatch({
@@ -375,12 +399,14 @@ export function Calendar(
                             payload: { selectedDate: date, beginDate: date, endDate: endDate }
                         });
                         // ADDED
-                        //   _finalDateSelection({ selectedDate: date, beginDate: date, endDate: null });
+                        _finalDateSelection({ selectedDate: date, beginDate: date, endDate: endDate });
                     }
                 }
             } else if (beginDate && getCompareFromView(_currentView, date, beginDate) < 0) {
                 // if the new selection is before the beginDate, make it the new beginDate
                 const prevBeginDate = beginDate;
+
+                // console.log("date is before the beginDate");
 
                 if (endDate) {
                     // if there is an endDate selected, make the earlier beginDate the new beginDate
@@ -388,6 +414,9 @@ export function Calendar(
                     //     type: 'set-begin-date',
                     //     payload: date
                     // });
+
+                    // console.log("resetting only begindate, enddate remaining unchanged");
+
                     const data = { selectedDate: date, beginDate: date, endDate };
                     _getSelectedFromView(_currentView, data);
 
@@ -412,6 +441,9 @@ export function Calendar(
 
                 } else {
                     // if there is no endDate selected, make the earlier date the beginDate and the later one the endDate
+
+                    // console.log("switching begindate and date to set new endDate");
+
                     // dispatch({
                     //     type: 'set-begin-date',
                     //     payload: date
@@ -441,6 +473,9 @@ export function Calendar(
                 }
             } else {
                 // if the new selection is after the endDate, make it the new endDate
+
+                // console.log("making date the endDate");
+
                 // dispatch({
                 //     type: 'set-end-date', payload: date
                 // });
@@ -461,6 +496,9 @@ export function Calendar(
             }
         } else {
             // if not in range mode, simply update the selected date
+
+            // console.log("not in rangemode");
+
             const data = { selectedDate: date, beginDate: null, endDate: null };
             _getSelectedFromView(_currentView, data);
 

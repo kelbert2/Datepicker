@@ -1,7 +1,7 @@
 import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef } from 'react';
 import { DateData, CalendarDisplay, DatepickerContext, InputContext } from './DatepickerContext';
 import Calendar from './Calendar';
-import { compareDaysMonthsAndYears, simpleUID, compareDates } from './CalendarUtils';
+import { compareDaysMonthsAndYears, simpleUID, compareDates, stagnantDate } from './CalendarUtils';
 
 export type OPEN_STATES = CalendarDisplay | 'close';
 const CALENDAR_CLASS_INLINE = 'inline';
@@ -103,13 +103,11 @@ function Input({ id }: { id: string }) {
     const [_beginInput, _setBeginInput] = useState('' as string);
     /** Input in the second text input. */
     const [_endInput, _setEndInput] = useState('' as string);
-    /** UID for inputs and labels. */
-    // const [inputID] = useState(() => simpleUID('input-'));
     /** Timer to avoid on focus respose not running because seen after on blur. */
     const timer = useRef(null as NodeJS.Timeout | null);
     /** Previous rangeMode value. */
     const _prevRangeMode = useRef(rangeMode);
-    const [prevRangeMode, _setPrevRangeMode] = useState(rangeMode);
+    // const [prevRangeMode, _setPrevRangeMode] = useState(rangeMode);
     /** Previous minDate value. */
     const _prevMinDate = useRef(null as Date | null);
     /** Previous maxDate value. */
@@ -125,13 +123,13 @@ function Input({ id }: { id: string }) {
             _setCalendarDisplay(calendarOpenDisplay);
         }
     }, [_calendarDisplay, calendarOpenDisplay, canCloseCalendar, disable, disableCalendar, setCalendarOpen]);
-    useEffect(() => {
-        console.log("selected date change!");
-        dispatch({
-            type: 'set-selected-date',
-            payload: selectedDate
-        });
-    }, [selectedDate, dispatch]);
+    // useEffect(() => {
+    //     console.log("selected date change!");
+    //     dispatch({
+    //         type: 'set-selected-date',
+    //         payload: selectedDate
+    //     });
+    // }, [selectedDate, dispatch]);
     // TODO: on rangemode change, the selected date is not becoming the begin date.
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
@@ -171,13 +169,13 @@ function Input({ id }: { id: string }) {
             }
             // console.log("updating past values");
             _prevRangeMode.current = rangeMode;
-            _setPrevRangeMode(rangeMode);
+            // _setPrevRangeMode(rangeMode);
             // onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
             // onDateChange({ selectedDate, beginDate, endDate });          onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
             onInputDateChange({ selectedDate: select, beginDate: begin, endDate: end });
             onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
         }
-    }, [rangeMode, beginDate, dispatch, endDate, onDateChange, onInputDateChange, selectedDate, prevRangeMode]);
+    }, [rangeMode, beginDate, dispatch, endDate, onDateChange, onInputDateChange, selectedDate]);
     //TODO: move these or get it to update input quicker
     /** On minDate change, check if any values are too low as to be invalid. */
     useEffect(() => {
@@ -253,7 +251,7 @@ function Input({ id }: { id: string }) {
     }, [maxDate, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
     /** On date filter change, check if any values are invalid. */
     useEffect(() => {
-        if (dateFilter !== _prevDateFilter.current) {
+        if (dateFilter != null && dateFilter(stagnantDate) !== _prevDateFilter.current(stagnantDate)) {
             let select = selectedDate as Date | null, begin = beginDate as Date | null, end = endDate as Date | null;
             if (!dateFilter(selectedDate)) {
                 // Selected date is before minDate
@@ -440,8 +438,6 @@ function Input({ id }: { id: string }) {
     }
     /** Close the calendar if clicked off. */
     const _handleNonCalendarClick = () => {
-        // console.log("Handling click");
-
         onInputDateChange({ selectedDate, beginDate, endDate });
         onDateChange({ selectedDate, beginDate, endDate });
 
@@ -458,7 +454,6 @@ function Input({ id }: { id: string }) {
     const _onBlurAll = () => {
         // as blur event fires prior to new focus events, need to wait to see if a child has been focused.
         timer.current = setTimeout(() => {
-            // console.log("dealing with blur event");
             _handleNonCalendarClick();
         }, 700);
 
@@ -482,7 +477,7 @@ function Input({ id }: { id: string }) {
         }
     }
 
-    /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
+    /** Report date change in calendar. */
     const _handleDateSelectionFromCalendar = (data: DateData) => {
         // dispatch({
         //     type: 'set-start-at',
@@ -492,9 +487,8 @@ function Input({ id }: { id: string }) {
         onCalendarDateChange(data);
         onDateChange(data);
     }
-
+    /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
     const _handleFinalDateSelectionFromCalendar = (data: DateData) => {
-
         console.log("final date change from calendar");
 
         onFinalDateChange(data);

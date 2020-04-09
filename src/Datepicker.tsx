@@ -1,13 +1,12 @@
 import { DateData, IDatepickerContext, IDatepickerProps, datepickerReducer, DatepickerContext } from "./DatepickerContext";
 import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, simpleUID, stagnantDateData, stagnantDate } from "./CalendarUtils";
-import React, { useCallback, useLayoutEffect, useEffect } from "react";
+import React, { useCallback, useLayoutEffect, useEffect, useRef } from "react";
 import './Datepicker.css';
 import DatepickerHandler from "./DatepickerHandler";
 import { DatepickerThemeStrings, resetTheme, DEFAULT_THEME_STRINGS, makeDatepickerThemeArrayFromStrings } from "./theming";
 
 function Datepicker({
     selectedDate = null as Date | null,
-    // todayDate = new Date() as Date | null,
 
     onFinalDateChange = (d: DateData) => { },
     onDateChange = (d: DateData) => { },
@@ -23,6 +22,7 @@ function Datepicker({
     minDate = null as Date | null,
     maxDate = null as Date | null,
     dateFilter = (date: Date | null) => true,
+    dateFilterTestInputs = [stagnantDate],
 
     rangeMode = false,
     beginDate = null as Date | null,
@@ -223,12 +223,52 @@ function Datepicker({
             payload: maxDate
         });
     }, [maxDate]);
+
+    /** Accounting for date filter changes while relying on the notion that the date filter will be different given user inputs, dateFilterTestInputs. */
+    const testDateFilter = useCallback(() => {
+        let ret = [] as boolean[];
+        for (let i = 0; i < dateFilterTestInputs.length; i++) {
+            ret[i] = dateFilter(dateFilterTestInputs[i]);
+        }
+        return ret;
+    }, [dateFilterTestInputs, dateFilter]);
+
+    const prevDateFilterResults = useRef(testDateFilter());
+
+    const differenceInDateFilter = () => {
+        for (let i = 0; i < dateFilterTestInputs.length; i++) {
+            if (dateFilter(dateFilterTestInputs[i]) !== prevDateFilterResults.current[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    const prevCompareDateFilter = useRef(differenceInDateFilter());
+
     useEffect(() => {
+        const compare = differenceInDateFilter();
+        if (prevCompareDateFilter.current !== compare) {
+            let res = testDateFilter();
+
+            dispatch({
+                type: 'set-date-filter',
+                payload: dateFilter
+            });
+            prevDateFilterResults.current = res;
+            prevCompareDateFilter.current = compare;
+        }
+    }, [differenceInDateFilter(), testDateFilter, dateFilter]);
+
+
+    useEffect(() => {
+
+        console.log("got new date filter")
         dispatch({
             type: 'set-date-filter',
             payload: dateFilter
         });
-    }, [dateFilter]);
+    }, []);
 
     useEffect(() => {
         dispatch({

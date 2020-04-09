@@ -1,4 +1,4 @@
-import { DateData, IDatepickerContext, IDatepickerProps, IInputProps, IInputContext, datepickerReducer, DatepickerContext, InputContext, inputReducer } from "./DatepickerContext";
+import { DateData, IDatepickerContext, IDatepickerProps, IInputProps, IInputContext, datepickerReducer, DatepickerContext, InputContext, inputReducer, InputPropsDefault, DatepickerPropsDefault, combinedPropsDefault } from "./DatepickerContext";
 import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, simpleUID, stagnantDate, stagnantDateString, compareDaysMonthsAndYears } from "./CalendarUtils";
 import React, { useCallback, useLayoutEffect, useEffect, useRef } from "react";
 import Input from "./Input";
@@ -10,7 +10,6 @@ import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme, makeDatepick
 // Every input can be changed except the on* functions
 function DatepickerInput({
     selectedDate = null as Date | null,
-    // todayDate = new Date() as Date,
 
     onFinalDateChange = (d: DateData) => { },
     onDateChange = (d: DateData) => { },
@@ -27,6 +26,7 @@ function DatepickerInput({
     minDate = null as Date | null,
     maxDate = null as Date | null,
     dateFilter = (date: Date | null) => true,
+    dateFilterTestInputs = [stagnantDate],
 
     rangeMode = false,
     beginDate = null as Date | null,
@@ -276,13 +276,51 @@ function DatepickerInput({
             payload: maxDate
         });
     }, [maxDate]);
-    // Not passing a default value into the dateFilter function as would have to check datefilter against all possible dates to determine if different
+
+    /** Accounting for date filter changes while relying on the notion that the date filter will be different given user inputs, dateFilterTestInputs. */
+    const testDateFilter = useCallback(() => {
+        let ret = [] as boolean[];
+        for (let i = 0; i < dateFilterTestInputs.length; i++) {
+            ret[i] = dateFilter(dateFilterTestInputs[i]);
+        }
+        return ret;
+    }, [dateFilterTestInputs, dateFilter]);
+
+    const prevDateFilterResults = useRef(testDateFilter());
+
+    const differenceInDateFilter = () => {
+        for (let i = 0; i < dateFilterTestInputs.length; i++) {
+            if (dateFilter(dateFilterTestInputs[i]) !== prevDateFilterResults.current[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    const prevCompareDateFilter = useRef(differenceInDateFilter());
+
     useEffect(() => {
-        dispatch({
-            type: 'set-date-filter',
-            payload: dateFilter
-        });
-    }, [dateFilter]);
+        // console.log("got new datefilter");
+        const compare = differenceInDateFilter();
+        if (prevCompareDateFilter.current !== compare) {
+            let res = testDateFilter();
+            // console.log(res);
+            // if (res !== prevDateFilterResults.current) {
+            // console.log("date filter changed");
+            // console.log("new date filter results: ");
+            // console.log(res);
+            // console.log("prev date filter results:");
+            // console.log(prevDateFilterResults.current);
+
+            dispatch({
+                type: 'set-date-filter',
+                payload: dateFilter
+            });
+            prevDateFilterResults.current = res;
+            prevCompareDateFilter.current = compare;
+            // console.log(prevDateFilterResults.current);
+        }
+    }, [differenceInDateFilter(), testDateFilter, dateFilter]);
 
     useEffect(() => {
         dispatch({

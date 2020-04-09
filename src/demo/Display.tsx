@@ -1,8 +1,9 @@
-import React, { useState, useLayoutEffect, useCallback } from "react";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, getDayOfWeek } from "../CalendarUtils";
+import React, { useState, useLayoutEffect, useCallback, useRef, ChangeEvent } from "react";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, parseStringAsDate, formatDateDisplay, getDayOfWeek, compareDaysMonthsAndYears } from "../CalendarUtils";
 import { CalendarDisplay, DateData } from "../DatepickerContext";
 import DatepickerInput from "../DatepickerInput";
 import { makeDatepickerTheme, resetTheme, DatepickerThemeStrings, makeDatepickerThemeArrayFromStrings } from "../theming";
+import Datepicker from "../Datepicker";
 
 // TODO: Go through and update date change vs. final date change firings
 // TODO: Refactor {() => } to close over functions
@@ -14,7 +15,7 @@ function Display() {
     // onChange function using name element of inputs to get key of object to modify
     const [_state, _setState] = useState({});
 
-
+    // Datepicker Options ===================================================
     const [_selectedDate, _setSelectedDate] = useState(null as Date | null);
 
     const dummyDate = new Date();
@@ -52,8 +53,8 @@ function Display() {
     const [_disable, _setDisable] = useState(false);
     const [_disableCalendar, _setDisableCalendar] = useState(false);
     const [_disableInput, _setDisableInput] = useState(false);
-    const [_calendarOpenDisplay, _setCalendarOpenDisplay] = useState('inline' as CalendarDisplay);
-    const [_canCloseCalendar, _setCanCloseCalendar] = useState(false);
+    const [_calendarOpenDisplay, _setCalendarOpenDisplay] = useState('popup' as CalendarDisplay);
+    const [_canCloseCalendar, _setCanCloseCalendar] = useState(true);
     const [_closeAfterSelection, _setCloseAfterSelection] = useState(true);
     // const [_open, _setOpen ] = useState(false);
 
@@ -208,6 +209,168 @@ function Display() {
         console.log("received click from: " + view);
         _setStartView(view);
     }
+
+    // Native Input =========================================================
+    const [_calendarOpen, _setCalendarOpen] = useState(_canCloseCalendar ? false : true);
+    /** Input in the first text input. */
+    const [_beginInput, _setBeginInput] = useState('' as string);
+    /** Input in the second text input. */
+    const [_endInput, _setEndInput] = useState('' as string);
+    const timer = useRef(null as NodeJS.Timeout | null);
+
+    /** Update first text input display with selected date changes. */
+    useLayoutEffect(() => {
+        if (!_rangeMode) {
+            _setBeginInput(_selectedDate ? _displayDateAsString(_selectedDate) : '');
+        }
+    }, [_selectedDate, _rangeMode]);
+    /** Update first text input display with begin date changes. */
+    useLayoutEffect(() => {
+        if (_rangeMode) {
+            _setBeginInput(_beginDate ? _displayDateAsString(_beginDate) : '');
+        }
+    }, [_beginDate, _rangeMode]);
+    /** Update second text input display with end date changes. */
+    useLayoutEffect(() => {
+        if (_rangeMode) {
+            _setEndInput(_endDate ? _displayDateAsString(_endDate) : '');
+        }
+    }, [_endDate, _rangeMode]);
+
+    /** On first text input change, update internal state. */
+    const _handleBeginInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        _setBeginInput((event.target.value.length > 0) ? event.target.value : '');
+    }
+    /** On second text input change, update internal state. */
+    const _handleEndInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        _setEndInput((event.target.value.length > 0) ? event.target.value : '');
+    }
+
+    /** On blur, format first text input and set selected and begin dates. */
+    const _onBlurBeginInput = () => {
+        if (_beginInput !== '') {
+            const date = _parseStringToDate(_beginInput);
+            if (date != null) {
+                if (_selectedDate == null || compareDaysMonthsAndYears(_selectedDate, date) !== 0) {
+                    _setSelectedDate(date);
+                }
+
+                if (_rangeMode) {
+                    const prevEndDate = _endDate;
+                    if (prevEndDate != null && compareDaysMonthsAndYears(prevEndDate, date) < 0) {
+                        // new date is after the existing end date, so switch them
+                        _setBeginDate(prevEndDate);
+                        _setEndDate(date);
+                    } else if (_beginDate == null || compareDaysMonthsAndYears(_beginDate, date) !== 0) {
+                        _setBeginDate(date);
+                    }
+                }
+            } else {
+                // Input entered is not a valid date
+                _setBeginInput(_rangeMode
+                    ? _beginDate ? _displayDateAsString(_beginDate) : ''
+                    : _selectedDate ? _displayDateAsString(_selectedDate) : '');
+            }
+        } else {
+            // No input was entered
+            _setSelectedDate(null);
+            if (_rangeMode) {
+                _setBeginDate(null);
+            }
+        }
+    }
+
+    /** On blur, format second text input and set selected and end dates. */
+    const _onBlurEndInput = () => {
+        if (_endInput !== '') {
+            const date = _parseStringToDate(_endInput);
+            if (date != null) {
+                if (_selectedDate == null || compareDaysMonthsAndYears(_selectedDate, date) !== 0) {
+                    _setSelectedDate(date);
+                }
+                if (_rangeMode) {
+                    const prevBeginDate = _beginDate;
+                    if (prevBeginDate && compareDaysMonthsAndYears(date, prevBeginDate) < 0) {
+                        // If the input date is before the existing beginDate, it becomes the new beginDate
+                        _setBeginDate(date);
+                        // We switch previous beginDate for the endDate that the user overwrote
+                        _setEndDate(prevBeginDate);
+                    } else if (_endDate == null || compareDaysMonthsAndYears(_endDate, date) !== 0) {
+                        // Else the input date is after existing begindate, or there is no beginDate, input becomes the new endDate
+                        _setEndDate(date);
+                    }
+                }
+            } else {
+                // Input entered is not a valid date
+                _setEndInput(_rangeMode
+                    ? _endDate ? _displayDateAsString(_endDate) : ''
+                    : _selectedDate ? _displayDateAsString(_selectedDate) : '');
+            }
+        } else {
+            // No Input was entered
+            _setEndDate(null);
+        }
+    }
+
+    /** Close the calendar if clicked off. */
+    const _handleNativeNonCalendarClick = () => {
+        console.log("Handling non calendar click");
+        // Deal with selected, begin, and end values.
+        if (!_calendarOpen) {
+            if (!_disable && !_disableCalendar) {
+                _setCalendarOpen(true);
+            }
+        } else if (_canCloseCalendar) {
+            _setCalendarOpen(false);
+        }
+    }
+
+    /** Upon click off input and not on any children of the input, toggle the Calendar display closed. */
+    const _onBlurAll = () => {
+        // as blur event fires prior to new focus events, need to wait to see if a child has been focused.
+        timer.current = setTimeout(() => {
+            _handleNativeNonCalendarClick();
+        }, 700);
+        return () => timer.current ? clearTimeout(timer.current) : {};
+    }
+
+    /** If a child receives focus, do not close the calendar. */
+    const _onFocusHandler = () => {
+        if (timer.current) {
+            clearTimeout(timer.current);
+        }
+    }
+
+    /** Handle keydown events when Fields div is in focus. */
+    const _handleNativeKeyDownOverFields = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        const { keyCode } = event;
+        switch (keyCode) {
+            case 13: { // Enter
+                _handleNativeNonCalendarClick();
+            }
+        }
+    }
+    /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
+    const _handleNativeFinalDateSelectionFromCalendar = (data: DateData) => {
+        console.log("received final date change from calendar.");
+
+        _setSelectedDate(data.selectedDate);
+        _setBeginDate(data.beginDate);
+        _setEndDate(data.endDate);
+
+        console.log(data);
+
+        if (_closeAfterSelection && _canCloseCalendar) {
+            _setCalendarOpen(false);
+        }
+    }
+    const _handleDateSelectionFromCalendar = (data: DateData) => {
+        console.log("received date change from calendar.");
+        console.log(data);
+    }
+
+    // Input Options ========================================================
+
     /** Handle keydown events when Fields div is in focus. */
     const _handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
         const { keyCode } = event;
@@ -271,11 +434,115 @@ function Display() {
         }
     }, [_themeColor, _changeThemeGlobal]);
 
-    // TODO: Getting stack overflow when do not pass a prop but try to base useEffect on its changing
     return (
         <div
             className="test">
             <h1>Datepicker</h1>
+
+            {/* Native Input ======================================================== */}
+            {/* <div
+                onBlur={() => _onBlurAll()}
+                onFocus={_onFocusHandler}
+            >
+                <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => _handleNativeNonCalendarClick()}
+                    onKeyDown={(e) => _handleNativeKeyDownOverFields(e)}
+                >
+                    <div>
+                        <input
+                            type="text"
+                            disabled={_disable || _disableInput}
+                            onChange={(e) => _handleBeginInputChange(e)}
+                            onBlur={() => { _onBlurBeginInput() }}
+                            value={_beginInput}
+                            id="begin-input-date"
+                        ></input>
+                        <label
+                            htmlFor="begin-input-date">
+                            {_rangeMode ? _beginInputLabel : _singleInputLabel}
+                        </label>
+                    </div>
+                    {
+                        _rangeMode ?
+                            <div>
+                                <input type="text"
+                                    disabled={_disable || _disableInput}
+                                    onChange={(e) => _handleEndInputChange(e)}
+                                    onBlur={() => _onBlurEndInput()}
+                                    value={_endInput}
+                                    id="end-input-date"
+                                />
+                                <label
+                                    htmlFor="end-input-date">
+                                    {_endInputLabel}
+                                </label>
+                            </div>
+                            : ''
+                    }
+                </div>
+                <Datepicker
+                    selectedDate={_selectedDate}
+
+                    onFinalDateChange={_handleNativeFinalDateSelectionFromCalendar}
+                    onDateChange={_handleDateSelectionFromCalendar}
+                    onDaySelected={_onDaySelected}
+                    onMonthSelected={_onMonthSelected}
+                    onYearSelected={_onYearSelected}
+
+                    startAt={_startAt}
+                    startView={_startView}
+                    firstDayOfWeek={_firstDayOfWeek}
+
+                    minDate={_minDate}
+                    maxDate={_maxDate}
+                    dateFilter={_dateFilter}
+
+                    rangeMode={_rangeMode}
+                    beginDate={_beginDate}
+                    endDate={_endDate}
+
+                    disableMonth={_disableMonth}
+                    disableYear={_disableYear}
+                    disableMultiyear={_disableMultiyear}
+
+                    disable={_disable}
+                    calendarOpenDisplay={_calendarOpenDisplay}
+                    canCloseCalendar={_canCloseCalendar}
+                    closeAfterSelection={_closeAfterSelection}
+                    setCalendarOpen={_calendarOpen}
+
+                    formatMonthLabel={_formatMonthLabel}
+                    formatMonthText={_formatMonthText}
+
+                    formatYearLabel={_formatYearLabel}
+                    formatYearText={_formatYearText}
+
+                    formatMultiyearLabel={_formatMultiyearLabel}
+                    formatMultiyearText={_formatMultiyearText}
+
+                    calendarLabel={_calendarLabel}
+                    openCalendarLabel={_openCalendarLabel}
+
+                    nextMonthLabel={_nextMonthLabel}
+                    nextYearLabel={_nextYearLabel}
+                    nextMultiyearLabel={_nextMultiyearLabel}
+
+                    prevMonthLabel={_prevMonthLabel}
+                    prevMultiyearLabel={_prevMultiyearLabel}
+                    prevYearLabel={_prevYearLabel}
+
+                    switchToMonthViewLabel={_switchToMonthViewLabel}
+                    switchToYearViewLabel={_switchToYearViewLabel}
+                    switchToMultiyearViewLabel={_switchToMultiyearViewLabel}
+
+                    theme={getTheme(_themeColor)}
+                ></Datepicker>
+            </div> */}
+
+            {/* Integrated Datepicker =============================================== */}
+            {/* <DatepickerInput ></DatepickerInput> */}
             <DatepickerInput
                 selectedDate={_selectedDate}
 
@@ -294,6 +561,7 @@ function Display() {
                 minDate={_minDate}
                 maxDate={_maxDate}
                 dateFilter={_dateFilter}
+                dateFilterTestInputs={[new Date(2020, 3, 14), new Date(2020, 3, 19)]}
 
                 rangeMode={_rangeMode}
                 beginDate={_beginDate}
@@ -309,7 +577,7 @@ function Display() {
                 calendarOpenDisplay={_calendarOpenDisplay}
                 canCloseCalendar={_canCloseCalendar}
                 closeAfterSelection={_closeAfterSelection}
-                setCalendarOpen={true}
+                // setCalendarOpen={true}
 
                 formatMonthLabel={_formatMonthLabel}
                 formatMonthText={_formatMonthText}

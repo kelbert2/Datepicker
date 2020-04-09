@@ -168,16 +168,10 @@ describe("Selected begin and end dates", () => {
         let firedEvent = false;
         let beginValue: HTMLElement, withinValue: HTMLElement, endValue: HTMLElement, beforeValue: HTMLElement;
 
-        // TODO: doesn't work if initially pass in begin date: recognizes that beforeValue was selected and is at the beginning of a hover range, but not that 
         ReactDOM.render(
             <DatepickerContextProvider props={{ rangeMode: true, endDate: _endDate }}>
-                {/* ReactDOM.render( , container)
-                 <InputContextProvider>
-                    <Input></Input>
-                </InputContextProvider> */}
                 < Calendar></Calendar >
             </DatepickerContextProvider >, container);
-        // TODO: Can't seem to render DatepickerInput without a loop due to the useEffects that run dispatch on prop changes, so don't know how to pass defaults for beginDate, endDate, and rangeMode in order to test Calendar and Input behaviors.
 
         let cells = getAllByRole(container, "gridcell");
         cells.forEach(cell => {

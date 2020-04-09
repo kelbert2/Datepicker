@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear, formatDateDisplay, parseStringAsDate } from './CalendarUtils';
+import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear, formatDateDisplay, parseStringAsDate, simpleUID, stagnantDate } from './CalendarUtils';
 import { DatepickerThemeStrings, DEFAULT_THEME_STRINGS } from './theming';
 import DatepickerInput from './DatepickerInput';
 
@@ -393,27 +393,6 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
             return { ...datepickerContextDefault, dispatch: state.dispatch };
 
         case "set-dates":
-
-            // console.log("setting dates in dispatch: ");
-            // console.log("new beginDate: " + action.payload.beginDate.getDate());
-            // console.log("new endDate: " + action.payload.endDate.getDate());
-            // console.log("former beginDate: " + state.beginDate?.getDate());
-            // console.log("former endDate: " + state.endDate?.getDate());
-            // let ret = { ...state };
-            // ret.beginDate = action.payload.beginDate;
-            // ret.endDate = action.payload.endDate;
-            // ret.selectedDate = action.payload.selectedDate;
-
-            // return ret;
-            // return {
-            //     ...
-            //     datepickerReducer(
-            //         datepickerReducer(
-            //             datepickerReducer(state,
-            //                 { type: 'set-selected-date', payload: action.payload.selectedDate }),
-            //             { type: 'set-begin-date', payload: action.payload.beginDate }),
-            //         { type: 'set-end-date', payload: action.payload.endDate })
-            // };
             return { ...state, selectedDate: action.payload.selectedDate, beginDate: action.payload.beginDate, endDate: action.payload.endDate };
         case "set-selected-date":
             return { ...state, selectedDate: action.payload };
@@ -605,7 +584,6 @@ export const useInputContext = () => {
  */
 export interface IDatepickerProps {
     selectedDate?: Date | null,
-    // todayDate?: Date | null,
 
     onFinalDateChange?: (d: DateData) => {} | void,
     onDateChange?: (d: DateData) => {} | void,
@@ -621,6 +599,7 @@ export interface IDatepickerProps {
     minDate?: Date | null,
     maxDate?: Date | null,
     dateFilter?: (date: Date | null) => boolean,
+    dateFilterTestInputs?: Date[],
 
     rangeMode?: boolean,
     beginDate?: Date | null,
@@ -679,4 +658,91 @@ export interface IInputProps {
 
     parseStringToDate?: (input: string) => Date | null,
     displayDateAsString?: (date: Date) => string,
+}
+
+export const DatepickerPropsDefault: IDatepickerProps = {
+    selectedDate: null as Date | null,
+
+    onFinalDateChange: (d: DateData) => { },
+    onDateChange: (d: DateData) => { },
+    onCalendarDateChange: (d: DateData) => { },
+    onDaySelected: (d: DateData) => { },
+    onMonthSelected: (d: DateData) => { },
+    onYearSelected: (d: DateData) => { },
+
+    startAt: new Date(new Date().setHours(0, 0, 0, 0)) as Date | null,
+    startView: 'month' as VIEW,
+    firstDayOfWeek: 0,
+
+    minDate: null as Date | null,
+    maxDate: null as Date | null,
+    dateFilter: (date: Date | null) => true,
+    dateFilterTestInputs: [stagnantDate],
+
+    rangeMode: false,
+    beginDate: null as Date | null,
+    endDate: null as Date | null,
+
+    disableMonth: false,
+    disableYear: false,
+    disableMultiyear: false,
+
+    disable: false,
+    disableCalendar: false,
+    calendarOpenDisplay: 'popup',
+    canCloseCalendar: true,
+    closeAfterSelection: true,
+    setCalendarOpen: false,
+
+    formatMonthLabel: (date: Date) =>
+        getMonthNames('short')[getMonth(date)].toLocaleUpperCase() + ' ' + getYear(date),
+    formatMonthText: (date: Date) => getMonthNames('short')[getMonth(date)].toLocaleUpperCase(),
+
+    formatYearLabel: (date: Date) => date.getFullYear().toString(),
+    formatYearText: (date: Date) => date.getFullYear().toString(),
+
+    formatMultiyearLabel: (date: Date, minYearOfPage?: number) => {
+        if (minYearOfPage) {
+            const maxYearOfPage = minYearOfPage + YEARS_PER_PAGE - 1;
+            return `${minYearOfPage} \u2013 ${maxYearOfPage}`;
+        }
+        return 'Years'
+    },
+    formatMultiyearText: (date: Date) => '',
+
+    calendarLabel: 'Calendar',
+    openCalendarLabel: 'Open calendar',
+
+    nextMonthLabel: 'Next month',
+    nextYearLabel: 'Next year',
+    nextMultiyearLabel: 'Next years',
+
+    prevMonthLabel: 'Previous month',
+    prevMultiyearLabel: 'Previous years',
+    prevYearLabel: 'Previous year',
+
+    switchToMonthViewLabel: 'Switch to month view',
+    switchToYearViewLabel: 'Switch to year view',
+    switchToMultiyearViewLabel: 'Switch to multi-year view',
+
+    theme: DEFAULT_THEME_STRINGS,
+    id: simpleUID("calendar-datepicker-")
+}
+
+export const InputPropsDefault: IInputProps = {
+    onInputDateChange: (d: DateData) => { },
+
+    disableInput: false,
+
+    singleInputLabel: "Choose a date",
+    beginInputLabel: "Choose a start date",
+    endInputLabel: "end date",
+
+    parseStringToDate: (input: string) => parseStringAsDate(input),
+    displayDateAsString: (date: Date) => formatDateDisplay(date),
+}
+
+export const combinedPropsDefault = {
+    ...DatepickerPropsDefault,
+    ...InputPropsDefault
 }

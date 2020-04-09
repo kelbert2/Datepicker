@@ -1,5 +1,5 @@
 import { DateData, DatepickerContext } from "./DatepickerContext";
-import { compareDates } from "./CalendarUtils";
+import { compareDates, stagnantDate } from "./CalendarUtils";
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { OPEN_STATES } from "./Input";
 import './Datepicker.css';
@@ -54,6 +54,9 @@ function DatepickerHandler({ id }: { id: string }) {
         }
     }, [_calendarDisplay, calendarOpenDisplay, canCloseCalendar, disable, disableCalendar, setCalendarOpen]);
 
+
+    // TODO: Have this check if input begin and end dates need to be switched
+
     /** On rangeMode change, reset selected, begin, and end dates. */
     useEffect(() => {
         if (rangeMode !== _prevRangeMode.current) {
@@ -85,6 +88,7 @@ function DatepickerHandler({ id }: { id: string }) {
             }
             _prevRangeMode.current = rangeMode;
 
+            console.log("rangemode changed!");
             // onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
             // onDateChange({ selectedDate, beginDate, endDate });
             onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
@@ -128,6 +132,7 @@ function DatepickerHandler({ id }: { id: string }) {
                     }
                 }
                 if (select || begin || end) {
+                    console.log("mindate change!");
                     onDateChange({ selectedDate: select || selectedDate, beginDate: begin || beginDate, endDate: end || endDate });
                 }
             }
@@ -171,6 +176,7 @@ function DatepickerHandler({ id }: { id: string }) {
                     }
                 }
                 if (select || begin || end) {
+                    console.log("maxdate change!");
                     onDateChange({ selectedDate: select || selectedDate, beginDate: begin || beginDate, endDate: end || endDate });
                 }
             }
@@ -214,10 +220,11 @@ function DatepickerHandler({ id }: { id: string }) {
             _prevDateFilter.current = dateFilter;
 
             if (!selectedDate || !begin || !end) {
+                console.log("datefilter change!");
                 onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
             }
         }
-    }, [dateFilter, beginDate, dispatch, endDate, rangeMode, selectedDate, onDateChange]);
+    }, [dateFilter(stagnantDate), beginDate, dispatch, endDate, rangeMode, selectedDate, onDateChange]);
 
     /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
     const _handleDateSelectionFromCalendar = (data: DateData) => {

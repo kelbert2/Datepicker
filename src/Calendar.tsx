@@ -58,25 +58,6 @@ export function Calendar(
     const prevDisableMultiyear = useRef(disableMultiyear);
     const prevActiveDate = useRef(activeDate);
 
-    // const _prevSelectedDate = useRef(selectedDate as Date);
-    // const _prevEndDate = useRef(endDate as Date);
-    // const [beginDateSelected, setBeginDateSelected] = useState(false);
-
-    // useEffect(() => {
-    //     console.log("begin date was updated: " + beginDate?.getDate());
-    // }, [beginDate]);
-
-
-    // TEMPORARY TESTING
-    // useLayoutEffect(() => {
-    //     console.log("beginDate update! It is now: " + beginDate?.getDate());
-    //     console.log("endDate is: " + endDate?.getDate());
-    // }, [beginDate]);
-    // useLayoutEffect(() => {
-    //     console.log("endDate update! It is now: " + endDate?.getDate());
-    // }, [endDate]);
-
-
     /** Update current view on startView change to an allowed view. */
     useLayoutEffect(() => {
         if (startView !== prevStartView.current) {

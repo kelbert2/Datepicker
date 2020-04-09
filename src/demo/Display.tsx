@@ -112,12 +112,13 @@ function Display() {
     }
 
     const _onFinalDateChange = (d: DateData) => {
+        console.log("received final date from calendar");
         _setBeginDate(d.beginDate);
         _setEndDate(d.endDate);
         _setSelectedDate(d.selectedDate);
     }
     const _onDateChange = (d: DateData) => {
-        // console.log("date change");
+        console.log("date change");
         // _setBeginDate(d.beginDate);
         // _setEndDate(d.endDate);
         // _setSelectedDate(d.selectedDate);

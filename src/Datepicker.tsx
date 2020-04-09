@@ -1,5 +1,5 @@
 import { DateData, IDatepickerContext, IDatepickerProps, datepickerReducer, DatepickerContext } from "./DatepickerContext";
-import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, simpleUID, stagnantDateData, stagnantDate } from "./CalendarUtils";
+import { VIEW, getMonthNames, getMonth, getYear, YEARS_PER_PAGE, simpleUID, stagnantDateData, stagnantDate, compareDaysMonthsAndYears } from "./CalendarUtils";
 import React, { useCallback, useLayoutEffect, useEffect, useRef } from "react";
 import './Datepicker.css';
 import DatepickerHandler from "./DatepickerHandler";
@@ -144,59 +144,16 @@ function Datepicker({
             payload: selectedDate
         });
     }, [selectedDate]);
-    // useEffect(() => {
-    //     dispatch({
-    //         type: 'set-today-date',
-    //         payload: todayDate
-    //     });
-    // }, [todayDate]);
 
-    // useEffect(() => {
-    //     dispatch({
-    //         type: 'set-final-date-change',
-    //         payload: onFinalDateChange
-    //     });
-    // }, [onFinalDateChange]);
-
-    // useEffect(() => {
-    //     dispatch({
-    //         type: 'set-date-change',
-    //         payload: onDateChange
-    //     });
-    // }, [onDateChange]);
-
-    // // TODO: May change this
-    // useEffect(() => {
-    //     dispatch({
-    //         type: 'set-calendar-date-change',
-    //         payload: onCalendarDateChange
-    //     });
-    // }, [onCalendarDateChange]);
-
-    // useEffect(() => {
-    //     dispatch({
-    //         type: 'set-day-selected',
-    //         payload: onDaySelected
-    //     });
-    // }, [onDaySelected]);
-    // useEffect(() => {
-    //     dispatch({
-    //         type: 'set-month-selected',
-    //         payload: onMonthSelected
-    //     });
-    // }, [onMonthSelected]);
-    // useEffect(() => {
-    //     dispatch({
-    //         type: 'set-year-selected',
-    //         payload: onYearSelected
-    //     });
-    // }, [onYearSelected]);
-
+    const prevStartAt = useRef(startAt);
     useEffect(() => {
-        dispatch({
-            type: 'set-start-at',
-            payload: startAt
-        });
+        if (startAt != null && (prevStartAt.current == null || compareDaysMonthsAndYears(prevStartAt.current, startAt))) {
+            dispatch({
+                type: 'set-start-at',
+                payload: startAt
+            });
+            prevStartAt.current = startAt;
+        }
     }, [startAt]);
     useEffect(() => {
         dispatch({
@@ -234,7 +191,6 @@ function Datepicker({
     }, [dateFilterTestInputs, dateFilter]);
 
     const prevDateFilterResults = useRef(testDateFilter());
-
     const differenceInDateFilter = () => {
         for (let i = 0; i < dateFilterTestInputs.length; i++) {
             if (dateFilter(dateFilterTestInputs[i]) !== prevDateFilterResults.current[i]) {
@@ -245,7 +201,6 @@ function Datepicker({
     }
 
     const prevCompareDateFilter = useRef(differenceInDateFilter());
-
     useEffect(() => {
         const compare = differenceInDateFilter();
         if (prevCompareDateFilter.current !== compare) {
@@ -259,16 +214,6 @@ function Datepicker({
             prevCompareDateFilter.current = compare;
         }
     }, [differenceInDateFilter(), testDateFilter, dateFilter]);
-
-
-    useEffect(() => {
-
-        console.log("got new date filter")
-        dispatch({
-            type: 'set-date-filter',
-            payload: dateFilter
-        });
-    }, []);
 
     useEffect(() => {
         dispatch({
@@ -340,6 +285,13 @@ function Datepicker({
             payload: closeAfterSelection
         });
     }, [closeAfterSelection]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-calendar-open',
+            payload: setCalendarOpen
+        });
+    }, [setCalendarOpen]);
+
 
     useEffect(() => {
         dispatch({
@@ -450,7 +402,12 @@ function Datepicker({
         });
     }, [switchToMultiyearViewLabel]);
 
-
+    useEffect(() => {
+        dispatch({
+            type: 'set-theme',
+            payload: theme
+        });
+    }, [theme]);
     // const DatepickerContextConsumer = DatepickerContext.Consumer;
 
     // /** Replace styles with input. */

@@ -10,10 +10,9 @@ function InputTest() {
     const _disable = false;
     const _disableCalendar = false;
     const _disableInput = false;
-    const _calendarOpenDisplay = 'inline';
+    const _calendarOpenDisplay = 'popup';
     const _canCloseCalendar = true;
     const _closeAfterSelection = true;
-    const _setCalendarOpen = false;
 
     const _singleInputLabel = "Selected date:";
     const _beginInputLabel = "Begin date:";
@@ -66,7 +65,7 @@ function InputTest() {
 
     /** On blur, format first text input and set selected and begin dates. */
     const _onBlurBeginInput = () => {
-        // console.log("formatting begin input: " + _beginInput);
+        console.log("formatting begin input: " + _beginInput);
 
         if (_beginInput !== '') {
             const date = _parseStringToDate(_beginInput);
@@ -99,14 +98,14 @@ function InputTest() {
             }
         }
         // Deal with new selected, begin, and end values.
-        // console.log("-- selected date: " + (_selectedDate ? formatDateDisplay(_selectedDate) : "null"));
-        // console.log("-- begin date: " + (_beginDate ? formatDateDisplay(_beginDate) : "null"));
-        // console.log("-- end date: " + (_endDate ? formatDateDisplay(_endDate) : "null"));
+        console.log("-- selected date: " + (_selectedDate ? formatDateDisplay(_selectedDate) : "null"));
+        console.log("-- begin date: " + (_beginDate ? formatDateDisplay(_beginDate) : "null"));
+        console.log("-- end date: " + (_endDate ? formatDateDisplay(_endDate) : "null"));
     }
 
     /** On blur, format second text input and set selected and end dates. */
     const _onBlurEndInput = () => {
-        // console.log("formatting end input: " + _endInput);
+        console.log("formatting end input: " + _endInput);
 
         if (_endInput !== '') {
             const date = _parseStringToDate(_endInput);
@@ -137,18 +136,18 @@ function InputTest() {
             _setEndDate(null);
         }
         // Deal with new selected, begin, and end values.
-        // console.log("-- selected date: " + (_selectedDate ? formatDateDisplay(_selectedDate) : "null"));
-        // console.log("-- begin date: " + (_beginDate ? formatDateDisplay(_beginDate) : "null"));
-        // console.log("-- end date: " + (_endDate ? formatDateDisplay(_endDate) : "null"));
+        console.log("-- selected date: " + (_selectedDate ? formatDateDisplay(_selectedDate) : "null"));
+        console.log("-- begin date: " + (_beginDate ? formatDateDisplay(_beginDate) : "null"));
+        console.log("-- end date: " + (_endDate ? formatDateDisplay(_endDate) : "null"));
     }
 
     /** Close the calendar if clicked off. */
     const _handleNonCalendarClick = () => {
         console.log("Handling non calendar click");
 
-        // console.log("-- selected date: " + (_selectedDate ? formatDateDisplay(_selectedDate) : "null"));
-        // console.log("-- begin date: " + (_beginDate ? formatDateDisplay(_beginDate) : "null"));
-        // console.log("-- end date: " + (_endDate ? formatDateDisplay(_endDate) : "null"));
+        console.log("-- selected date: " + (_selectedDate ? formatDateDisplay(_selectedDate) : "null"));
+        console.log("-- begin date: " + (_beginDate ? formatDateDisplay(_beginDate) : "null"));
+        console.log("-- end date: " + (_endDate ? formatDateDisplay(_endDate) : "null"));
 
         // Deal with selected, begin, and end values.
 
@@ -167,7 +166,7 @@ function InputTest() {
     const _onBlurAll = () => {
         // as blur event fires prior to new focus events, need to wait to see if a child has been focused.
         timer.current = setTimeout(() => {
-            // console.log("dealing with all blur event");
+            console.log("dealing with all blur event");
             _handleNonCalendarClick();
         }, 700);
 
@@ -176,7 +175,7 @@ function InputTest() {
 
     /** If a child receives focus, do not close the calendar. */
     const _onFocusHandler = () => {
-        // console.log("received focus from child.");
+        console.log("received focus from child.");
         if (timer.current) {
             clearTimeout(timer.current);
         }
@@ -191,25 +190,42 @@ function InputTest() {
             }
         }
     }
-
-    /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
+    /** Report date change in calendar. */
     const _handleDateSelectionFromCalendar = (data: DateData) => {
         // TODO: make sure startAt dates are being reset in Calendar
 
-        console.log("received date from calendar.");
+        console.log("received date change from calendar.");
+
+        // _setSelectedDate(data.selectedDate);
+        // _setBeginDate(data.beginDate);
+        // _setEndDate(data.endDate);
+
+        // console.log(data);
+        console.log("-- selected date: " + (data.selectedDate));
+        console.log("-- begin date: " + (data.beginDate));
+        console.log("-- end date: " + (data.endDate));
+
+        // if (_closeAfterSelection && _canCloseCalendar) {
+        //     _setOpen(false);
+        // }
+    }
+    /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
+    const _handleFinalDateSelectionFromCalendar = (data: DateData) => {
+        console.log("received final date change from calendar.");
 
         _setSelectedDate(data.selectedDate);
         _setBeginDate(data.beginDate);
         _setEndDate(data.endDate);
 
-        console.log(data);
-        // console.log("-- selected date: " + (data.selectedDate));
-        // console.log("-- begin date: " + (data.beginDate));
-        // console.log("-- end date: " + (data.endDate));
+        // console.log(data);
+        console.log("-- selected date: " + (data.selectedDate));
+        console.log("-- begin date: " + (data.beginDate));
+        console.log("-- end date: " + (data.endDate));
 
-        if (_closeAfterSelection && _canCloseCalendar) {
-            _setOpen(false);
-        }
+        // if (_closeAfterSelection && _canCloseCalendar) {
+        console.log("=================setting set open to false");
+        _setOpen(false);
+        // }
     }
 
     return (
@@ -258,8 +274,8 @@ function InputTest() {
             <Datepicker
                 selectedDate={_selectedDate}
 
-                onDateChange={(d) => _handleDateSelectionFromCalendar(d)}
-
+                onFinalDateChange={_handleFinalDateSelectionFromCalendar}
+                onDateChange={_handleDateSelectionFromCalendar}
                 rangeMode={_rangeMode}
                 beginDate={_beginDate}
                 endDate={_endDate}

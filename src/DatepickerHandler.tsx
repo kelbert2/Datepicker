@@ -13,6 +13,7 @@ function DatepickerHandler({ id }: { id: string }) {
     const {
         selectedDate,
 
+        onFinalDateChange,
         onDateChange,
         onCalendarDateChange,
 
@@ -47,6 +48,11 @@ function DatepickerHandler({ id }: { id: string }) {
 
     /** Update Calendar open status if allowances change. */
     useEffect(() => {
+        console.log("open/close toggle in handler");
+        console.log(" -- disable: " + disable);
+        console.log(" -- disable Calendar: " + disableCalendar);
+        console.log(" -- set calendar open: " + setCalendarOpen);
+        console.log(" -- can close: " + canCloseCalendar);
         if ((disable || disableCalendar || !setCalendarOpen) && canCloseCalendar) {
             _setCalendarDisplay('close');
         } else if (_calendarDisplay !== 'close' || setCalendarOpen) {
@@ -226,16 +232,19 @@ function DatepickerHandler({ id }: { id: string }) {
         }
     }, [dateFilter(stagnantDate), beginDate, dispatch, endDate, rangeMode, selectedDate, onDateChange]);
 
-    /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
+    /** Report date change in calendar. */
     const _handleDateSelectionFromCalendar = (data: DateData) => {
-        // dispatch({
-        //     type: 'set-start-at',
-        //     payload: selectedDate
-        // });
-        console.log("No input calendar said to close");
-
         console.log("Handling date selection from calendar");
-        console.log(data);
+
+        onCalendarDateChange(data);
+        onDateChange(data);
+    }
+    /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
+    const _handleFinalDateSelectionFromCalendar = (data: DateData) => {
+        console.log("final date change from calendar");
+
+        onFinalDateChange(data);
+        // console.log(data);
         if (closeAfterSelection && canCloseCalendar) {
             _setCalendarDisplay('close');
         }
@@ -276,7 +285,7 @@ function DatepickerHandler({ id }: { id: string }) {
                 _calendarDisplay !== 'close' ?
                     <Calendar
                         onDateSelection={_handleDateSelectionFromCalendar}
-                        onFinalDateSelection={_handleDateSelectionFromCalendar}
+                        onFinalDateSelection={_handleFinalDateSelectionFromCalendar}
                         classNames={_setCalendarClass()}
                         disableCalendar={disable}
                     ></Calendar>

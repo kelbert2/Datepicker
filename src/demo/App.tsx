@@ -1,11 +1,13 @@
 import React from 'react';
 import './App.css';
 import Display from './Display';
+import InputTest from './InputTest';
 
 function App() {
     return (
         <div role="main">
-            <Display></Display>
+            {/* <Display></Display> */}
+            <InputTest></InputTest>
         </div>
     );
 }

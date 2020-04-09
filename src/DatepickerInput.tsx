@@ -169,7 +169,7 @@ function DatepickerInput({
     // This also causes too many re-renders when rendered in jest, but not in the usual DOM. TODO: Figure out why this works in one instance but not in test.
     // Causes too many renders when format functions are not supplied, as the Object.is comparator doesn't work on functions
     // Because of course you can't compare two functions unless you add inputs and see if the outputs differ, duh.
-    // React uses Object.js to compare in order to determine when to re-render
+    // React uses Object.is to compare in order to determine when to re-render
 
     useEffect(() => {
         dispatch({
@@ -287,7 +287,6 @@ function DatepickerInput({
     }, [dateFilterTestInputs, dateFilter]);
 
     const prevDateFilterResults = useRef(testDateFilter());
-
     const differenceInDateFilter = () => {
         for (let i = 0; i < dateFilterTestInputs.length; i++) {
             if (dateFilter(dateFilterTestInputs[i]) !== prevDateFilterResults.current[i]) {
@@ -298,7 +297,6 @@ function DatepickerInput({
     }
 
     const prevCompareDateFilter = useRef(differenceInDateFilter());
-
     useEffect(() => {
         // console.log("got new datefilter");
         const compare = differenceInDateFilter();
@@ -400,6 +398,12 @@ function DatepickerInput({
             payload: closeAfterSelection
         });
     }, [closeAfterSelection]);
+    useEffect(() => {
+        dispatch({
+            type: 'set-calendar-open',
+            payload: setCalendarOpen
+        });
+    }, [setCalendarOpen]);
 
     useEffect(() => {
         console.log("Noticed change in format month label");
@@ -533,10 +537,7 @@ function DatepickerInput({
     // const [counter, setCounter] = useState(0);
     const prevParseStringToDate = useRef(parseStringToDate(stagnantDateString));
     useEffect(() => {
-        // console.log("got date " + parseStringToDate(stagnantDateString));
-        // setCounter(c => c + 1);
-        // console.log(counter);
-        let parsedDate = parseStringToDate(stagnantDateString);
+        const parsedDate = parseStringToDate(stagnantDateString);
         if ((parsedDate != null)
             && (prevParseStringToDate.current == null
                 || compareDaysMonthsAndYears(prevParseStringToDate.current, parsedDate))) {

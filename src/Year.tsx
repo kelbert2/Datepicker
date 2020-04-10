@@ -113,9 +113,6 @@ function Year({
         const { keyCode } = event;
         // const isRtl = isRtl();
         const isRtl = false;
-
-        // TODO: Prevent navigation to unselectable disabled dates
-
         switch (keyCode) {
             // case 13: {// Enter
             // }

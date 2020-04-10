@@ -539,9 +539,6 @@ export function DatepickerInputContextProvider({ children, props }: { children: 
 
 export function DatepickerContextProvider({ children, props }: { children: any, props?: IDatepickerProps }) {
     // TODO: check if should use memo here
-    // console.log("see beginDate in props: " + props?.beginDate?.getDate());
-    // console.log("see endDate in props: " + props?.endDate?.getDate())
-
     let [state, dispatch] = React.useReducer(datepickerReducer, { ...datepickerContextDefault, ...props });
     return (
         <DatepickerContext.Provider value={{ ...state, dispatch }} >{children}</DatepickerContext.Provider>
@@ -552,7 +549,7 @@ export function InputContextProvider({ children, props }: { children: any, props
     let [state, dispatch] = React.useReducer(inputReducer, inputContextDefault);
     return <InputContext.Provider value={{ ...state, dispatch, ...props }}></InputContext.Provider>
 }
-// TODO: Use these safer useContexts in component
+// TODO: Use these safer useContexts in all components
 export const useDatepickerInputContext = () => {
     const context = useContext(DatepickerInputContext);
     if (!context) {
@@ -577,8 +574,6 @@ export const useInputContext = () => {
 // export const DatepickerContextConsumer = DatepickerContext.Consumer;
 
 // TODO: add custom className applied for dates like holidays
-// TODO: refactor all the popup/disable/inline etc. logic to some specific type to avoid any conflicting values
-
 /* 
  * @param id: id to be applied to the datepicker html element.
  */

@@ -444,7 +444,6 @@ function Datepicker({
         _applyTheme(theme);
     }, [_applyTheme, theme]);
 
-    // TODO: May refactor to have Calendar be called here
     return (
         <DatepickerContext.Provider value={{ ...state, dispatch }}>
             <DatepickerHandler

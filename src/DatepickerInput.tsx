@@ -165,8 +165,6 @@ function DatepickerInput({
 
     let [inputState, inputDispatch] = React.useReducer(inputReducer, inputProps);
 
-    // The below works, but would have to do for all input props, which doesn't feel ideal.
-    // This also causes too many re-renders when rendered in jest, but not in the usual DOM. TODO: Figure out why this works in one instance but not in test.
     // Causes too many renders when format functions are not supplied, as the Object.is comparator doesn't work on functions
     // Because of course you can't compare two functions unless you add inputs and see if the outputs differ, duh.
     // React uses Object.is to compare in order to determine when to re-render
@@ -180,10 +178,6 @@ function DatepickerInput({
 
     // as use effects, all of these are emitting on object mount
 
-
-    // Currently cannot change onFinalDateChange or any on value after pass them into the datepicker
-    // TODO: Figure out why it is having lifecycle rendering issues
-    // any changes you make here will need to be duplicated in other "on" functions
     // const onFinalDateChangeWrapper = useCallback((dateData: DateData) => {
     //     return onFinalDateChange(dateData);
     // }, [onFinalDateChange]);
@@ -604,7 +598,6 @@ function DatepickerInput({
     //     _applyTheme();
     // }, [_applyTheme]);
 
-    // TODO: reference by ID so can keep it just to this specific datepicker
     const _applyTheme = useCallback((theme: DatepickerThemeStrings) => {
         // const root = document.getElementsByTagName('html')[0];
         const element = document.getElementById(id);
@@ -664,7 +657,6 @@ function DatepickerInput({
     //     return array;
     // }
 
-    // TODO: May refactor to have Calendar be called here
     return (
         <DatepickerContext.Provider value={{ ...state, dispatch }}>
             <InputContext.Provider value={{ ...inputState, dispatch: inputDispatch }}>

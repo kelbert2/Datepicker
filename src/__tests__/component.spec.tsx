@@ -156,8 +156,7 @@ describe("Selected begin and end dates", () => {
         });
     });
 
-    // TODO: Currently it recognizes being at the end of a hover range, being selected and active, but not being at the end of the selected range - may be a timing issue?
-    test("Selecting a date that is before the selected begin and end dates sets a new begin date", () => {
+  test("Selecting a date that is before the selected begin and end dates sets a new begin date", () => {
         expect.assertions(5);
 
         let _beginDate = new Date();

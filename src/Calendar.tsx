@@ -273,9 +273,6 @@ export function Calendar(
     const _dateSelection = (data: DateData) => {
         console.log("received date selection in calendar");
         onDateSelection(data);
-        // TODO: see if should move these one level up:
-        // onDateChange(data);
-        // onCalendarDateChange(data);
     }
     const _finalDateSelection = (data: DateData) => {
         console.log("received final date selection in calendar");

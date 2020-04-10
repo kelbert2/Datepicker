@@ -345,7 +345,7 @@ export function CalendarBody(
                     >
                         {_firstRowOffset >= labelMinRequiredCells ? labelText : null}
                     </td>
-                ); // TODO: Check that : null didn't break anything (formerly '')
+                );
             }
             for (let colIndex = 0; colIndex < numCols; colIndex++) {
                 const item = rows[rowIndex][colIndex];

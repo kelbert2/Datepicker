@@ -9,6 +9,9 @@ const CALENDAR_CLASS_INLINE = 'inline';
 const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 
+// TODO: add height animation to popup
+// TODO: Fix no selected enddate after double-selecting begin date with native input datepicker
+
 function DatepickerHandler({ id }: { id: string }) {
     const {
         selectedDate,

@@ -60,6 +60,18 @@
     left: 0;
 }
 
+@keyframes growHeight {
+    from {
+        max-height: 0;
+        opacity: 0;
+    }
+
+    to {
+        max-height: 100%;
+        opacity: 1;
+    }
+}
+
 .calendar {
     /* max-height: 354px; */
 
@@ -70,7 +82,10 @@
     background: var(--background);
 
     overflow: hidden;
+    animation: growHeight 1s;
 }
+
+
 
 .calendar.disabled {
     background: var(--disabled);

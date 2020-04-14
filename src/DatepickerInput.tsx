@@ -82,7 +82,7 @@ function DatepickerInput({
     parseStringToDate = (input: string) => parseStringAsDate(input),
     displayDateAsString = (date: Date) => formatDateDisplay(date),
 
-    theme = DEFAULT_THEME_STRINGS,
+    theme = undefined,
     id = simpleUID("calendar-datepicker-")
 }: IDatepickerProps & IInputProps) {
 
@@ -259,6 +259,7 @@ function DatepickerInput({
     }, [firstDayOfWeek]);
 
     useEffect(() => {
+        console.log("new mindate value: " + minDate?.getDate());
         dispatch({
             type: 'set-min-date',
             payload: minDate
@@ -375,8 +376,9 @@ function DatepickerInput({
         });
     }, [disableInput]);
     useEffect(() => {
+        console.log("new calendar open display: " + calendarOpenDisplay)
         dispatch({
-            type: 'set-calendar-display',
+            type: 'set-calendar-open-display',
             payload: calendarOpenDisplay
         });
     }, [calendarOpenDisplay]);
@@ -400,7 +402,7 @@ function DatepickerInput({
     }, [setCalendarOpen]);
 
     useEffect(() => {
-        console.log("Noticed change in format month label");
+        // console.log("Noticed change in format month label");
         dispatch({
             type: 'set-format-month-label',
             payload: formatMonthLabel
@@ -535,7 +537,7 @@ function DatepickerInput({
         if ((parsedDate != null)
             && (prevParseStringToDate.current == null
                 || compareDaysMonthsAndYears(prevParseStringToDate.current, parsedDate))) {
-            console.log("different");
+            // console.log("different");
             inputDispatch({
                 type: 'set-parse-string-to-date',
                 payload: parseStringToDate
@@ -598,10 +600,12 @@ function DatepickerInput({
     //     _applyTheme();
     // }, [_applyTheme]);
 
-    const _applyTheme = useCallback((theme: DatepickerThemeStrings) => {
+    const _applyTheme = useCallback((theme?: DatepickerThemeStrings) => {
         // const root = document.getElementsByTagName('html')[0];
-        const element = document.getElementById(id);
-        if (element) element.style.cssText = makeDatepickerThemeArrayFromStrings(resetTheme(theme)).join(';');
+        if (theme != null) {
+            const element = document.getElementById(id);
+            if (element) element.style.cssText = makeDatepickerThemeArrayFromStrings(resetTheme(theme)).join(';');
+        }
     }, [id, theme]);
 
     /** When style inputs change, update css. */

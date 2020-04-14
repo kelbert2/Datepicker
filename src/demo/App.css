@@ -24,7 +24,6 @@ html {
 /*  TODO: Make another surrounding class to increase specificity and ensure styling in here will override any in Datepicker.css. */
 .datepicker .calendar.inline {
   display: block;
-
   margin: .5em auto;
 }
 
@@ -307,7 +306,7 @@ html {
 .radio input:checked+label::after {
   position: absolute;
   left: .7em;
-  bottom: .4em;
+  top: .4em;
 
   height: .375em;
   width: .375em;
@@ -393,7 +392,9 @@ html {
   margin: .5em;
   padding: 1.25em .75em .5em;
 
-  width: calc(50% - 2.5em);
+  min-width: 12em;
+  width: 50%;
+  max-width: 20em;
 
   border-radius: .25em;
   background: var(--neutral-light);
@@ -408,7 +409,6 @@ html {
   transition: all .3s;
 }
 
-
 .test>div,
 .test {
   padding: .5em;
@@ -422,6 +422,16 @@ html {
 
 .test>div {
   padding: .5em 1em;
+  /* display: flex;
+  flex-direction: column;
+  justify-content: space-around; */
+}
+
+.label-list {
+  display: flex;
+  /* width: 100%; */
+  flex-direction: column;
+  justify-content: space-around;
 }
 
 .test>div>div {
@@ -432,4 +442,50 @@ html {
   list-style-type: none;
   margin: 0;
   padding: 0;
+}
+
+
+@media (min-width: 1000px) {
+
+  .test {
+    box-sizing: border-box;
+    width: calc(100% - 2.5em);
+    display: grid;
+    /* grid-template-columns: 31% 31% 31%; */
+    /* gap: 0 1.5%; */
+    /* grid-template-rows: auto; */
+    grid-template-areas:
+      "pickers pickers selections"
+      "filters views displays"
+      "labels labels labels";
+
+    justify-items: stretch;
+    align-items: stretch;
+
+    /* justify-content: center; */
+  }
+
+  .pickers {
+    grid-area: pickers;
+  }
+
+  .selections {
+    grid-area: selections;
+  }
+
+  .filters {
+    grid-area: filters;
+  }
+
+  .views {
+    grid-area: views;
+  }
+
+  .displays {
+    grid-area: displays;
+  }
+
+  .labels {
+    grid-area: labels;
+  }
 }

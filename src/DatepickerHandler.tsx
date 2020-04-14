@@ -10,7 +10,7 @@ const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 
 // TODO: Fix no selected enddate after double-selecting begin date with native input datepicker
-
+// TODO: DatepickerHandler smoothly renders CalendarBody such that the entire calendar opens in 1s. Input opens only the header in 1s and then the CalendarBody pops into existence.
 function DatepickerHandler({ id }: { id: string }) {
     const {
         selectedDate,
@@ -50,11 +50,11 @@ function DatepickerHandler({ id }: { id: string }) {
 
     /** Update Calendar open status if allowances change. */
     useEffect(() => {
-        console.log("open/close toggle in handler");
-        console.log(" -- disable: " + disable);
-        console.log(" -- disable Calendar: " + disableCalendar);
-        console.log(" -- set calendar open: " + setCalendarOpen);
-        console.log(" -- can close: " + canCloseCalendar);
+        // console.log("open/close toggle in handler");
+        // console.log(" -- disable: " + disable);
+        // console.log(" -- disable Calendar: " + disableCalendar);
+        // console.log(" -- set calendar open: " + setCalendarOpen);
+        // console.log(" -- can close: " + canCloseCalendar);
         if ((disable || disableCalendar || !setCalendarOpen) && canCloseCalendar) {
             _setCalendarDisplay('close');
         } else if (_calendarDisplay !== 'close' || setCalendarOpen) {
@@ -96,7 +96,7 @@ function DatepickerHandler({ id }: { id: string }) {
             }
             _prevRangeMode.current = rangeMode;
 
-            console.log("rangemode changed!");
+            // console.log("rangemode changed!");
             // onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
             // onDateChange({ selectedDate, beginDate, endDate });
             onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
@@ -140,7 +140,7 @@ function DatepickerHandler({ id }: { id: string }) {
                     }
                 }
                 if (select || begin || end) {
-                    console.log("mindate change!");
+                    // console.log("mindate change!");
                     onDateChange({ selectedDate: select || selectedDate, beginDate: begin || beginDate, endDate: end || endDate });
                 }
             }
@@ -184,7 +184,7 @@ function DatepickerHandler({ id }: { id: string }) {
                     }
                 }
                 if (select || begin || end) {
-                    console.log("maxdate change!");
+                    // console.log("maxdate change!");
                     onDateChange({ selectedDate: select || selectedDate, beginDate: begin || beginDate, endDate: end || endDate });
                 }
             }
@@ -228,7 +228,7 @@ function DatepickerHandler({ id }: { id: string }) {
             _prevDateFilter.current = dateFilter;
 
             if (!selectedDate || !begin || !end) {
-                console.log("datefilter change!");
+                // console.log("datefilter change!");
                 onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
             }
         }
@@ -236,14 +236,14 @@ function DatepickerHandler({ id }: { id: string }) {
 
     /** Report date change in calendar. */
     const _handleDateSelectionFromCalendar = (data: DateData) => {
-        console.log("Handling date selection from calendar");
+        // console.log("Handling date selection from calendar");
 
         onCalendarDateChange(data);
         onDateChange(data);
     }
     /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
     const _handleFinalDateSelectionFromCalendar = (data: DateData) => {
-        console.log("final date change from calendar");
+        // console.log("final date change from calendar");
 
         onFinalDateChange(data);
         // console.log(data);
@@ -254,7 +254,7 @@ function DatepickerHandler({ id }: { id: string }) {
 
     /** Close the calendar if clicked off. */
     const _handleNonCalendarClick = () => {
-        console.log("Handling click from no input");
+        // console.log("Handling click from no input");
 
         //   onInputDateChange({ selectedDate: selectedDate, beginDate, endDate });
         onDateChange({ selectedDate: selectedDate, beginDate, endDate });

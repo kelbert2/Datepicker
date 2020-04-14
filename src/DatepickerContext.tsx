@@ -145,7 +145,7 @@ export interface IDatepickerContext {
     switchToYearViewLabel: string,
     switchToMultiyearViewLabel: string,
 
-    theme: DatepickerThemeStrings,
+    theme: DatepickerThemeStrings | undefined,
 
     dispatch: React.Dispatch<IAction>,
 }
@@ -234,7 +234,7 @@ export const datepickerContextDefault = {
     switchToYearViewLabel: 'Switch to year view',
     switchToMultiyearViewLabel: 'Switch to multi-year view',
 
-    theme: DEFAULT_THEME_STRINGS,
+    theme: undefined,
 } as IDatepickerContext;
 
 // TODO: add onCalendarDateChange, disableCalendar
@@ -320,7 +320,7 @@ export const datepickerInputReducer = (state: IDatepickerContext & IInputContext
             return { ...state, disableCalendar: action.payload };
         case "set-disable-input":
             return { ...state, disableInput: action.payload };
-        case "set-calendar-display":
+        case "set-calendar-open-display":
             return { ...state, calendarOpenDisplay: action.payload };
         case "set-can-close-calendar":
             return { ...state, canCloseCalendar: action.payload };
@@ -393,6 +393,7 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
             return { ...datepickerContextDefault, dispatch: state.dispatch };
 
         case "set-dates":
+            console.log("setting new dates");
             return { ...state, selectedDate: action.payload.selectedDate, beginDate: action.payload.beginDate, endDate: action.payload.endDate };
         case "set-selected-date":
             return { ...state, selectedDate: action.payload };
@@ -720,7 +721,7 @@ export const DatepickerPropsDefault: IDatepickerProps = {
     switchToYearViewLabel: 'Switch to year view',
     switchToMultiyearViewLabel: 'Switch to multi-year view',
 
-    theme: DEFAULT_THEME_STRINGS,
+    theme: undefined,
     id: simpleUID("calendar-datepicker-")
 }
 

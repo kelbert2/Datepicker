@@ -70,7 +70,7 @@ function Datepicker({
     switchToYearViewLabel = 'Switch to year view',
     switchToMultiyearViewLabel = 'Switch to multi-year view',
 
-    theme = DEFAULT_THEME_STRINGS,
+    theme = undefined,
     id = simpleUID("calendar-datepicker-")
 }: IDatepickerProps) {
 
@@ -434,10 +434,12 @@ function Datepicker({
     // });
     // }, [theme]);
 
-    const _applyTheme = useCallback((theme: DatepickerThemeStrings) => {
+    const _applyTheme = useCallback((theme?: DatepickerThemeStrings) => {
         // const root = document.getElementsByTagName('html')[0];
-        const element = document.getElementById(id);
-        if (element) element.style.cssText = makeDatepickerThemeArrayFromStrings(resetTheme(theme)).join(';');
+        if (theme != null) {
+            const element = document.getElementById(id);
+            if (element) element.style.cssText = makeDatepickerThemeArrayFromStrings(resetTheme(theme)).join(';');
+        }
     }, [id, theme]);
 
     useLayoutEffect(() => {

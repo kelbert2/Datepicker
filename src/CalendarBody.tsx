@@ -197,7 +197,8 @@ export function CalendarBody(
     }, [handleUserKeyPress]);
 
     /** Listen for keypress events across the entire calendar body. */
-    useEffect(() => {
+    useLayoutEffect(() => {
+        // TODO: Check if adding event listeners should be in layouteffect or just effect
         window.addEventListener('keydown', _handleUserKeyPress);
         return () => {
             window.removeEventListener('keydown', _handleUserKeyPress);
@@ -258,6 +259,7 @@ export function CalendarBody(
             }
             if (endDate && compare(endDate, cell.value) === 0) {
                 // if is the endDate
+                console.log("Found enddate cell in CalendarBody styling for: " + cell.value.getDate());
                 styles.push(endRangeClass);
 
                 if (!beginDate || compare(beginDate, endDate) === 0) {

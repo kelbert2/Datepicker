@@ -10,55 +10,9 @@ const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 const INPUT_CLASS_FILLED = 'filled';
 // TODO: blurring or keydowning enter while in end input isn't taking a date
 // TODO: Deleting enddate isn't firing an update event
-export const tealThemeArray = [
-    "--color: #1de9b6",
-    "--color-light: #a7ffeb",
-    "--on-color: black",
-    "--on-color-light: black",
-
-    "--background: lightgray",
-    "--neutral-light: rgba(0, 0, 0, .1)",
-    "--neutral: rgba(0, 0, 0, .4)",
-    "--neutral-dark: rgba(0, 0, 0, .5)",
-    "--on-background: #004d40",
-
-    "--on-neutral-light: black",
-    "--on-neutral: white",
-    "--on-neutral-dark: white",
-
-    "--th: var(--background)",
-    "--on-th: #004d40",
-
-    "--divider: var(--neutral-light)",
-    "--label-text: var(--neutral-dark)",
-
-    "--button-background: #a7ffeb",
-    "--on-button: var(--neutral-dark)",
-    "--button-border: none",
-
-    "--hover: rgba(128, 203, 196, .4)",
-    "--on-hover: white",
-
-    "--today: rgb(128,203,196)",
-
-    "--disabled: transparent",
-    "--on-disabled: var(--neutral)"
-]
-
-export const blueThemeObject = {
-    "--color": "blue",
-    "--color-light": "lightblue",
-    "--on-color": "rgb(0,150,250)",
-    "--on-color-light": "blue",
-
-    "--background": "blue",
-    "--neutral-light": "blue",
-    "--neutral": "blue",
-    "--neutral-dark": "blue",
-    "--on-background": "rgb(0,150,250)"
-}
 
 // TODO: When input is deleted, set dates as null
+// TODO: Check if can add spaces to input names - doesn't seem to be registering
 function Input({ id }: { id: string }) {
     const {
         selectedDate,
@@ -105,6 +59,10 @@ function Input({ id }: { id: string }) {
     const [_endInput, _setEndInput] = useState('' as string);
     /** Timer to avoid on focus respose not running because seen after on blur. */
     const timer = useRef(null as NodeJS.Timeout | null);
+
+    /** Timer to avoid on focus respose not running because seen after on blur. */
+    const wrapperTimer = useRef(null as NodeJS.Timeout | null);
+
     /** Previous rangeMode value. */
     const _prevRangeMode = useRef(rangeMode);
     // const [prevRangeMode, _setPrevRangeMode] = useState(rangeMode);
@@ -115,11 +73,22 @@ function Input({ id }: { id: string }) {
     /** Previous dateFilter function. */
     const _prevDateFilter = useRef(dateFilter);
 
-    /** Update Calendar open status if allowances change. */
+    const [_focusOnCalendar, _setFocusOnCalendar] = useState(false);
+    const [_focusOnInput, _setFocusOnInput] = useState(false);
+
     useEffect(() => {
+        console.log("New cal open display seen in context: " + calendarOpenDisplay);
+    }, [calendarOpenDisplay]);
+
+    /** Update Calendar open status if allowances change. */
+    // TODO: Think harder about this. May want to keep a prev can close calendar value so will automatically open if it cannot be closed
+    useEffect(() => {
+        console.log("open status allowances changed");
         if ((disable || disableCalendar) && canCloseCalendar) {
+            // If calendar is disabled and can close it, close it.
             _setCalendarDisplay('close');
         } else if (_calendarDisplay !== 'close' || setCalendarOpen) {
+            // if calendar isn't disabled or you you can't close it
             _setCalendarDisplay(calendarOpenDisplay);
         }
     }, [_calendarDisplay, calendarOpenDisplay, canCloseCalendar, disable, disableCalendar, setCalendarOpen]);
@@ -174,6 +143,7 @@ function Input({ id }: { id: string }) {
             // onDateChange({ selectedDate, beginDate, endDate });          onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
             onInputDateChange({ selectedDate: select, beginDate: begin, endDate: end });
             onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+            onFinalDateChange({ selectedDate: select, beginDate: begin, endDate: end });
         }
     }, [rangeMode, beginDate, dispatch, endDate, onDateChange, onInputDateChange, selectedDate]);
     //TODO: move these or get it to update input quicker
@@ -214,6 +184,7 @@ function Input({ id }: { id: string }) {
             }
             if (select || begin || end) {
                 onDateChange({ selectedDate: select || selectedDate, beginDate: begin || beginDate, endDate: end || endDate });
+                onFinalDateChange({ selectedDate: select || selectedDate, beginDate: begin || beginDate, endDate: end || endDate });
             }
             _prevMinDate.current = minDate;
         }
@@ -245,11 +216,13 @@ function Input({ id }: { id: string }) {
                 }
                 onInputDateChange({ selectedDate, beginDate, endDate });
                 onDateChange({ selectedDate, beginDate, endDate });
+                onFinalDateChange({ selectedDate, beginDate, endDate });
             }
             _prevMaxDate.current = maxDate;
         }
     }, [maxDate, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
     /** On date filter change, check if any values are invalid. */
+    // TODO : update with new date filter checking
     useEffect(() => {
         if (dateFilter != null && dateFilter(stagnantDate) !== _prevDateFilter.current(stagnantDate)) {
             let select = selectedDate as Date | null, begin = beginDate as Date | null, end = endDate as Date | null;
@@ -287,6 +260,7 @@ function Input({ id }: { id: string }) {
 
             if (!selectedDate || !begin || !end) {
                 onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+                onFinalDateChange({ selectedDate: select, beginDate: begin, endDate: end });
             }
         }
     }, [dateFilter, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
@@ -297,15 +271,23 @@ function Input({ id }: { id: string }) {
             _setBeginInput(selectedDate ? displayDateAsString(selectedDate) : '');
         }
     }, [selectedDate, rangeMode, displayDateAsString]);
+
+    useEffect(() => {
+        console.log("Saw begindate change!: " + beginDate?.getDate());
+    }, [beginDate]);
+
     /** Update first text input display with begin date changes. */
+    // TODO: Should this have displayDateAsString(stagnantDate) instead?
     useLayoutEffect(() => {
         if (rangeMode) {
+            console.log("Setting begin input with: " + beginDate?.getDate());
             _setBeginInput(beginDate ? displayDateAsString(beginDate) : '');
         }
     }, [beginDate, rangeMode, displayDateAsString]);
     /** Update second text input display with end date changes. */
     useLayoutEffect(() => {
         if (rangeMode) {
+            console.log("Setting end input with: " + endDate?.getDate());
             _setEndInput(endDate ? displayDateAsString(endDate) : '');
         }
     }, [endDate, rangeMode, displayDateAsString]);
@@ -321,6 +303,9 @@ function Input({ id }: { id: string }) {
 
     /** On blur, format first text input and set selected and begin dates. */
     const _onBlurBeginInput = () => {
+        console.log("blurring begin input");
+        // if (!_focusOnCalendar) {
+        let select = selectedDate as Date | null, begin = beginDate as Date | null, end = endDate as Date | null;
         if (_beginInput !== '') {
             const date = parseStringToDate(_beginInput);
             if (date != null) {
@@ -329,6 +314,7 @@ function Input({ id }: { id: string }) {
                         type: 'set-selected-date',
                         payload: date
                     });
+                    select = date;
                 }
                 // if (activeDate == null || compareDaysMonthsAndYears(activeDate, date) !== 0) {
                 //     dispatch({
@@ -349,11 +335,14 @@ function Input({ id }: { id: string }) {
                             type: 'set-end-date',
                             payload: date
                         });
+                        begin = prevEndDate;
+                        end = date;
                     } else if (beginDate == null || compareDaysMonthsAndYears(beginDate, date) !== 0) {
                         dispatch({
                             type: 'set-begin-date',
                             payload: date
                         });
+                        begin = date;
                     }
                 }
             } else {
@@ -368,18 +357,29 @@ function Input({ id }: { id: string }) {
                 type: 'set-selected-date',
                 payload: null
             });
+            select = null;
             if (rangeMode) {
                 dispatch({
                     type: 'set-begin-date',
                     payload: null
                 });
+                begin = null;
             }
         }
-        onInputDateChange({ selectedDate, beginDate, endDate });
-        onDateChange({ selectedDate, beginDate, endDate });
+        onInputDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+        onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+        onFinalDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+
+        // _setCalendarDisplay('close');
+        // }
     }
     /** On blur, format second text input and set selected and end dates. */
     const _onBlurEndInput = () => {
+
+        // if (!_focusOnCalendar) {
+
+
+        let select = selectedDate as Date | null, begin = beginDate as Date | null, end = endDate as Date | null;
         if (_endInput !== '') {
             const date = parseStringToDate(_endInput);
             console.log("parsed date: ");
@@ -391,6 +391,7 @@ function Input({ id }: { id: string }) {
                         type: 'set-selected-date',
                         payload: date
                     });
+                    select = date;
                 }
                 // if (activeDate == null || compareDaysMonthsAndYears(activeDate, date) !== 0) {
                 //     dispatch({
@@ -412,12 +413,16 @@ function Input({ id }: { id: string }) {
                             type: 'set-end-date',
                             payload: prevBeginDate
                         });
+
+                        begin = date;
+                        end = prevBeginDate;
                     } else if (endDate == null || compareDaysMonthsAndYears(endDate, date) !== 0) {
                         // Else the input date is after existing begindate, or there is no beginDate, input becomes the new endDate
                         dispatch({
                             type: 'set-end-date',
                             payload: date
                         });
+                        end = date;
                     }
                 }
             } else {
@@ -427,25 +432,43 @@ function Input({ id }: { id: string }) {
                     : selectedDate ? displayDateAsString(selectedDate) : '');
             }
         } else {
-            // No Input was entered
+            // No input was entered
             dispatch({
                 type: 'set-end-date',
                 payload: null
             });
+            end = null;
         }
-        onInputDateChange({ selectedDate, beginDate, endDate });
-        onDateChange({ selectedDate, beginDate, endDate });
+        onInputDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+        onDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+        onFinalDateChange({ selectedDate: select, beginDate: begin, endDate: end });
+
+        // _setCalendarDisplay('close');
+        // }
     }
     /** Close the calendar if clicked off. */
-    const _handleNonCalendarClick = () => {
+    const _toggleCalendarOpenClosed = () => {
+
+        // console.log("TOGGLE ====================================================================");
         onInputDateChange({ selectedDate, beginDate, endDate });
         onDateChange({ selectedDate, beginDate, endDate });
 
         if (_calendarDisplay === 'close') {
-            if (!disable && !disableCalendar) {
-                _setCalendarDisplay(calendarOpenDisplay);
-            }
-        } else if (canCloseCalendar) {
+            _openCalendar();
+        } else {
+            _closeCalendar();
+        }
+    }
+
+    const _openCalendar = () => {
+        if (!disable && !disableCalendar) {
+            // console.log("opening calendar");
+            _setCalendarDisplay(calendarOpenDisplay);
+        }
+    }
+    const _closeCalendar = () => {
+        if (canCloseCalendar) {
+            // console.log("closing calendar");
             _setCalendarDisplay('close');
         }
     }
@@ -454,7 +477,9 @@ function Input({ id }: { id: string }) {
     const _onBlurAll = () => {
         // as blur event fires prior to new focus events, need to wait to see if a child has been focused.
         timer.current = setTimeout(() => {
-            _handleNonCalendarClick();
+            // console.log("BLUR ALL");
+            // _handleNonCalendarClick();
+            _closeCalendar();
         }, 700);
 
         return () => timer.current ? clearTimeout(timer.current) : {};
@@ -467,12 +492,28 @@ function Input({ id }: { id: string }) {
         }
     }
 
+    // const _onBlurCalendarWrapper = () => {
+    //     wrapperTimer.current = setTimeout(() => {
+    //         // _handleNonCalendarClick();
+    //         // closeCalendar();
+    //         _setFocusOnCalendar(false);
+    //     }, 700);
+
+    //     return () => timer.current ? clearTimeout(timer.current) : {};
+    // }
+    // const _onFocusCalendarWrapper = () => {
+    //     if (wrapperTimer.current) {
+    //         clearTimeout(wrapperTimer.current);
+    //         _setFocusOnCalendar(true);
+    //     }
+    // }
+
     /** Handle keydown events when Fields div is in focus. */
     const _handleKeyDownOverFields = (event: React.KeyboardEvent<HTMLDivElement>) => {
         const { keyCode } = event;
         switch (keyCode) {
             case 13: { // Enter
-                _handleNonCalendarClick();
+                _closeCalendar();
             }
         }
     }
@@ -490,6 +531,7 @@ function Input({ id }: { id: string }) {
     /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
     const _handleFinalDateSelectionFromCalendar = (data: DateData) => {
         console.log("final date change from calendar");
+        console.log("enddate: " + data.endDate?.getDate());
 
         onFinalDateChange(data);
 
@@ -573,13 +615,10 @@ function Input({ id }: { id: string }) {
             className="datepicker"
             id={id}
         >
-            {/* <button
-                onClick={_applyTheme}
-            >Theme</button> */}
             <div
                 role="button"
                 tabIndex={0}
-                onClick={_handleNonCalendarClick}
+                onClick={_toggleCalendarOpenClosed}
                 onKeyDown={_handleKeyDownOverFields}
                 className="fields"
             >
@@ -606,20 +645,25 @@ function Input({ id }: { id: string }) {
                     <span></span>
                 </button>
             </div>
-            {
-                _calendarDisplay !== 'close' ?
-                    <Calendar
-                        onDateSelection={_handleDateSelectionFromCalendar}
-                        onFinalDateSelection={_handleFinalDateSelectionFromCalendar}
-                        classNames={_setCalendarClass()}
-                        disableCalendar={disable || disableCalendar}
-                    ></Calendar>
-                    : ''
-            }
+            <div className="calendar-wrapper"
+            // onBlur={_onBlurCalendarWrapper}
+            // onFocus={_onFocusCalendarWrapper}
+            >
+                {
+                    _calendarDisplay !== 'close' ?
+                        <Calendar
+                            onDateSelection={_handleDateSelectionFromCalendar}
+                            onFinalDateSelection={_handleFinalDateSelectionFromCalendar}
+                            classNames={_setCalendarClass()}
+                            disableCalendar={disable || disableCalendar}
+                        ></Calendar>
+                        : ''
+                }
+            </div>
             {
                 _calendarDisplay === 'popup-large' ?
                     <div role="presentation"
-                        onClick={_handleNonCalendarClick}
+                        onClick={_closeCalendar}
                         className="overlay"></div>
                     : ''
             }

@@ -5,9 +5,10 @@ import InputTest from './InputTest';
 
 function App() {
     return (
-        <div role="main">
-            {/* <Display></Display> */}
-            <InputTest></InputTest>
+        <div role="main" className="main">
+            <h1>Datepicker</h1>
+            {/* <InputTest></InputTest> */}
+            <Display></Display>
         </div>
     );
 }

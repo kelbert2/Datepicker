@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { DatepickerContext } from './DatepickerContext';
 import { DAYS_PER_WEEK, WEEKDAY_NAMES, getYear, getMonth, createDate, getDaysPerMonth, addCalendarYears, addCalendarMonths, addCalendarDays, getDayOfWeek, compareDates, getFirstDateOfMonthByDate, getDay, compareDaysMonthsAndYears } from './CalendarUtils';
 import CalendarBody, { ICalendarCell } from './CalendarBody';
@@ -85,7 +85,7 @@ function Month({
     }, [_createCellForDay, _firstWeekOffset, activeDate, firstDayOfWeek]);
 
     /** Runs setup on mount. */
-    useEffect(() => {
+    useLayoutEffect(() => {
         // constructor
         // dispatch({ type: 'set-active-date', payload: new Date() });
 
@@ -101,7 +101,7 @@ function Month({
     }, [_populateDays, firstDayOfWeek]);
 
     /** Repopulates on activeDate change. */
-    useEffect(() => {
+    useLayoutEffect(() => {
         _setMonthText(formatMonthText(activeDate));
 
         _populateDays();
@@ -197,7 +197,7 @@ function Month({
         event.preventDefault();
     }, [_dateSelected, activeDate, dateFilter, dispatch]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         window.addEventListener('keydown', _handleUserKeyPress);
         return () => {
             window.removeEventListener('keydown', _handleUserKeyPress);

@@ -82,10 +82,8 @@
     background: var(--background);
 
     overflow: hidden;
-    animation: growHeight 1s;
+    /* animation: growHeight 1s; */
 }
-
-
 
 .calendar.disabled {
     background: var(--disabled);

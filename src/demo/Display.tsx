@@ -433,10 +433,10 @@ function Display() {
     return (
         <div
             className="test">
-            <h1>Datepicker</h1>
+            <div className="pickers">
 
-            {/* Native Input ======================================================== */}
-            {/* <div
+                {/* Native Input ======================================================== */}
+                {/* <div
                 onBlur={() => _onBlurAll()}
                 onFocus={_onFocusHandler}
             >
@@ -537,78 +537,79 @@ function Display() {
                 ></Datepicker>
             </div> */}
 
-            {/* Integrated Datepicker =============================================== */}
-            {/* <DatepickerInput ></DatepickerInput> */}
-            <DatepickerInput
-                selectedDate={_selectedDate}
+                {/* Integrated Datepicker =============================================== */}
+                {/* <DatepickerInput ></DatepickerInput> */}
+                <DatepickerInput
+                    selectedDate={_selectedDate}
 
-                onFinalDateChange={_onFinalDateChange}
-                onDateChange={_onDateChange}
-                onCalendarDateChange={_onCalendarDateChange}
-                onInputDateChange={_onInputDateChange}
-                onDaySelected={_onDaySelected}
-                onMonthSelected={_onMonthSelected}
-                onYearSelected={_onYearSelected}
+                    onFinalDateChange={_onFinalDateChange}
+                    onDateChange={_onDateChange}
+                    onCalendarDateChange={_onCalendarDateChange}
+                    onInputDateChange={_onInputDateChange}
+                    onDaySelected={_onDaySelected}
+                    onMonthSelected={_onMonthSelected}
+                    onYearSelected={_onYearSelected}
 
-                startAt={_startAt}
-                startView={_startView}
-                firstDayOfWeek={_firstDayOfWeek}
+                    startAt={_startAt}
+                    startView={_startView}
+                    firstDayOfWeek={_firstDayOfWeek}
 
-                minDate={_minDate}
-                maxDate={_maxDate}
-                dateFilter={_dateFilter}
-                dateFilterTestInputs={[new Date(2020, 3, 14), new Date(2020, 3, 19)]}
+                    minDate={_minDate}
+                    maxDate={_maxDate}
+                    dateFilter={_dateFilter}
+                    dateFilterTestInputs={[new Date(2020, 3, 14), new Date(2020, 3, 19)]}
 
-                rangeMode={_rangeMode}
-                beginDate={_beginDate}
-                endDate={_endDate}
+                    rangeMode={_rangeMode}
+                    beginDate={_beginDate}
+                    endDate={_endDate}
 
-                disableMonth={_disableMonth}
-                disableYear={_disableYear}
-                disableMultiyear={_disableMultiyear}
+                    disableMonth={_disableMonth}
+                    disableYear={_disableYear}
+                    disableMultiyear={_disableMultiyear}
 
-                disable={_disable}
-                disableCalendar={_disableCalendar}
-                disableInput={_disableInput}
-                calendarOpenDisplay={_calendarOpenDisplay}
-                canCloseCalendar={_canCloseCalendar}
-                closeAfterSelection={_closeAfterSelection}
-                // setCalendarOpen={true}
+                    disable={_disable}
+                    disableCalendar={_disableCalendar}
+                    disableInput={_disableInput}
+                    calendarOpenDisplay={_calendarOpenDisplay}
+                    canCloseCalendar={_canCloseCalendar}
+                    closeAfterSelection={_closeAfterSelection}
+                    // setCalendarOpen={true}
 
-                formatMonthLabel={_formatMonthLabel}
-                formatMonthText={_formatMonthText}
+                    formatMonthLabel={_formatMonthLabel}
+                    formatMonthText={_formatMonthText}
 
-                formatYearLabel={_formatYearLabel}
-                formatYearText={_formatYearText}
+                    formatYearLabel={_formatYearLabel}
+                    formatYearText={_formatYearText}
 
-                formatMultiyearLabel={_formatMultiyearLabel}
-                formatMultiyearText={_formatMultiyearText}
+                    formatMultiyearLabel={_formatMultiyearLabel}
+                    formatMultiyearText={_formatMultiyearText}
 
-                calendarLabel={_calendarLabel}
-                openCalendarLabel={_openCalendarLabel}
+                    calendarLabel={_calendarLabel}
+                    openCalendarLabel={_openCalendarLabel}
 
-                nextMonthLabel={_nextMonthLabel}
-                nextYearLabel={_nextYearLabel}
-                nextMultiyearLabel={_nextMultiyearLabel}
+                    nextMonthLabel={_nextMonthLabel}
+                    nextYearLabel={_nextYearLabel}
+                    nextMultiyearLabel={_nextMultiyearLabel}
 
-                prevMonthLabel={_prevMonthLabel}
-                prevMultiyearLabel={_prevMultiyearLabel}
-                prevYearLabel={_prevYearLabel}
+                    prevMonthLabel={_prevMonthLabel}
+                    prevMultiyearLabel={_prevMultiyearLabel}
+                    prevYearLabel={_prevYearLabel}
 
-                switchToMonthViewLabel={_switchToMonthViewLabel}
-                switchToYearViewLabel={_switchToYearViewLabel}
-                switchToMultiyearViewLabel={_switchToMultiyearViewLabel}
+                    switchToMonthViewLabel={_switchToMonthViewLabel}
+                    switchToYearViewLabel={_switchToYearViewLabel}
+                    switchToMultiyearViewLabel={_switchToMultiyearViewLabel}
 
-                singleInputLabel={_singleInputLabel}
-                beginInputLabel={_beginInputLabel}
-                endInputLabel={_endInputLabel}
+                    singleInputLabel={_singleInputLabel}
+                    beginInputLabel={_beginInputLabel}
+                    endInputLabel={_endInputLabel}
 
-                parseStringToDate={_parseStringToDate}
-                displayDateAsString={_displayDateAsString}
+                    parseStringToDate={_parseStringToDate}
+                    displayDateAsString={_displayDateAsString}
 
-                theme={getTheme(_themeColor)}
-            ></DatepickerInput>
-            <div>
+                    theme={getTheme(_themeColor)}
+                ></DatepickerInput>
+            </div>
+            <div className="selections">
                 <div className="toggle" >
                     <input type="checkbox"
                         id="range-mode-checkbox"
@@ -621,9 +622,9 @@ function Display() {
                 <div>Begin date: {_beginDate ? formatDateDisplay(_beginDate) : 'none selected'}</div>
                 <div>End date: {_endDate ? formatDateDisplay(_endDate) : 'none selected'}</div>
             </div>
-            <div>
+            <div className="filters">
                 <div>Minimum date:
-                {/* <DatepickerInput
+                <DatepickerInput
                         selectedDate={_minDate}
 
                         onFinalDateChange={(d) => _setMinDate(d.selectedDate)}
@@ -640,7 +641,7 @@ function Display() {
 
                         minDate={null}
                         maxDate={_maxDate}
-                        dateFilter={_dateFilter}
+                        dateFilter={() => true}
 
                         rangeMode={false}
                         beginDate={null}
@@ -653,7 +654,7 @@ function Display() {
                         disable={_disable}
                         disableCalendar={_disableCalendar}
                         disableInput={_disableInput}
-                        calendarOpenDisplay={_calendarOpenDisplay}
+                        calendarOpenDisplay={'popup'}
                         canCloseCalendar={true}
                         closeAfterSelection={_closeAfterSelection}
 
@@ -688,24 +689,18 @@ function Display() {
                         parseStringToDate={_parseStringToDate}
                         displayDateAsString={_displayDateAsString}
 
-                        theme={getTheme(_themeColor)}
-                    ></DatepickerInput> */}
+                    // theme={getTheme(_themeColor)}
+                    ></DatepickerInput>
                 </div>
+
                 <div>Maximum date:
-                    {/* <DatepickerInput
+                    <DatepickerInput
                         selectedDate={_maxDate}
 
-                        onFinalDateChange={(d) => { }}
-                        onDateChange={(d) => _setMaxDate(d.selectedDate)}
-                        onCalendarDateChange={(d) => { }}
-                        onInputDateChange={(d) => { }}
-                        onDaySelected={(d) => _onDaySelected(d)}
-                        onMonthSelected={(d) => _onMonthSelected(d)}
-                        onYearSelected={(d) => _onYearSelected(d)}
+                        onFinalDateChange={(d) => _setMaxDate(d.selectedDate)}
 
                         minDate={_minDate}
                         maxDate={null}
-                        dateFilter={_dateFilter}
 
                         rangeMode={false}
                         beginDate={null}
@@ -718,15 +713,13 @@ function Display() {
                         disable={_disable}
                         disableCalendar={_disableCalendar}
                         disableInput={_disableInput}
-                        calendarOpenDisplay={_calendarOpenDisplay}
+                        calendarOpenDisplay={'popup'}
                         canCloseCalendar={true}
                         closeAfterSelection={_closeAfterSelection}
 
-                        theme={getTheme(_themeColor)}
-                    ></DatepickerInput> */}
+                    // theme={getTheme(_themeColor)}
+                    ></DatepickerInput>
                 </div>
-            </div>
-            <div>
                 <div>Date filter</div>
                 <ul>
                     <li className="radio">
@@ -762,6 +755,8 @@ function Display() {
                         <label htmlFor="radio-date-filter-none">None</label>
                     </li>
                 </ul>
+            </div>
+            <div className="views">
                 <div>First Day of Week</div>
                 <ul>
                     <li className="radio-weekday">
@@ -911,7 +906,7 @@ function Display() {
                     </li>
                 </ul>
             </div>
-            <div>
+            <div className="displays">
                 <div>Calendar Theme Color:</div>
                 <ul>
                     <li className="radio">
@@ -992,32 +987,75 @@ function Display() {
                     <label htmlFor="close-after-selection-toggle">Close after selection</label>
                 </div>
             </div>
-            <div>
+            <div className="labels">
                 <div>Text and Labels:</div>
-                <div>
-                    <div className="text-field">
-                        <input
-                            type="text"
-                            id="calendar-label-input"
-                            onChange={(e) => _setCalendarLabel(e.target.value)}
-                            value={_calendarLabel}
-                            className={(_calendarLabel && _calendarLabel !== '') ? INPUT_CLASS_FILLED : ''}
-                        />
-                        <label
-                            htmlFor="calendar-label-input"
-                        >Calendar Label:</label>
+                <div className="label-list">
+                    <div>
+                        <div className="text-field">
+                            <input
+                                type="text"
+                                id="single-input-label-input"
+                                onChange={(e) => _setSingleInputLabel(e.target.value)}
+                                value={_singleInputLabel}
+                                className={(_singleInputLabel && _singleInputLabel !== '') ? INPUT_CLASS_FILLED : ''}
+                            />
+                            <label
+                                htmlFor="single-input-label-input"
+                            >Single Input Label:</label>
+                        </div>
+                        <div className="text-field">
+                            <input
+                                type="text"
+                                id="begin-input-label-input"
+                                onChange={(e) => _setBeginInputLabel(e.target.value)}
+                                value={_beginInputLabel}
+                                className={(_beginInputLabel && _beginInputLabel !== '') ? INPUT_CLASS_FILLED : ''}
+                            />
+                            <label
+                                htmlFor="begin-input-label-input"
+                            >Begin Input Label:</label>
+                        </div>
+                        <div className="text-field">
+                            <input
+                                type="text"
+                                id="end-input-label-input"
+                                onChange={(e) => _setEndInputLabel(e.target.value)}
+                                value={_endInputLabel}
+                                className={(_endInputLabel && _endInputLabel !== '') ? INPUT_CLASS_FILLED : ''}
+                            />
+                            <label
+                                htmlFor="end-input-label-input"
+                            >End Input Label:</label>
+                        </div>
                     </div>
-                    <div className="text-field">
-                        <input
-                            type="text"
-                            id="open-calendar-label-input"
-                            onChange={(e) => _setOpenCalendarLabel(e.target.value)}
-                            value={_openCalendarLabel}
-                            className={(_openCalendarLabel && _openCalendarLabel !== '') ? INPUT_CLASS_FILLED : ''}
-                        />
-                        <label
-                            htmlFor="open-calendar-label-input"
-                        >Open Calendar Label:</label>
+                </div>
+                <div>Screenreader Labels:</div>
+                <div className="label-list">
+                    <div>
+                        <div className="text-field">
+                            <input
+                                type="text"
+                                id="calendar-label-input"
+                                onChange={(e) => _setCalendarLabel(e.target.value)}
+                                value={_calendarLabel}
+                                className={(_calendarLabel && _calendarLabel !== '') ? INPUT_CLASS_FILLED : ''}
+                            />
+                            <label
+                                htmlFor="calendar-label-input"
+                            >Calendar Label:</label>
+                        </div>
+                        <div className="text-field">
+                            <input
+                                type="text"
+                                id="open-calendar-label-input"
+                                onChange={(e) => _setOpenCalendarLabel(e.target.value)}
+                                value={_openCalendarLabel}
+                                className={(_openCalendarLabel && _openCalendarLabel !== '') ? INPUT_CLASS_FILLED : ''}
+                            />
+                            <label
+                                htmlFor="open-calendar-label-input"
+                            >Open Calendar Label:</label>
+                        </div>
                     </div>
                     <div>
                         <div className="text-field">
@@ -1133,50 +1171,9 @@ function Display() {
                             >Switch to Multiyear View Label:</label>
                         </div>
                     </div>
-                    <div>
-                        <div className="text-field">
-                            <input
-                                type="text"
-                                id="single-input-label-input"
-                                onChange={(e) => _setSingleInputLabel(e.target.value)}
-                                value={_singleInputLabel}
-                                className={(_singleInputLabel && _singleInputLabel !== '') ? INPUT_CLASS_FILLED : ''}
-                            />
-                            <label
-                                htmlFor="single-input-label-input"
-                            >Single Input Label:</label>
-                        </div>
-                        <div className="text-field">
-                            <input
-                                type="text"
-                                id="begin-input-label-input"
-                                onChange={(e) => _setBeginInputLabel(e.target.value)}
-                                value={_beginInputLabel}
-                                className={(_beginInputLabel && _beginInputLabel !== '') ? INPUT_CLASS_FILLED : ''}
-                            />
-                            <label
-                                htmlFor="begin-input-label-input"
-                            >Begin Input Label:</label>
-                        </div>
-                        <div className="text-field">
-                            <input
-                                type="text"
-                                id="end-input-label-input"
-                                onChange={(e) => _setEndInputLabel(e.target.value)}
-                                value={_endInputLabel}
-                                className={(_endInputLabel && _endInputLabel !== '') ? INPUT_CLASS_FILLED : ''}
-                            />
-                            <label
-                                htmlFor="end-input-label-input"
-                            >End Input Label:</label>
-                        </div>
-                    </div>
-                </div>
-                <div>Screenreader Labels:</div>
-                <div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

@@ -77,13 +77,13 @@ html {
   transition: all .3s;
 }
 
-.field:focus label,
-.field:active label,
-.field:focus-within label,
+.field:focus input:not(:disabled)+label,
+.field:active input:not(:disabled)+label,
+.field:focus-within input:not(:disabled)+label,
 .field input.filled+label,
-.text-field:focus label,
-.text-field:active label,
-.text-field:focus-within label,
+.text-field:focus input:not(:disabled)+label,
+.text-field:active input:not(:disabled)+label,
+.text-field:focus-within input:not(:disabled)+label,
 .text-field input.filled+label {
   bottom: 2.5em;
   font-size: .75em;
@@ -155,8 +155,8 @@ html {
   left: calc(var(--fields-button-width) / 10);
 }
 
-.fields-button:hover::before,
-.fields-button:focus::before {
+button:not(:disabled).fields-button:hover::before,
+button:not(:disabled).fields-button:focus::before {
   position: absolute;
   bottom: -.75em;
   left: -.75em;
@@ -168,9 +168,29 @@ html {
   background: var(--neutral-light);
 }
 
+.field input:disabled+label {
+  transition: none;
+}
+
+.field input:disabled,
+.text-field input:disabled,
+.field input:disabled+label,
+.text-field input:disabled+label {
+  color: var(--neutral);
+}
+
+button:disabled.fields-button span,
+button:disabled.fields-button span::before,
+button:disabled.fields-button span::after {
+  background: transparent;
+}
+
+button:disabled.fields-button::after {
+  border-color: transparent;
+}
+
 .fields>button .toggle {
   position: relative;
-
 }
 
 .toggle input,

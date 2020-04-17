@@ -667,7 +667,8 @@ function Input({ id }: { id: string }) {
                 {!rangeMode ? '' : _renderEndInput()}
                 <button
                     aria-label="Open calendar"
-                    className="fields-button">
+                    className="fields-button"
+                    disabled={disable || disableCalendar}>
                     <span></span>
                 </button>
             </div>

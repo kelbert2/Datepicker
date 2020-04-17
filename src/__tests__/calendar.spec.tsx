@@ -1,15 +1,8 @@
-import React, { useContext, useReducer } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import { render, fireEvent, screen, getByTestId, getByText, queryByText, getByRole, getAllByRole } from '@testing-library/react';
-// import { getByTestId } from '@testing-library/jest-dom/extend-expect';
-import DatepickerInput from "../DatepickerInput";
-import renderer, { ReactTestRenderer, create } from 'react-test-renderer';
-import Datepicker from '../Datepicker';
-import { datepickerContextDefault, DatepickerContext, datepickerReducer, DatepickerContextProvider, InputContextProvider, useDatepickerContext, DateData } from '../DatepickerContext';
+import { fireEvent, getAllByRole } from '@testing-library/react';
+import { DatepickerContextProvider } from '../DatepickerContext';
 import Calendar from '../Calendar';
-import Input from '../Input';
-// import Hello from "..";
-import { renderHook } from '@testing-library/react-hooks';
 import { YEARS_PER_PAGE, euclideanModulo } from '../CalendarUtils';
 
 let container: HTMLDivElement;
@@ -156,7 +149,7 @@ describe("Selected begin and end dates", () => {
         });
     });
 
-  test("Selecting a date that is before the selected begin and end dates sets a new begin date", () => {
+    test("Selecting a date that is before the selected begin and end dates sets a new begin date", () => {
         expect.assertions(5);
 
         let _beginDate = new Date();
@@ -254,7 +247,6 @@ describe("Selected begin but no end date", () => {
         cells.forEach(cell => {
             if (cell.textContent === '4') {
                 afterValue = cell;
-                // fireEvent.click(afterValue);
                 expect(afterValue).toHaveClass("beginRange");
             }
         });
@@ -289,7 +281,6 @@ describe("Selected begin but no end date", () => {
         cells.forEach(cell => {
             if (cell.textContent === '2') {
                 beforeValue = cell;
-                // fireEvent.click(beforeValue);
                 expect(beforeValue).toHaveClass("beginRange");
             } else if (cell.textContent === '3') {
                 withinValue = cell;
@@ -300,8 +291,6 @@ describe("Selected begin but no end date", () => {
                 expect(beforeValue).toHaveClass("beginRange");
                 expect(withinValue).toHaveClass("withinRange");
                 expect(afterValue).toHaveClass("endRange");
-
-                // don't need because can expect these assertions to fire
             }
         });
     });

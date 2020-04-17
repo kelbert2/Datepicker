@@ -1,10 +1,8 @@
 import React, { useContext } from 'react';
 import { VIEW, getMonthNames, getMonth, YEARS_PER_PAGE, getYear, formatDateDisplay, parseStringAsDate, simpleUID, stagnantDate } from './CalendarUtils';
-import { DatepickerThemeStrings, DEFAULT_THEME_STRINGS } from './theming';
-import DatepickerInput from './DatepickerInput';
+import { DatepickerThemeStrings } from './theming';
 
 // Based on: https://github.com/SaturnTeam/saturn-datepicker/tree/master/saturn-datepicker/src/datepicker
-// All IDatepickerContext values will be public and updateable outside except for dispatch
 
 export interface DateData {
     selectedDate: Date | null,

@@ -7,22 +7,22 @@ import Month from './Month';
 import { compareDaysMonthsAndYears, VIEW, getCompareFromView } from './CalendarUtils';
 
 /** Returns a calendar.
- *  @param onFinalDateSelection: Calls with selectedDate, beginDate, and endDate when selected in the most precise enabled view.
+ *  @param onDateSelection: Calls with selectedDate, beginDate, and endDate are selected.
+ *  @param onFinalDateSelection: Calls with selectedDate, beginDate, and endDate are selected in the most precise enabled view.
  *  @param classNames: A string of class(es) to apply to the overarching div.
+ *  @param disableCalendar: 
  */
 export function Calendar(
     {
         onDateSelection = (date: DateData) => { },
         onFinalDateSelection = (date: DateData) => { },
         classNames = '',
-        // context = NIDatepickerContext
         disableCalendar = false
     }: {
         onDateSelection?: (data: DateData) => {} | void,
         onFinalDateSelection?: (data: DateData) => {} | void,
         classNames?: string,
         disableCalendar?: boolean
-        // context: React.Context<IDatepickerContext>
     }) {
 
     const {
@@ -30,8 +30,6 @@ export function Calendar(
         todayDate,
         activeDate,
 
-        onDateChange,
-        onCalendarDateChange,
         onYearSelected,
         onMonthSelected,
         onDaySelected,

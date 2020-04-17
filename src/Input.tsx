@@ -1,18 +1,17 @@
 import React, { useContext, useState, ChangeEvent, useEffect, useLayoutEffect, useRef } from 'react';
 import { DateData, CalendarDisplay, DatepickerContext, InputContext } from './DatepickerContext';
 import Calendar from './Calendar';
-import { compareDaysMonthsAndYears, simpleUID, compareDates, stagnantDate } from './CalendarUtils';
+import { compareDaysMonthsAndYears, compareDates, stagnantDate } from './CalendarUtils';
 
 export type OPEN_STATES = CalendarDisplay | 'close';
 const CALENDAR_CLASS_INLINE = 'inline';
 const CALENDAR_CLASS_POPUP = 'popup';
 const CALENDAR_CLASS_POPUP_LARGE = 'popup-large';
 const INPUT_CLASS_FILLED = 'filled';
-// TODO: blurring or keydowning enter while in end input isn't taking a date
-// TODO: Deleting enddate isn't firing an update event
+// both work
 
-// TODO: When input is deleted, set dates as null
-// TODO: Check if can add spaces to input names - doesn't seem to be registering
+// done last commit.
+// no, it works
 function Input({ id }: { id: string }) {
     const {
         selectedDate,
@@ -294,6 +293,7 @@ function Input({ id }: { id: string }) {
 
     /** On first text input change, update internal state. */
     const _handleBeginInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        console.log("new begin input: " + event.target.value);
         _setBeginInput((event.target.value.length > 0) ? event.target.value : '');
     }
     /** On second text input change, update internal state. */
@@ -308,6 +308,9 @@ function Input({ id }: { id: string }) {
         let select = selectedDate as Date | null, begin = beginDate as Date | null, end = endDate as Date | null;
         if (_beginInput !== '') {
             const date = parseStringToDate(_beginInput);
+            console.log("parsed begin date: ");
+            console.log(date);
+
             if (date != null) {
                 if (selectedDate == null || compareDaysMonthsAndYears(selectedDate, date) !== 0) {
                     dispatch({
@@ -375,14 +378,12 @@ function Input({ id }: { id: string }) {
     }
     /** On blur, format second text input and set selected and end dates. */
     const _onBlurEndInput = () => {
-
+        console.log("== current beginDate: " + beginDate?.getDate());
         // if (!_focusOnCalendar) {
-
-
         let select = selectedDate as Date | null, begin = beginDate as Date | null, end = endDate as Date | null;
         if (_endInput !== '') {
             const date = parseStringToDate(_endInput);
-            console.log("parsed date: ");
+            console.log("parsed end date: ");
             console.log(date);
 
             if (date != null) {
@@ -449,7 +450,7 @@ function Input({ id }: { id: string }) {
     /** Close the calendar if clicked off. */
     const _toggleCalendarOpenClosed = () => {
 
-        // console.log("TOGGLE ====================================================================");
+        // console.log("TOGGLE");
         onInputDateChange({ selectedDate, beginDate, endDate });
         onDateChange({ selectedDate, beginDate, endDate });
 
@@ -513,6 +514,29 @@ function Input({ id }: { id: string }) {
         const { keyCode } = event;
         switch (keyCode) {
             case 13: { // Enter
+                _onBlurBeginInput();
+                _onBlurEndInput();
+                _closeCalendar();
+            }
+        }
+    }
+    /** Handle keydown events when Fields div is in focus. */
+    const _handleKeyDownOverBeginInput = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        const { keyCode } = event;
+        switch (keyCode) {
+            case 13: { // Enter
+                _onBlurBeginInput();
+                _closeCalendar();
+            }
+        }
+    }
+    /** Handle keydown events when Fields div is in focus. */
+    const _handleKeyDownOverEndInput = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        const { keyCode } = event;
+        switch (keyCode) {
+            case 13: { // Enter
+                console.log("== saw enter key over end input");
+                _onBlurEndInput();
                 _closeCalendar();
             }
         }
@@ -596,6 +620,7 @@ function Input({ id }: { id: string }) {
                     disabled={disable || disableInput}
                     onChange={_handleEndInputChange}
                     onBlur={_onBlurEndInput}
+                    onKeyDown={_handleKeyDownOverEndInput}
                     value={_endInput}
                     className={_setInputClass(_endInput !== '')}
                     id={"end-" + id}
@@ -619,7 +644,7 @@ function Input({ id }: { id: string }) {
                 role="button"
                 tabIndex={0}
                 onClick={_toggleCalendarOpenClosed}
-                onKeyDown={_handleKeyDownOverFields}
+                // onKeyDown={_handleKeyDownOverFields}
                 className="fields"
             >
                 <div className="field">
@@ -628,6 +653,7 @@ function Input({ id }: { id: string }) {
                         disabled={disable || disableInput}
                         onChange={_handleBeginInputChange}
                         onBlur={_onBlurBeginInput}
+                        onKeyDown={_handleKeyDownOverBeginInput}
                         value={_beginInput}
                         className={_setInputClass(_beginInput !== '')}
                         id={"begin-" + id}

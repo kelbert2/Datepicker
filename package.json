@@ -30,7 +30,6 @@
     "start": "react-scripts start",
     "build": "rm -rf ./build && rollup -c",
     "test": "jest",
-    "test:watch": "jest --watch",
     "lint": "tslint -c tslint.json --project tsconfig.json",
     "prepare": "npm test && npm lint && npm build",
     "eject": "react-scripts eject"

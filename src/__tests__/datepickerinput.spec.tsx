@@ -1,6 +1,6 @@
 import React, { useContext, useReducer } from 'react';
 import ReactDOM from 'react-dom';
-import { render, fireEvent, screen, getByTestId, getByText, queryByText, getByRole, getAllByRole, getAllByLabelText } from '@testing-library/react';
+import { render, fireEvent, screen, getByTestId, getByText, queryByText, getByRole, getAllByRole, getAllByLabelText, getByLabelText } from '@testing-library/react';
 // import { getByTestId } from '@testing-library/jest-dom/extend-expect';
 import DatepickerInput from "../DatepickerInput";
 import renderer, { ReactTestRenderer, create } from 'react-test-renderer';
@@ -24,31 +24,36 @@ afterEach(() => {
 })
 // TODO: add test: can open calendar
 
-
+const printOutDom = () => getByLabelText(container, /AHHHHHH/i);
 // describe("Selected begin and end dates", () => {
 test("can select begin and end dates", () => {
-    expect.assertions(3);
+    expect.assertions(5);
 
     const today = new Date();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
 
-    function onFinalDateSelection(data: DateData) {
-        console.log("received endate: " + data.endDate?.getDate());
-    }
+    const beginDateString = month + " / 2 / " + year;
+    const endDateString = month + " / 4 / " + year;
+
+    // function onFinalDateSelection(data: DateData) {
+    //     console.log("final date selection fired, endDate: " + data.endDate?.getDate());
+    // }
     ReactDOM.render(
-        <DatepickerInput rangeMode={true} onFinalDateChange={onFinalDateSelection}></DatepickerInput >, container);
+        <DatepickerInput rangeMode={true}></DatepickerInput >,
+        container);
 
     let beginValue: HTMLElement, withinValue: HTMLElement, endValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement;
 
-    let beginInput = getAllByLabelText(container, "Choose a start date")[0];
-    let endInput = getAllByLabelText(container, "end date")[0];
+    let beginInput = getAllByLabelText(container, /Choose a start date/i)[0] as HTMLInputElement;
+    let endInput = getAllByLabelText(container, /end date/i)[0] as HTMLInputElement;
     fireEvent.click(beginInput);
-    // TODO: think the calendar is closing prematurely after beginValue is clicked
 
     let cells = getAllByRole(container, "gridcell");
     cells.forEach(cell => {
         if (cell.textContent === '2') {
             beginValue = cell;
-            fireEvent.click(cell);
+            fireEvent.click(beginValue);
             expect(beginValue).toHaveClass("beginRange");
         } else if (cell.textContent === '3') {
             // afterValue = cell;
@@ -56,56 +61,124 @@ test("can select begin and end dates", () => {
         } else if (cell.textContent === '4') {
             endValue = cell;
             // fireEvent.click(beginValue);
-            fireEvent.click(cell);
+            fireEvent.click(endValue);
 
             fireEvent.click(beginInput); //open calendar again
 
-            console.log("beginInput: " + beginInput.textContent);
-            console.log("end input: " + endInput.textContent);
+            // console.log("beginInput: " + beginInput.textContent);
+            // console.log("end input: " + endInput.textContent);
+
+            // expect(beginValue).toHaveClass("beginRange");
+            // expect(cell).toHaveClass("endRange");
+
+            // expect(beginInput).toHaveTextContent(today.getMonth() + "/2/" + today.getFullYear());
+            // expect(endInput).toHaveTextContent(today.getMonth() + "/4/" + today.getFullYear());
+        }
+    });
+    // inputs not displaying text - are finding them with labels however
+    // console.log("beginInput: " + beginInput.textContent);
+    // console.log("end input: " + endInput.textContent);
+    cells = getAllByRole(container, "gridcell");
+    cells.forEach(cell => {
+        if (cell.textContent === '4') {
+            endValue = cell; // TODO: for some reason need to reset endValue but not beginValue
+            // expect(beginValue).toHaveClass("beginRange");
+            // expect(endValue).toHaveClass("endRange");
 
             expect(beginValue).toHaveClass("beginRange");
-            expect(endValue).toHaveClass("endRange");
+            expect(cell).toHaveClass("endRange");
 
-            expect(beginInput).toHaveTextContent(today.getMonth() + "/2/" + today.getFullYear());
-            expect(endInput).toHaveTextContent(today.getMonth() + "/4/" + today.getFullYear());
-
-
+            expect(beginInput.value).toBe(beginDateString);
+            expect(endInput.value).toBe(endDateString);
         }
-
-
-
-
     });
 });
 
-//     test("can pass begin and end dates", () => {
-//         expect.assertions(4);
+test("can input begin and end dates", () => {
+    expect.assertions(4);
 
-//         let _beginDate = new Date();
-//         let _endDate = new Date();
-//         _beginDate.setDate(2);
-//         _endDate.setDate(4);
-//         ReactDOM.render(
-//             <DatepickerContextProvider props={{ rangeMode: true, beginDate: _beginDate, endDate: _endDate }}>
-//                 < Calendar ></Calendar >
-//             </DatepickerContextProvider >, container);
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
 
-//         let beginValue: HTMLElement, withinValue: HTMLElement, endValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement;
-//         let cells = getAllByRole(container, "gridcell");
-//         cells.forEach(cell => {
-//             if (cell.textContent === '2') {
-//                 beginValue = cell;
-//                 expect(beginValue).toHaveClass("beginRange");
-//             } else if (cell.textContent === '3') {
-//                 withinValue = cell;
-//                 expect(withinValue).toHaveClass("withinRange");
-//             } else if (cell.textContent === '4') {
-//                 endValue = cell;
-//                 expect(beginValue).toHaveClass("beginRange");
-//                 expect(endValue).toHaveClass("endRange");
-//             }
-//         });
-//     });
+    const beginDateString = month + " / 2 / " + year;
+    const endDateString = month + " / 4 / " + year;
+
+    ReactDOM.render(
+        <DatepickerInput rangeMode={true}></DatepickerInput >,
+        container);
+
+    let beginInput = getAllByLabelText(container, /Choose a start date/i)[0] as HTMLInputElement;
+    let endInput = getAllByLabelText(container, /end date/i)[0] as HTMLInputElement;
+    let beginValue: HTMLElement, withinValue: HTMLElement, endValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement;
+
+    fireEvent.change(beginInput, { target: { value: beginDateString } });
+    fireEvent.keyDown(beginInput, { key: 'Enter', code: 'Enter', keyCode: 13 }); // trigger on blur response
+    fireEvent.change(endInput, { target: { value: endDateString } });
+    fireEvent.keyDown(endInput, { key: 'Enter', code: 'Enter', keyCode: 13 }); // trigger on blur response
+    // trigger on blur to update internal values
+    fireEvent.click(beginInput); // open calendar
+
+    // printOutDom();
+
+    let cells = getAllByRole(container, "gridcell");
+    cells.forEach(cell => {
+        if (cell.textContent === '2') {
+            beginValue = cell;
+        } else if (cell.textContent === '4') {
+            expect(beginInput.value).toBe(beginDateString);
+            expect(endInput.value).toBe(endDateString);
+
+            expect(beginValue).toHaveClass("beginRange");
+            expect(cell).toHaveClass("endRange");
+        }
+    });
+});
+
+test("can pass begin and end dates", () => {
+    expect.assertions(6);
+
+    let _beginDate = new Date();
+    let _endDate = new Date();
+    _beginDate.setDate(2);
+    _endDate.setDate(4);
+
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
+
+    const beginDateString = month + " / 2 / " + year;
+    const endDateString = month + " / 4 / " + year;
+
+    ReactDOM.render(
+        <DatepickerInput beginDate={_beginDate} endDate={_endDate} rangeMode={true}></DatepickerInput >,
+        container);
+
+    let beginInput = getAllByLabelText(container, /Choose a start date/i)[0] as HTMLInputElement;
+    let endInput = getAllByLabelText(container, /end date/i)[0] as HTMLInputElement;
+
+    fireEvent.click(beginInput); // open the calendar
+
+
+    let beginValue: HTMLElement, withinValue: HTMLElement, endValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement;
+    let cells = getAllByRole(container, "gridcell");
+    cells.forEach(cell => {
+        if (cell.textContent === '2') {
+            beginValue = cell;
+            expect(beginValue).toHaveClass("beginRange");
+        } else if (cell.textContent === '3') {
+            withinValue = cell;
+            expect(withinValue).toHaveClass("withinRange");
+        } else if (cell.textContent === '4') {
+            endValue = cell;
+            expect(beginValue).toHaveClass("beginRange");
+            expect(endValue).toHaveClass("endRange");
+
+            expect(beginInput.value).toBe(beginDateString);
+            expect(endInput.value).toBe(endDateString);
+        }
+    });
+});
 
 //   test("Selecting a date that is before the selected begin and end dates sets a new begin date", () => {
 //         expect.assertions(5);

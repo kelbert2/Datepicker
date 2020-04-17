@@ -5,8 +5,8 @@ import Input from "./Input";
 import './Datepicker.css';
 import { DEFAULT_THEME_STRINGS, DatepickerThemeStrings, resetTheme, makeDatepickerThemeArrayFromStrings } from "./theming";
 
-// TODO: add support for Moment.js and non-native date adaptors
-// TODO: add in class name, filter object to apply class to dates that support that filter
+// TODO: Big change: add support for Moment.js and non-native date adaptors
+// TODO: Additional Input: {filter, className} pairs that apply a class for dates that pass a certain filter
 // Every input can be changed except the on* functions
 function DatepickerInput({
     selectedDate = null as Date | null,
@@ -259,7 +259,7 @@ function DatepickerInput({
     }, [firstDayOfWeek]);
 
     useEffect(() => {
-        console.log("new mindate value: " + minDate?.getDate());
+        // console.log("new mindate value: " + minDate?.getDate());
         dispatch({
             type: 'set-min-date',
             payload: minDate
@@ -376,7 +376,7 @@ function DatepickerInput({
         });
     }, [disableInput]);
     useEffect(() => {
-        console.log("new calendar open display: " + calendarOpenDisplay)
+        // console.log("new calendar open display: " + calendarOpenDisplay)
         dispatch({
             type: 'set-calendar-open-display',
             payload: calendarOpenDisplay

@@ -293,7 +293,7 @@ describe("Selected begin but no end date", () => {
         });
     });
     test("Selecting a date after a begin date selects the end date", () => {
-        expect.assertions(7);
+        expect.assertions(8);
 
         let _beginDate = new Date();
         let _endDate = new Date();

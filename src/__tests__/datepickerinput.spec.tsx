@@ -398,106 +398,248 @@ describe("Selected end but no begin date", () => {
         });
     });
 
-    //     test("Selecting a date after the end date sets a new end date and sets the previous end date to the begin date", () => {
-    //         expect.assertions(4);
+    test("Selecting a date after the end date sets a new end date and sets the previous end date to the begin date", () => {
+        expect.assertions(8);
 
-    //         let _endDate = new Date();
-    //         _endDate.setDate(2);
+        let _beginDate = new Date();
+        let _endDate = new Date();
+        _beginDate.setDate(2);
+        _endDate.setDate(4);
 
-    //         ReactDOM.render(
-    //             <DatepickerContextProvider props={{ rangeMode: true, endDate: _endDate, beginDate: null }}>
-    //                 < Calendar></Calendar >
-    //             </DatepickerContextProvider >, container);
+        const beginDateString = formatDateDisplay(_beginDate);
+        const endDateString = formatDateDisplay(_endDate);
 
-    //         let withinValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement, afterAfterValue: HTMLElement;
-    //         let cells = getAllByRole(container, "gridcell");
-    //         cells.forEach(cell => {
-    //             if (cell.textContent === '2') {
-    //                 beforeValue = cell;
-    //                 expect(beforeValue).toHaveClass("endRange");
+        let beginValue: HTMLElement, endValue: HTMLElement;
 
-    //             } else if (cell.textContent === '3') {
-    //                 withinValue = cell;
-    //             } else if (cell.textContent === '4') {
-    //                 afterValue = cell;
-    //                 fireEvent.click(afterValue);
+        ReactDOM.render(
+            <DatepickerInput endDate={_beginDate} rangeMode={true}></DatepickerInput >,
+            container);
 
-    //                 expect(beforeValue).toHaveClass("beginRange");
-    //                 expect(withinValue).toHaveClass("withinRange");
-    //                 expect(afterValue).toHaveClass("endRange");
-    //             }
-    //         });
-    //     });
+        let beginInput = getAllByLabelText(container, /Choose a start date/i)[0] as HTMLInputElement;
+        let endInput = getAllByLabelText(container, /end date/i)[0] as HTMLInputElement;
+
+        expect(beginInput.value).toBe("");
+        expect(endInput.value).toBe(beginDateString);
+
+        fireEvent.click(beginInput); // open calendar
+
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                expect(cell).toHaveClass("endRange");
+
+                fireEvent.change(beginInput, { target: { value: endDateString } });
+                fireEvent.keyDown(beginInput, { key: 'Enter', code: 'Enter', keyCode: 13 }); // trigger on blur response to update internal values        
+
+                fireEvent.click(beginInput); // open calendar
+            }
+        });
+
+        cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beginValue = cell;
+                expect(beginValue).toHaveClass("beginRange");
+            } else if (cell.textContent === '4') {
+
+                expect(beginValue).toHaveClass("beginRange");
+                expect(cell).toHaveClass("endRange");
+
+                expect(beginInput.value).toBe(beginDateString);
+                expect(endInput.value).toBe(endDateString);
+            }
+        });
+    });
 });
-// describe("resetting", () => {
-//     test("Selecting the selected begin date resets range selection", () => {
-//         expect.assertions(6);
+describe("resetting", () => {
+    test("Deleting the begin date resets range selection", () => {
+        expect.assertions(8);
 
-//         let _beginDate = new Date();
-//         _beginDate.setDate(2);
-//         let _endDate = new Date();
-//         _endDate.setDate(4);
+        let _beginDate = new Date();
+        let _endDate = new Date();
+        _beginDate.setDate(2);
+        _endDate.setDate(4);
 
-//         ReactDOM.render(
-//             <DatepickerContextProvider props={{ rangeMode: true, beginDate: _beginDate, endDate: _endDate }}>
-//                 < Calendar></Calendar >
-//             </DatepickerContextProvider >, container);
+        const beginDateString = formatDateDisplay(_beginDate);
+        const endDateString = formatDateDisplay(_endDate);
 
-//         let withinValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement, afterAfterValue: HTMLElement;
-//         let cells = getAllByRole(container, "gridcell");
-//         cells.forEach(cell => {
-//             if (cell.textContent === '2') {
-//                 beforeValue = cell;
-//                 expect(beforeValue).toHaveClass("beginRange");
+        let beginValue: HTMLElement, endValue: HTMLElement;
 
-//             } else if (cell.textContent === '3') {
-//                 withinValue = cell;
-//                 expect(withinValue).toHaveClass("withinRange");
-//             } else if (cell.textContent === '4') {
-//                 afterValue = cell;
-//                 expect(afterValue).toHaveClass("endRange");
+        ReactDOM.render(
+            <DatepickerInput beginDate={_beginDate} endDate={_endDate} rangeMode={true}></DatepickerInput >,
+            container);
 
-//                 fireEvent.click(beforeValue);
+        let beginInput = getAllByLabelText(container, /Choose a start date/i)[0] as HTMLInputElement;
+        let endInput = getAllByLabelText(container, /end date/i)[0] as HTMLInputElement;
 
-//                 expect(beforeValue).toHaveClass("beginRange");
-//                 expect(withinValue).not.toHaveClass("withinRange");
-//                 expect(afterValue).not.toHaveClass("endRange");
-//             }
-//         });
-//     });
-//     test("Selecting the selected end date resets range selection", () => {
-//         expect.assertions(6);
+        expect(beginInput.value).toBe(beginDateString);
+        expect(endInput.value).toBe(endDateString);
 
-//         let _beginDate = new Date();
-//         _beginDate.setDate(2);
-//         let _endDate = new Date();
-//         _endDate.setDate(4);
+        fireEvent.click(beginInput); // open calendar
 
-//         ReactDOM.render(
-//             <DatepickerContextProvider props={{ rangeMode: true, beginDate: _beginDate, endDate: _endDate }}>
-//                 < Calendar></Calendar >
-//             </DatepickerContextProvider >, container);
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beginValue = cell;
+                expect(cell).toHaveClass("beginRange");
+            } else if (cell.textContent === '4') {
+                expect(cell).toHaveClass("endRange");
+                fireEvent.change(endInput, { target: { value: "" } });
+                fireEvent.keyDown(endInput, { key: 'Enter', code: 'Enter', keyCode: 13 }); // trigger on blur response to update internal values        
 
-//         let withinValue: HTMLElement, beforeValue: HTMLElement, afterValue: HTMLElement;
-//         let cells = getAllByRole(container, "gridcell");
-//         cells.forEach(cell => {
-//             if (cell.textContent === '2') {
-//                 beforeValue = cell;
-//                 expect(beforeValue).toHaveClass("beginRange");
+                fireEvent.click(beginInput); // open calendar
+            }
+        });
 
-//             } else if (cell.textContent === '3') {
-//                 withinValue = cell;
-//                 expect(withinValue).toHaveClass("withinRange");
-//             } else if (cell.textContent === '4') {
-//                 afterValue = cell;
-//                 expect(afterValue).toHaveClass("endRange");
+        cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beginValue = cell;
+                expect(beginValue).toHaveClass("beginRange");
+            } else if (cell.textContent === '4') {
+                expect(cell).not.toHaveClass("endRange");
 
-//                 fireEvent.click(afterValue);
+                expect(beginInput.value).toBe(beginDateString);
+                expect(endInput.value).toBe("");
+            }
+        });
+    });
+    test("Selecting the begin date resets range selection", () => {
+        expect.assertions(8);
 
-//                 expect(beforeValue).not.toHaveClass("beginRange");
-//                 expect(withinValue).not.toHaveClass("withinRange");
-//                 expect(afterValue).toHaveClass("beginRange");
-//             }
-//         });
-//     });
-// });
+        let _beginDate = new Date();
+        let _endDate = new Date();
+        _beginDate.setDate(2);
+        _endDate.setDate(4);
+
+        const beginDateString = formatDateDisplay(_beginDate);
+        const endDateString = formatDateDisplay(_endDate);
+
+        let beginValue: HTMLElement, endValue: HTMLElement;
+
+        ReactDOM.render(
+            <DatepickerInput beginDate={_beginDate} endDate={_endDate} rangeMode={true}></DatepickerInput >,
+            container);
+
+        let beginInput = getAllByLabelText(container, /Choose a start date/i)[0] as HTMLInputElement;
+        let endInput = getAllByLabelText(container, /end date/i)[0] as HTMLInputElement;
+
+        expect(beginInput.value).toBe(beginDateString);
+        expect(endInput.value).toBe(endDateString);
+
+        fireEvent.click(beginInput); // open calendar
+
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beginValue = cell;
+                expect(cell).toHaveClass("beginRange");
+            } else if (cell.textContent === '4') {
+                expect(cell).toHaveClass("endRange");
+
+                fireEvent.click(beginValue);
+
+                expect(beginValue).toHaveClass("beginRange");
+                expect(cell).not.toHaveClass("endRange");
+
+                expect(beginInput.value).toBe(beginDateString);
+                expect(endInput.value).toBe("");
+            }
+        });
+    });
+    test("Deleting the end date resets range selection", () => {
+        expect.assertions(8);
+
+        let _beginDate = new Date();
+        let _endDate = new Date();
+        _beginDate.setDate(2);
+        _endDate.setDate(4);
+
+        const beginDateString = formatDateDisplay(_beginDate);
+        const endDateString = formatDateDisplay(_endDate);
+
+        let beginValue: HTMLElement, endValue: HTMLElement;
+
+        ReactDOM.render(
+            <DatepickerInput beginDate={_beginDate} endDate={_endDate} rangeMode={true}></DatepickerInput >,
+            container);
+
+        let beginInput = getAllByLabelText(container, /Choose a start date/i)[0] as HTMLInputElement;
+        let endInput = getAllByLabelText(container, /end date/i)[0] as HTMLInputElement;
+
+        expect(beginInput.value).toBe(beginDateString);
+        expect(endInput.value).toBe(endDateString);
+
+        fireEvent.click(beginInput); // open calendar
+
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beginValue = cell;
+                expect(cell).toHaveClass("beginRange");
+            } else if (cell.textContent === '4') {
+                expect(cell).toHaveClass("endRange");
+                fireEvent.change(beginInput, { target: { value: "" } });
+                fireEvent.keyDown(beginInput, { key: 'Enter', code: 'Enter', keyCode: 13 }); // trigger on blur response to update internal values        
+
+                fireEvent.click(beginInput); // open calendar
+            }
+        });
+
+        cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beginValue = cell;
+                expect(beginValue).not.toHaveClass("beginRange");
+            } else if (cell.textContent === '4') {
+                expect(cell).toHaveClass("endRange");
+
+                expect(beginInput.value).toBe("");
+                expect(endInput.value).toBe(endDateString);
+            }
+        });
+    });
+    test("Selecting the end date resets range selection", () => {
+        expect.assertions(8);
+
+        let _beginDate = new Date();
+        let _endDate = new Date();
+        _beginDate.setDate(2);
+        _endDate.setDate(4);
+
+        const beginDateString = formatDateDisplay(_beginDate);
+        const endDateString = formatDateDisplay(_endDate);
+
+        let beginValue: HTMLElement, endValue: HTMLElement;
+
+        ReactDOM.render(
+            <DatepickerInput beginDate={_beginDate} endDate={_endDate} rangeMode={true}></DatepickerInput >,
+            container);
+
+        let beginInput = getAllByLabelText(container, /Choose a start date/i)[0] as HTMLInputElement;
+        let endInput = getAllByLabelText(container, /end date/i)[0] as HTMLInputElement;
+
+        expect(beginInput.value).toBe(beginDateString);
+        expect(endInput.value).toBe(endDateString);
+
+        fireEvent.click(beginInput); // open calendar
+
+        let cells = getAllByRole(container, "gridcell");
+        cells.forEach(cell => {
+            if (cell.textContent === '2') {
+                beginValue = cell;
+                expect(cell).toHaveClass("beginRange");
+            } else if (cell.textContent === '4') {
+                expect(cell).toHaveClass("endRange");
+
+                fireEvent.click(cell);
+
+                expect(beginValue).not.toHaveClass("beginRange");
+                expect(cell).toHaveClass("beginRange");
+
+                expect(beginInput.value).toBe(endDateString);
+                expect(endInput.value).toBe("");
+            }
+        });
+    });
+});

@@ -75,10 +75,6 @@ function Input({ id }: { id: string }) {
     const [_focusOnCalendar, _setFocusOnCalendar] = useState(false);
     const [_focusOnInput, _setFocusOnInput] = useState(false);
 
-    useEffect(() => {
-        console.log("New cal open display seen in context: " + calendarOpenDisplay);
-    }, [calendarOpenDisplay]);
-
     /** Update Calendar open status if allowances change. */
     // TODO: Think harder about this. May want to keep a prev can close calendar value so will automatically open if it cannot be closed
     useEffect(() => {
@@ -311,7 +307,11 @@ function Input({ id }: { id: string }) {
             console.log("parsed begin date: ");
             console.log(date);
 
-            if (date != null) {
+            if ((date != null)
+                && (dateFilter(date)
+                    && (!minDate || (minDate && compareDaysMonthsAndYears(date, minDate) >= 0)
+                        && (!maxDate || (maxDate && compareDaysMonthsAndYears(date, maxDate) < 0))))) {
+
                 if (selectedDate == null || compareDaysMonthsAndYears(selectedDate, date) !== 0) {
                     dispatch({
                         type: 'set-selected-date',
@@ -386,7 +386,11 @@ function Input({ id }: { id: string }) {
             console.log("parsed end date: ");
             console.log(date);
 
-            if (date != null) {
+            if ((date != null)
+                && (dateFilter(date)
+                    && (!minDate || (minDate && compareDaysMonthsAndYears(date, minDate) >= 0)
+                        && (!maxDate || (maxDate && compareDaysMonthsAndYears(date, maxDate) < 0))))) {
+
                 if (selectedDate == null || compareDaysMonthsAndYears(selectedDate, date) !== 0) {
                     dispatch({
                         type: 'set-selected-date',

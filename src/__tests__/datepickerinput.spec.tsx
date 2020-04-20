@@ -1,16 +1,8 @@
 import React, { useContext, useReducer } from 'react';
 import ReactDOM from 'react-dom';
-import { render, fireEvent, screen, getByTestId, getByText, queryByText, getByRole, getAllByRole, getAllByLabelText, getByLabelText } from '@testing-library/react';
-// import { getByTestId } from '@testing-library/jest-dom/extend-expect';
+import { fireEvent, getAllByRole, getAllByLabelText, getByLabelText } from '@testing-library/react';
 import DatepickerInput from "../DatepickerInput";
-import renderer, { ReactTestRenderer, create } from 'react-test-renderer';
-import Datepicker from '../Datepicker';
-import { datepickerContextDefault, DatepickerContext, datepickerReducer, DatepickerContextProvider, InputContextProvider, useDatepickerContext, DateData } from '../DatepickerContext';
-import Calendar from '../Calendar';
-import Input from '../Input';
-// import Hello from "..";
-import { renderHook } from '@testing-library/react-hooks';
-import { YEARS_PER_PAGE, euclideanModulo, formatDateDisplay } from '../CalendarUtils';
+import { formatDateDisplay } from '../CalendarUtils';
 
 let container: HTMLDivElement;
 
@@ -21,10 +13,10 @@ beforeEach(() => {
 
 afterEach(() => {
     document.body.removeChild(container);
-})
-// TODO: add test: can open calendar
+});
 
-const printOutDom = () => getByLabelText(container, /AHHHHHH/i);
+// const printOutDom = () => getByLabelText(container, /AHHHHHH/i);
+
 describe("Selected begin and end dates", () => {
     test("can select begin and end dates", () => {
         expect.assertions(5);

@@ -259,7 +259,7 @@ function DatepickerInput({
     }, [firstDayOfWeek]);
 
     useEffect(() => {
-        // console.log("new mindate value: " + minDate?.getDate());
+        console.log("new mindate value: " + minDate?.getDate());
         dispatch({
             type: 'set-min-date',
             payload: minDate

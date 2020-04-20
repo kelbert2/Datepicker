@@ -258,7 +258,6 @@ export function CalendarBody(
             }
             if (endDate && compare(endDate, cell.value) === 0) {
                 // if is the endDate
-                console.log("Found enddate cell in CalendarBody styling for: " + cell.value.getDate());
                 styles.push(endRangeClass);
 
                 if (!beginDate || compare(beginDate, endDate) === 0) {

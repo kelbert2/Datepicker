@@ -32,7 +32,8 @@ export type CalendarDisplay = 'popup' | 'popup-large' | 'inline';
  * @param minDate: Minimum selectable date, used for setting a floor.
  * @param maxDate: Maximum selectable date, used for setting a ceiling.
  * @param dateFilter: Filter that dates must pass through in order to be selectable (ex: weekdays only).
- 
+ * @param dateFilterTestInputs: Inputs for dateFilter with which to register that dateFilter has changed.
+ * 
  * @param rangeMode: Whether the user can select a range of dates or just a single date.
  * @param beginDate: Starting date used when rangeMode is true.
  * @param endDate: End date used when rangeMode is true.
@@ -103,6 +104,7 @@ export interface IDatepickerContext {
     minDate: Date | null,
     maxDate: Date | null,
     dateFilter: (date: Date | null) => boolean,
+    dateFilterTestInputs: Date[],
 
     rangeMode: boolean,
     beginDate: Date | null,
@@ -185,6 +187,7 @@ export const datepickerContextDefault = {
     minDate: null as Date | null,
     maxDate: null as Date | null,
     dateFilter: (date: Date | null) => true,
+    dateFilterTestInputs: [] as Date[],
 
     rangeMode: false,
     beginDate: null as Date | null,
@@ -391,7 +394,6 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
             return { ...datepickerContextDefault, dispatch: state.dispatch };
 
         case "set-dates":
-            console.log("setting new dates");
             return { ...state, selectedDate: action.payload.selectedDate, beginDate: action.payload.beginDate, endDate: action.payload.endDate };
         case "set-selected-date":
             return { ...state, selectedDate: action.payload };
@@ -426,6 +428,8 @@ export const datepickerReducer = (state: IDatepickerContext, action: IAction): I
             return { ...state, maxDate: action.payload };
         case "set-date-filter":
             return { ...state, dateFilter: action.payload };
+        case "set-date-filter-test-inputs":
+            return { ...state, dateFilterTestInputs: action.payload };
 
         case "set-range-mode":
             return { ...state, rangeMode: action.payload };

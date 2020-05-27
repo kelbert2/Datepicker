@@ -78,7 +78,7 @@ function Input({ id }: { id: string }) {
     /** Update Calendar open status if allowances change. */
     // TODO: Think harder about this. May want to keep a prev can close calendar value so will automatically open if it cannot be closed
     useEffect(() => {
-        console.log("open status allowances changed");
+        // console.log("open status allowances changed");
         if ((disable || disableCalendar) && canCloseCalendar) {
             // If calendar is disabled and can close it, close it.
             _setCalendarDisplay('close');
@@ -259,7 +259,25 @@ function Input({ id }: { id: string }) {
             }
         }
     }, [dateFilter, beginDate, dispatch, endDate, rangeMode, selectedDate, onInputDateChange, onDateChange]);
+    /** On beginDate change, check if need to switch with endDate. */
+    // unneeded
+    // useEffect(() => {
+    //     if (beginDate && endDate
+    //         && (compareDaysMonthsAndYears(beginDate, endDate) > 0
+    //             || compareDaysMonthsAndYears(endDate, beginDate) < 0)) {
+    //         const prevBeginDate = beginDate;
+    //         dispatch({
+    //             type: 'set-begin-date',
+    //             payload: endDate
+    //         });
+    //         dispatch({
+    //             type: 'set-end-date',
+    //             payload: prevBeginDate
+    //         });
+    //     }
+    // }, [beginDate, endDate]);
 
+    // TODO: on dateFilterTestInput change, check if should update dateFilter and, from there, the selected dates
     /** Update first text input display with selected date changes. */
     useLayoutEffect(() => {
         if (!rangeMode) {
@@ -267,29 +285,25 @@ function Input({ id }: { id: string }) {
         }
     }, [selectedDate, rangeMode, displayDateAsString]);
 
-    useEffect(() => {
-        console.log("Saw begindate change!: " + beginDate?.getDate());
-    }, [beginDate]);
-
     /** Update first text input display with begin date changes. */
     // TODO: Should this have displayDateAsString(stagnantDate) instead?
     useLayoutEffect(() => {
         if (rangeMode) {
-            console.log("Setting begin input with: " + beginDate?.getDate());
+            // console.log("Setting begin input with: " + beginDate?.getDate());
             _setBeginInput(beginDate ? displayDateAsString(beginDate) : '');
         }
     }, [beginDate, rangeMode, displayDateAsString]);
     /** Update second text input display with end date changes. */
     useLayoutEffect(() => {
         if (rangeMode) {
-            console.log("Setting end input with: " + endDate?.getDate());
+            // console.log("Setting end input with: " + endDate?.getDate());
             _setEndInput(endDate ? displayDateAsString(endDate) : '');
         }
     }, [endDate, rangeMode, displayDateAsString]);
 
     /** On first text input change, update internal state. */
     const _handleBeginInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        console.log("new begin input: " + event.target.value);
+        // console.log("new begin input: " + event.target.value);
         _setBeginInput((event.target.value.length > 0) ? event.target.value : '');
     }
     /** On second text input change, update internal state. */
@@ -299,13 +313,13 @@ function Input({ id }: { id: string }) {
 
     /** On blur, format first text input and set selected and begin dates. */
     const _onBlurBeginInput = () => {
-        console.log("blurring begin input");
+        // console.log("blurring begin input");
         // if (!_focusOnCalendar) {
         let select = selectedDate as Date | null, begin = beginDate as Date | null, end = endDate as Date | null;
         if (_beginInput !== '') {
             const date = parseStringToDate(_beginInput);
-            console.log("parsed begin date: ");
-            console.log(date);
+            // console.log("parsed begin date: ");
+            // console.log(date);
 
             if ((date != null)
                 && (dateFilter(date)
@@ -378,13 +392,13 @@ function Input({ id }: { id: string }) {
     }
     /** On blur, format second text input and set selected and end dates. */
     const _onBlurEndInput = () => {
-        console.log("== current beginDate: " + beginDate?.getDate());
+        // console.log("== current beginDate: " + beginDate?.getDate());
         // if (!_focusOnCalendar) {
         let select = selectedDate as Date | null, begin = beginDate as Date | null, end = endDate as Date | null;
         if (_endInput !== '') {
             const date = parseStringToDate(_endInput);
-            console.log("parsed end date: ");
-            console.log(date);
+            // console.log("parsed end date: ");
+            // console.log(date);
 
             if ((date != null)
                 && (dateFilter(date)
@@ -539,7 +553,7 @@ function Input({ id }: { id: string }) {
         const { keyCode } = event;
         switch (keyCode) {
             case 13: { // Enter
-                console.log("== saw enter key over end input");
+                // console.log("== saw enter key over end input");
                 _onBlurEndInput();
                 _closeCalendar();
             }
@@ -558,8 +572,8 @@ function Input({ id }: { id: string }) {
     }
     /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
     const _handleFinalDateSelectionFromCalendar = (data: DateData) => {
-        console.log("final date change from calendar");
-        console.log("enddate: " + data.endDate?.getDate());
+        // console.log("final date change from calendar");
+        // console.log("enddate: " + data.endDate?.getDate());
 
         onFinalDateChange(data);
 

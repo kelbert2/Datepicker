@@ -108,13 +108,13 @@ function Display() {
 
     // to disregard any beginDate with no endDate selections
     const _onFinalDateChange = (d: DateData) => {
-        console.log("received final date from calendar");
+        // console.log("received final date from calendar");
         // _setBeginDate(d.beginDate);
         // _setEndDate(d.endDate);
         // _setSelectedDate(d.selectedDate);
     }
     const _onDateChange = (d: DateData) => {
-        console.log("date change");
+        // console.log("date change");
         _setBeginDate(d.beginDate);
         _setEndDate(d.endDate);
         _setSelectedDate(d.selectedDate);
@@ -203,7 +203,7 @@ function Display() {
         // _setDisableInput(disable);
     }
     const _setStartingView = (view: VIEW) => {
-        console.log("received click from: " + view);
+        // console.log("received click from: " + view);
         _setStartView(view);
     }
 
@@ -311,7 +311,7 @@ function Display() {
 
     /** Close the calendar if clicked off. */
     const _handleNativeNonCalendarClick = () => {
-        console.log("Handling non calendar click");
+        // console.log("Handling non calendar click");
         // Deal with selected, begin, and end values.
         if (!_calendarOpen) {
             if (!_disable && !_disableCalendar) {
@@ -349,21 +349,21 @@ function Display() {
     }
     /** Determine if calendar display closes after precise selected date is chosen from the calendar. */
     const _handleNativeFinalDateSelectionFromCalendar = (data: DateData) => {
-        console.log("received final date change from calendar.");
+        // console.log("received final date change from calendar.");
 
         _setSelectedDate(data.selectedDate);
         _setBeginDate(data.beginDate);
         _setEndDate(data.endDate);
 
-        console.log(data);
+        // console.log(data);
 
         if (_closeAfterSelection && _canCloseCalendar) {
             _setCalendarOpen(false);
         }
     }
     const _handleDateSelectionFromCalendar = (data: DateData) => {
-        console.log("received date change from calendar.");
-        console.log(data);
+        // console.log("received date change from calendar.");
+        // console.log(data);
     }
 
     // Input Options ========================================================

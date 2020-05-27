@@ -105,6 +105,7 @@ function DatepickerInput({
         minDate,
         maxDate,
         dateFilter,
+        dateFilterTestInputs,
 
         rangeMode,
         beginDate,
@@ -165,16 +166,9 @@ function DatepickerInput({
 
     let [inputState, inputDispatch] = React.useReducer(inputReducer, inputProps);
 
-    // Causes too many renders when format functions are not supplied, as the Object.is comparator doesn't work on functions
-    // Because of course you can't compare two functions unless you add inputs and see if the outputs differ, duh.
-    // React uses Object.is to compare in order to determine when to re-render
+    /* Update values on input changes */
+    // React uses Object.is to compare in order to determine when to re-render.
 
-    useEffect(() => {
-        dispatch({
-            type: 'set-selected-date',
-            payload: selectedDate
-        });
-    }, [selectedDate]);
 
     // as use effects, all of these are emitting on object mount
 
@@ -258,19 +252,100 @@ function DatepickerInput({
         });
     }, [firstDayOfWeek]);
 
+    /* Update on minDate. */
+    const prevMinDate = useRef(minDate);
     useEffect(() => {
-        console.log("new mindate value: " + minDate?.getDate());
-        dispatch({
-            type: 'set-min-date',
-            payload: minDate
-        });
-    }, [minDate]);
+        if (prevMinDate.current != minDate) {
+            dispatch({
+                type: 'set-min-date',
+                payload: minDate
+            });
+            if (minDate) {
+                // If selected date is less than the minimum, make it the minimum
+                if (selectedDate && compareDaysMonthsAndYears(selectedDate, minDate) < 0) {
+                    dispatch({
+                        type: 'set-selected-date',
+                        payload: minDate
+                    });
+                }
+                if (beginDate && compareDaysMonthsAndYears(beginDate, minDate) < 0) {
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: minDate
+                    });
+                }
+                if (endDate && compareDaysMonthsAndYears(endDate, minDate) < 0) {
+                    dispatch({
+                        type: 'set-end-date',
+                        payload: minDate
+                    });
+                }
+            }
+        }
+        // TODO: see if would be better to check in input and update if see minDate change
+        // updateSelectedDatesOnMinDateChange(); // already doing in Input
+    }, [minDate, selectedDate, beginDate, endDate]);
+
+    /* Update on maxDate. */
+    const prevMaxDate = useRef(maxDate);
     useEffect(() => {
-        dispatch({
-            type: 'set-max-date',
-            payload: maxDate
-        });
-    }, [maxDate]);
+        if (prevMaxDate.current != maxDate) {
+            dispatch({
+                type: 'set-max-date',
+                payload: maxDate
+            });
+            // If selected date is greater than the maximum, make it the maximum
+            if (maxDate) {
+                if (selectedDate && compareDaysMonthsAndYears(selectedDate, maxDate) > 0) {
+                    dispatch({
+                        type: 'set-selected-date',
+                        payload: maxDate
+                    });
+                }
+                if (beginDate && compareDaysMonthsAndYears(beginDate, maxDate) > 0) {
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: maxDate
+                    });
+                }
+                if (endDate && compareDaysMonthsAndYears(endDate, maxDate) > 0) {
+                    dispatch({
+                        type: 'set-end-date',
+                        payload: maxDate
+                    });
+                }
+            }
+        }
+    }, [maxDate, selectedDate, beginDate, endDate]);
+
+    /* Update dateFilterTestInputs */
+    /** Compare dateFilterTestInputs array to previously stored version. */
+    const prevDateFilterTestInputs = useRef(dateFilterTestInputs);
+    const differenceInDateFilterTestInputs = useCallback(() => {
+        if (prevDateFilterTestInputs.current.length !== dateFilterTestInputs.length) {
+            return true;
+        }
+        for (let i = 0; i < dateFilterTestInputs.length; i++) {
+            if (i < prevDateFilterTestInputs.current.length) {
+                if (prevDateFilterTestInputs.current[i] !== dateFilterTestInputs[i]) return true;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }, [dateFilterTestInputs, prevDateFilterTestInputs]);
+    useEffect(() => {
+        if (differenceInDateFilterTestInputs()) {
+            // console.log(differenceInDateFilterTestInputs());
+            dispatch({
+                type: 'set-date-filter-test-inputs',
+                payload: dateFilterTestInputs
+            });
+            prevDateFilterTestInputs.current = dateFilterTestInputs;
+        }
+    }, [differenceInDateFilterTestInputs(), dateFilterTestInputs]);
+
+    /* Update dateFilter */
 
     /** Accounting for date filter changes while relying on the notion that the date filter will be different given user inputs, dateFilterTestInputs. */
     const testDateFilter = useCallback(() => {
@@ -280,23 +355,24 @@ function DatepickerInput({
         }
         return ret;
     }, [dateFilterTestInputs, dateFilter]);
-
     const prevDateFilterResults = useRef(testDateFilter());
-    const differenceInDateFilter = () => {
+    const differenceInDateFilter = useCallback(() => {
         for (let i = 0; i < dateFilterTestInputs.length; i++) {
             if (dateFilter(dateFilterTestInputs[i]) !== prevDateFilterResults.current[i]) {
                 return true;
             }
         }
         return false;
-    }
+    }, [dateFilterTestInputs, dateFilter]);
 
-    const prevCompareDateFilter = useRef(differenceInDateFilter());
+    // const prevCompareDateFilter = useRef(differenceInDateFilter());
     useEffect(() => {
         // console.log("got new datefilter");
-        const compare = differenceInDateFilter();
-        if (prevCompareDateFilter.current !== compare) {
+        //  const compare = differenceInDateFilter();
+        // if (prevCompareDateFilter.current !== compare) {
+        if (differenceInDateFilter()) {
             let res = testDateFilter();
+            // TODO: could update prevDateFilterResults in differenceInDateFilter()
             // console.log(res);
             // if (res !== prevDateFilterResults.current) {
             // console.log("date filter changed");
@@ -309,12 +385,58 @@ function DatepickerInput({
                 type: 'set-date-filter',
                 payload: dateFilter
             });
+            // updateSelectedDatesOnDateFilterChange();
             prevDateFilterResults.current = res;
-            prevCompareDateFilter.current = compare;
+            // prevCompareDateFilter.current = compare;
             // console.log(prevDateFilterResults.current);
-        }
-    }, [differenceInDateFilter(), testDateFilter, dateFilter]);
 
+            // Update selections to ensure they are allowed under the new date filter. TODO: check if would be better to do elsewhere.
+            if (selectedDate && !dateFilter(selectedDate)) {
+                dispatch({
+                    type: 'set-selected-date',
+                    payload: null
+                });
+            }
+            if (beginDate && !dateFilter(beginDate)) {
+                dispatch({
+                    type: 'set-begin-date',
+                    payload: null
+                });
+            }
+            if (endDate && !dateFilter(endDate)) {
+                // console.log("End date resetting to null");
+                // console.log("endDate: " + endDate?.getDate() + " and " + dateFilter(endDate));
+                dispatch({
+                    type: 'set-end-date',
+                    payload: null
+                });
+            }
+        }
+    }, [differenceInDateFilter(), testDateFilter, dateFilter, selectedDate, beginDate, endDate]);
+
+    /* Update selectedDate. */
+    const selectableDate = useCallback((date: Date | null) => {
+        if (!date) return false;
+        if (dateFilter(date) && (!minDate || compareDaysMonthsAndYears(date, minDate) > -1)
+            && (!maxDate || compareDaysMonthsAndYears(date, maxDate) < 1)) {
+            return true;
+        }
+        return false;
+    }, [differenceInDateFilter(), minDate, maxDate]);
+
+    useEffect(() => {
+        if (selectableDate(selectedDate)) {
+            dispatch({
+                type: 'set-selected-date',
+                payload: selectedDate
+            });
+            if (selectedDate) {
+
+            }
+        }
+    }, [selectedDate]);
+
+    /* Update rangeMode. */
     useEffect(() => {
         dispatch({
             type: 'set-range-mode',
@@ -322,21 +444,92 @@ function DatepickerInput({
         });
     }, [rangeMode]);
 
-    // const prevBeginDate = useRef(beginDate);
+    /* Update beginDate. */
+    const prevBeginDate = useRef(beginDate);
     useEffect(() => {
-        // if (prevBeginDate.current != beginDate) {
-        dispatch({
-            type: 'set-begin-date',
-            payload: beginDate
-        });
-        // }
-    }, [beginDate]);
+        if (prevBeginDate.current != beginDate) {
+            if (beginDate && dateFilter(beginDate)) {
+                // beginDate exists and passes through the dateFilter
+                if (!minDate || compareDaysMonthsAndYears(beginDate, minDate) > -1) {
+                    // beginDate is at or after the minDate
+                    if (!maxDate || compareDaysMonthsAndYears(beginDate, maxDate) < 1) {
+                        // beginDate is at or before the maxDate
+                        dispatch({
+                            type: 'set-begin-date',
+                            payload: beginDate
+                        });
+                        prevBeginDate.current = beginDate;
+                    } else {
+                        // attempted beginDate was after the maxDate
+                        dispatch({
+                            type: 'set-begin-date',
+                            payload: maxDate
+                        });
+                        prevBeginDate.current = maxDate;
+                    }
+                } else {
+                    // attempted beginDate was before the minDate
+                    dispatch({
+                        type: 'set-begin-date',
+                        payload: minDate
+                    });
+                    prevBeginDate.current = minDate;
+                }
+            } else {
+                // beginDate is null or it did not pass the dateFilter
+                dispatch({
+                    type: 'set-begin-date',
+                    payload: null
+                });
+                prevBeginDate.current = null;
+            }
+        }
+    }, [beginDate, minDate, maxDate, differenceInDateFilter()]);
+
+    /* Update endDate. */
+    const prevEndDate = useRef(endDate);
     useEffect(() => {
-        dispatch({
-            type: 'set-end-date',
-            payload: endDate
-        });
-    }, [endDate]);
+        // console.log("running endDate effect: " + differenceInDateFilterTestInputs());
+        if (prevEndDate.current !== endDate) {
+            //  console.log("new endDate seen: " + endDate?.getDate());
+            if (endDate && dateFilter(endDate)) {
+                // endDate exists and passes through the dateFilter
+                //  console.log("endDate passed date filter");
+                if (!minDate || compareDaysMonthsAndYears(endDate, minDate) > -1) {
+                    // endDate is at or after the minDate
+                    if (!maxDate || compareDaysMonthsAndYears(endDate, maxDate) < 1) {
+                        // endDate is at or before the maxDate
+                        dispatch({
+                            type: 'set-end-date',
+                            payload: endDate
+                        });
+                        prevEndDate.current = endDate;
+                    } else {
+                        // attempted endDate was after the maxDate
+                        dispatch({
+                            type: 'set-end-date',
+                            payload: maxDate
+                        });
+                        prevEndDate.current = maxDate;
+                    }
+                } else {
+                    // attempted endDate was before the minDate
+                    dispatch({
+                        type: 'set-end-date',
+                        payload: minDate
+                    });
+                    prevEndDate.current = minDate;
+                }
+            } else {
+                // endDate is null or it did not pass the dateFilter
+                dispatch({
+                    type: 'set-end-date',
+                    payload: null
+                });
+                prevEndDate.current = null;
+            }
+        }
+    }, [endDate, minDate, maxDate, differenceInDateFilter()]);
 
     useEffect(() => {
         dispatch({

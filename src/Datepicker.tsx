@@ -138,6 +138,7 @@ function Datepicker({
 
     let [state, dispatch] = React.useReducer(datepickerReducer, props);
 
+    /* Update values on input changes: */
     useEffect(() => {
         dispatch({
             type: 'set-selected-date',

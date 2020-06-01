@@ -643,6 +643,7 @@ describe("Changing views", () => {
             expect(cells[15]).toHaveTextContent(yearRange[2]);
         }
     });
+
     test("Disabling the year view opens in month", () => {
         expect.assertions(6);
 
@@ -719,6 +720,52 @@ describe("Changing views", () => {
         cells = getAllByRole("gridcell");
         expect(cells.length).toBeGreaterThan(27);
     });
+
+    test("Changing the first day of the week shifts days", () => {
+        expect.assertions(4);
+
+        const { getAllByRole, getByLabelText, rerender } = render(
+            <DatepickerInput firstDayOfWeek={0}></DatepickerInput>
+        );
+
+        let beginInput = getByLabelText(/Choose a date/i) as HTMLInputElement;
+        fireEvent.click(beginInput);
+
+        let weekHeader = getAllByRole("columnheader") as HTMLTableHeaderCellElement[]; // th, will also include the th spacer
+        let secondRow = getAllByRole("row")[3] as HTMLTableRowElement; // as the first row can be funky with the offset
+        let eighthStartingIndex = -1; // will definitely be in the second row
+
+        expect(weekHeader[1]).toHaveTextContent("M"); // because Sunday and Saturday are both S by default
+        for (let i = 0; i < secondRow.children.length; i++) {
+            let cell = secondRow.children[i] as HTMLTableCellElement;
+            console.log("seeing: " + cell.textContent + " at " + i);
+            if (cell.textContent === '8') {
+                // is definitely somewhere in the second row
+                eighthStartingIndex = i;
+            }
+        }
+        console.log("starting index: " + eighthStartingIndex);
+        expect(eighthStartingIndex).not.toBe(-1);
+
+        rerender(
+            <DatepickerInput firstDayOfWeek={3}></DatepickerInput>
+        );
+
+        weekHeader = getAllByRole("columnheader") as HTMLTableHeaderCellElement[];
+        secondRow = getAllByRole("row")[3] as HTMLTableRowElement;
+        let eighthShiftedIndex = -1;
+
+        expect(weekHeader[0]).toHaveTextContent("W"); // column headers should have shifted
+        for (let i = 0; i < secondRow.children.length; i++) {
+            let cell = secondRow.children[i] as HTMLTableCellElement;
+            console.log("seeing: " + cell.textContent + " at " + i);
+            if (cell.textContent === '8') {
+                eighthShiftedIndex = i;
+            }
+        }
+        console.log("shifted index: " + eighthShiftedIndex);
+        expect(eighthShiftedIndex).toBe((eighthStartingIndex + 4) % 7); // days should have shifted
+    });
 });
 
 
@@ -727,7 +774,6 @@ describe("Changing labels", () => {
 });
 // TODO:
 // Views
-// Can change first day of the week
 // Can disable input
 // Can disable Calendar
 // Can disable both calendar and input
